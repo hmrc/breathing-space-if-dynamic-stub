@@ -1,13 +1,13 @@
 import play.core.PlayVersion.current
-import play.sbt.PlayImport._
-import sbt.Keys.libraryDependencies
 import sbt._
 
-object AppDependencies {
+object Dependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-backend-play-27"  % "2.25.0",
-    "uk.gov.hmrc"             %% "simple-reactivemongo"       % "7.30.0-play-27"
+    "uk.gov.hmrc"   %% "bootstrap-backend-play-27" % "2.25.0",
+    "org.typelevel" %% "cats-core"                 % "2.2.0",
+    "com.beachape"  %% "enumeratum"                % "1.6.1",
+    "uk.gov.hmrc"   %% "simple-reactivemongo"      % "7.30.0-play-27"
   )
 
   val test = Seq(
