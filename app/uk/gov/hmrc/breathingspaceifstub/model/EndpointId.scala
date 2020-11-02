@@ -22,12 +22,11 @@ sealed trait EndpointId extends EnumEntry
 
 object EndpointId extends Enum[EndpointId] {
 
-  case object BS_DeleteAll_DELETE extends EndpointId
-
-  case object BS_DeleteIndividual_DELETE extends EndpointId
-  case object BS_AddIndividual_POST extends EndpointId
-  case object BS_AddIndividuals_POST extends EndpointId
-  case object BS_UpdateIndividual_PUT extends EndpointId
+  case object BS_IndividualAll_DELETE extends EndpointId
+  case object BS_Individual_DELETE extends EndpointId
+  case object BS_Individual_POST extends EndpointId
+  case object BS_Individuals_POST extends EndpointId
+  case object BS_Individual_PUT extends EndpointId
 
   case object BS_Detail0_GET extends EndpointId
   case object BS_Detail1_GET extends EndpointId

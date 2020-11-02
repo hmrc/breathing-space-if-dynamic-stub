@@ -50,7 +50,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       Index(Seq("periods.periodID" -> IndexType.Ascending), name = Some("PeriodId"))
     )
 
-  def addIndividuals(individuals: List[Individual]): AsyncResponse[BulkWriteResult] =
+  def addIndividuals(individuals: Individuals): AsyncResponse[BulkWriteResult] =
     bulkInsert(individuals)
       .map(handleBulkWriteResult)
       .recover(handleDuplicateKeyError[BulkWriteResult])
@@ -59,6 +59,12 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
     insert(individual)
       .map(handleWriteResult(_, _ => unit))
       .recover(handleDuplicateKeyError[Unit])
+
+  def addPeriods(nino: String, periods: Periods): AsyncResponse[Periods] = {
+    val query = Json.obj("nino" -> nino)
+    val update = Json.obj("$push" -> Json.obj("periods" -> periods.periods))
+    findAndUpdate(query, update, fetchNewObject = true).map(handleUpdateResult(_, periods))
+  }
 
   def delete(nino: String): AsyncResponse[Unit] = remove("nino" -> nino).map(handleWriteResult(_, _ -> unit))
 
@@ -74,7 +80,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] = {
     val query = Json.obj("nino" -> nino)
     val update = Json.obj("$set" -> Json.obj("individualDetails" -> individualDetails))
-    findAndUpdate(query, update).map(handleUpdateResult)
+    findAndUpdate(query, update).map(handleUpdateResult(_, unit))
   }
 
   val duplicateKey = 11000
@@ -89,18 +95,18 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       Left(Failure(CONFLICTING_REQUEST))
   }
 
-  private def handleUpdateResult(updateResult: Result[_]): Response[Unit] =
-    updateResult.lastError.fold[Response[Unit]] {
+  private def handleUpdateResult[T](updateResult: Result[_], result: T): Response[T] =
+    updateResult.lastError.fold[Response[T]] {
       Left(Failure(SERVER_ERROR, "updateResult.lastError missing?".some))
     } { lastError =>
-      if (lastError.updatedExisting) Right(unit) else resolveUpdateLastError(lastError)
+      if (lastError.updatedExisting) Right(result) else resolveUpdateLastError(lastError)
     }
 
   private def handleWriteResult[T](writeResult: WriteResult, f: WriteResult => T): Response[T] =
     if (writeResult.ok) Right(f(writeResult))
     else Left(Failure(SERVER_ERROR, resolveWriteResultError(writeResult)))
 
-  private def resolveUpdateLastError(updateLastError: UpdateLastError): Response[Unit] =
+  private def resolveUpdateLastError[T](updateLastError: UpdateLastError): Response[T] =
     Left(updateLastError.err.fold(Failure(IDENTIFIER_NOT_FOUND))(err => Failure(SERVER_ERROR, err.some)))
 
   private def resolveWriteResultError(writeResult: WriteResult): Option[String] =

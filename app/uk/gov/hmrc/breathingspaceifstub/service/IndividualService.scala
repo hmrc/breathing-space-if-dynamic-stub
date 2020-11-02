@@ -34,7 +34,7 @@ class IndividualService @Inject()(individualRepository: IndividualRepository)(im
     else Future.successful(Left(Failure(INVALID_NINO)))
 
   def addIndividuals(individualsInRequest: IndividualsInRequest): AsyncResponse[BulkWriteResult] =
-    if (individualsInRequest.individuals.forall(indiv => isValid(indiv.nino))) {
+    if (individualsInRequest.individuals.forall(individual => isValid(individual.nino))) {
       individualRepository.addIndividuals(Individual.fromIndividualsInRequest(individualsInRequest))
     } else Future.successful(Left(Failure(INVALID_NINO)))
 
