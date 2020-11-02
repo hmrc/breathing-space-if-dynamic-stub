@@ -1,0 +1,362 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Schema of GET Individual's Details (full population)",
+  "title": "Individual's Details",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "liveAgentInd": {
+      "type": "integer"
+    },
+    "ninoSuffix": {
+      "type": "string"
+    },
+    "residencyList": {
+      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.schema.ResidencyList"
+    },
+    "nino": {
+      "type": "string"
+    },
+    "mergeStatus": {
+      "type": "integer"
+    },
+    "marriageStatusType": {
+      "type": "integer"
+    },
+    "nameList": {
+      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.schema.NameList"
+    },
+    "ntTaxCodeInd": {
+      "type": "integer"
+    },
+    "currOptimisticLock": {
+      "type": "integer"
+    },
+    "dateOfDeath": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateOfBirth": {
+      "type": "string",
+      "format": "date"
+    },
+    "liveCapacitorInd": {
+      "type": "integer"
+    },
+    "dateOfRegistration": {
+      "type": "string",
+      "format": "date"
+    },
+    "accountStatusType": {
+      "type": "integer"
+    },
+    "sex": {
+      "type": "string"
+    },
+    "dateOfEntry": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateOfDeathStatus": {
+      "type": "integer"
+    },
+    "permanentTSuffixCaseIndicator": {
+      "type": "integer"
+    },
+    "crnIndicator": {
+      "type": "integer"
+    },
+    "adultRegSerialNumber": {
+      "type": "string"
+    },
+    "cesaAgentIdentifier": {
+      "type": "string"
+    },
+    "indicators": {
+      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.schema.Indicators"
+    },
+    "dateOfBirthStatus": {
+      "type": "integer"
+    },
+    "cesaAgentClientReference": {
+      "type": "string"
+    },
+    "addressList": {
+      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.schema.AddressList"
+    },
+    "registrationType": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "nino"
+  ],
+  "definitions": {
+    "uk.gov.hmrc.breathingspaceifstub.schema.NameList": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.schema.NameData"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "uk.gov.hmrc.breathingspaceifstub.schema.NameData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nameEndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "honours": {
+          "type": "string"
+        },
+        "titleType": {
+          "type": "integer"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "nameType": {
+          "type": "integer"
+        },
+        "secondForename": {
+          "type": "string"
+        },
+        "nameStartDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedName": {
+          "type": "string"
+        },
+        "nameSequenceNumber": {
+          "type": "integer"
+        },
+        "firstForename": {
+          "type": "string"
+        },
+        "otherTitle": {
+          "type": "string"
+        }
+      },
+      "required": [
+
+      ]
+    },
+    "uk.gov.hmrc.breathingspaceifstub.schema.Indicators": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manualCodingReason": {
+          "type": "integer"
+        },
+        "welshOutputInd": {
+          "type": "integer"
+        },
+        "saLinkInd": {
+          "type": "integer"
+        },
+        "manualCodingOther": {
+          "type": "string"
+        },
+        "s128Ind": {
+          "type": "integer"
+        },
+        "saStartYear": {
+          "type": "string"
+        },
+        "p2ToAgentInd": {
+          "type": "integer"
+        },
+        "audioOutputInd": {
+          "type": "integer"
+        },
+        "saFinalYear": {
+          "type": "string"
+        },
+        "manualCorrInd": {
+          "type": "integer"
+        },
+        "digitalP2Ind": {
+          "type": "integer"
+        },
+        "bankruptcyInd": {
+          "type": "integer"
+        },
+        "additionalNotes": {
+          "type": "string"
+        },
+        "bankruptcyFiledDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "eeaCmnwthInd": {
+          "type": "integer"
+        },
+        "manualCorrReason": {
+          "type": "string"
+        },
+        "noATSInd": {
+          "type": "integer"
+        },
+        "taxEqualBenInd": {
+          "type": "integer"
+        },
+        "noRepaymentInd": {
+          "type": "integer"
+        },
+        "specialistBusinessArea": {
+          "type": "integer"
+        },
+        "brailleOutputInd": {
+          "type": "integer"
+        },
+        "manualCodingInd": {
+          "type": "integer"
+        },
+        "noAllowInd": {
+          "type": "integer"
+        },
+        "largePrintOutputInd": {
+          "type": "integer"
+        },
+        "digitallyExcludedInd": {
+          "type": "integer"
+        },
+        "utr": {
+          "type": "string"
+        },
+        "deceasedInd": {
+          "type": "integer"
+        }
+      },
+      "required": [
+
+      ]
+    },
+    "uk.gov.hmrc.breathingspaceifstub.schema.ResidencyData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "residencySequenceNumber": {
+          "type": "integer"
+        },
+        "dateLeavingUK": {
+          "type": "string",
+          "format": "date"
+        },
+        "dateReturningUK": {
+          "type": "string",
+          "format": "date"
+        },
+        "residencyStatusFlag": {
+          "type": "integer"
+        }
+      },
+      "required": [
+
+      ]
+    },
+    "uk.gov.hmrc.breathingspaceifstub.schema.AddressData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "addressLine1": {
+          "type": "string"
+        },
+        "addressLastConfirmedDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "addressPostcode": {
+          "type": "string"
+        },
+        "deliveryInfo": {
+          "type": "string"
+        },
+        "addressLine4": {
+          "type": "string"
+        },
+        "addressEndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "addressStatus": {
+          "type": "integer"
+        },
+        "vpaMail": {
+          "type": "integer"
+        },
+        "addressLine3": {
+          "type": "string"
+        },
+        "countryCode": {
+          "type": "integer"
+        },
+        "addressLine2": {
+          "type": "string"
+        },
+        "pafReference": {
+          "type": "string"
+        },
+        "addressType": {
+          "type": "integer"
+        },
+        "addressSource": {
+          "type": "integer"
+        },
+        "addressSequenceNumber": {
+          "type": "integer"
+        },
+        "addressLine5": {
+          "type": "string"
+        },
+        "addressStartDate": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+
+      ]
+    },
+    "uk.gov.hmrc.breathingspaceifstub.schema.ResidencyList": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "residency": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.schema.ResidencyData"
+          }
+        }
+      },
+      "required": [
+        "residency"
+      ]
+    },
+    "uk.gov.hmrc.breathingspaceifstub.schema.AddressList": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.schema.AddressData"
+          }
+        }
+      },
+      "required": [
+        "address"
+      ]
+    }
+  }
+}

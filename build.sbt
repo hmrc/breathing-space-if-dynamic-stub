@@ -1,3 +1,4 @@
+import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.SbtArtifactory
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
@@ -23,7 +24,8 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
-    )
+    ),
+    assemblySettings
   )
   .configs(IntegrationTest)
   .settings(publishingSettings: _*)
@@ -46,4 +48,12 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   coverageMinimum := 96,
   coverageFailOnMinimum := false,
   coverageHighlighting := true
+)
+
+lazy val assemblySettings = Seq(
+  assemblyJarName in assembly := "breathing-space-if-dynamic-stub.jar",
+  assemblyMergeStrategy in assembly := {
+    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+    case x => MergeStrategy.first
+  }
 )
