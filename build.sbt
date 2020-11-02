@@ -13,14 +13,17 @@ lazy val microservice = Project(appName, file("."))
     scalaVersion             := "2.12.12",
     PlayKeys.playDefaultPort := 9601,
     libraryDependencies      ++= Dependencies.compile ++ Dependencies.test,
-    // ***************
-    // Use the silencer plugin to suppress warnings
-    scalacOptions += "-P:silencer:pathFilters=routes",
+    scalacOptions ++= Seq(
+      "-Xfatal-warnings",
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-P:silencer:pathFilters=routes"  // Using the silencer plugin to suppress warnings
+    ),
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
     )
-    // ***************
   )
   .configs(IntegrationTest)
   .settings(publishingSettings: _*)
@@ -40,8 +43,7 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
     "<empty>",
     ".*(Reverse|AuthService|BuildInfo|Routes).*"
   ).mkString(";"),
-  coverageMinimum := 90,
+  coverageMinimum := 96,
   coverageFailOnMinimum := false,
   coverageHighlighting := true
 )
-

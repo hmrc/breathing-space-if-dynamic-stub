@@ -1,1 +1,16 @@
-# microservice specific routes
+# Production routes
+# =================
+GET     /details/NINO/:nino  uk.gov.hmrc.breathingspaceifstub.controller.IndividualDetailsController.get(nino, fields)
+
+# Support routes to tests
+# =======================
+DELETE  /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.delete(nino)
+DELETE  /              uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.deleteAll
+GET     /count         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.count
+GET     /ninos         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.listOfNinos
+GET     /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.exists(nino)
+POST    /bulk          uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.postIndividuals
+POST    /              uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.postIndividual
+PUT     /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.replaceIndividualDetails(nino)
+
+GET     /error/:code   uk.gov.hmrc.breathingspaceifstub.controller.ErrorCodeController.get(code)
