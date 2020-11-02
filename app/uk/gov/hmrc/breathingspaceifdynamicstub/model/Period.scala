@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifdynamicstub.controllers
+package uk.gov.hmrc.breathingspaceifstub.model
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.breathingspaceifdynamicstub.config.AppConfig
+import java.time.LocalDate
+import java.util.UUID
 
-import scala.concurrent.Future
+import play.api.libs.json.Json
 
-@Singleton()
-class MicroserviceHelloWorldController @Inject()(appConfig: AppConfig, cc: ControllerComponents)
-    extends BackendController(cc) {
+// --------------------------------------------------------------------------------
 
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("Hello world"))
-  }
+final case class Period(periodID: UUID, startDate: LocalDate, endDate: Option[LocalDate])
+
+object Period {
+  implicit val format = Json.format[Period]
 }

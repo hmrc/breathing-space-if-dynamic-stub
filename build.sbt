@@ -28,8 +28,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(
     scoverageSettings,
-    scalafmtOnCompile in Compile := true,
-    scalafmtOnCompile in Test := true
+    scalafmtOnCompile in Compile := true
   )
 
 scalastyleConfig := baseDirectory.value / "project" / "scalastyle-config.xml"
@@ -41,9 +40,8 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
     "<empty>",
     ".*(Reverse|AuthService|BuildInfo|Routes).*"
   ).mkString(";"),
-  coverageMinimum := 96,
+  coverageMinimum := 90,
   coverageFailOnMinimum := false,
-  coverageHighlighting := true,
-  parallelExecution in Test := false
+  coverageHighlighting := true
 )
 
