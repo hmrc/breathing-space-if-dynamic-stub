@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifdynamicstub.config
+package uk.gov.hmrc.breathingspaceifstub.model
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.libs.json.Json
 
-@Singleton
-class AppConfig @Inject()(config: Configuration, servicesConfig: ServicesConfig) {
+final case class IndividualInRequest(
+  nino: String,
+  individualDetails: Option[IndividualDetails]
+)
+object IndividualInRequest { implicit val format = Json.format[IndividualInRequest] }
 
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
-
-  val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
-  val graphiteHost: String = config.get[String]("microservice.metrics.graphite.host")
-}
+final case class IndividualsInRequest(
+  individuals: List[IndividualInRequest]
+)
+object IndividualsInRequest { implicit val format = Json.format[IndividualsInRequest] }

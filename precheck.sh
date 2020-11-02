@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-sbt clean scalastyle coverage it:test coverageReport
+sbt clean validate scalastyle coverage it:test coverageReport
