@@ -18,15 +18,25 @@ package uk.gov.hmrc.breathingspaceifstub.repository
 
 import javax.inject.{Inject, Singleton}
 
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.syntax.option._
+import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.commands.{MultiBulkWriteResult, WriteResult}
+import reactivemongo.api.commands.FindAndModifyCommand.{Result, UpdateLastError}
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.breathingspaceifstub.model.Individual
+import reactivemongo.core.errors.DatabaseException
+import reactivemongo.play.json.collection.Helpers.idWrites
+import uk.gov.hmrc.breathingspaceifstub._
+import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{CONFLICTING_REQUEST, IDENTIFIER_NOT_FOUND, SERVER_ERROR}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 @Singleton()
-class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)
+class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit executionContext: ExecutionContext)
     extends ReactiveRepository[Individual, BSONObjectID](
       collectionName = "individual",
       mongo = mongo.mongoConnector.db,
@@ -39,4 +49,64 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)
       Index(Seq("nino" -> IndexType.Ascending), name = Some("Nino"), unique = true),
       Index(Seq("periods.periodID" -> IndexType.Ascending), name = Some("PeriodId"))
     )
+
+  def addIndividuals(individuals: List[Individual]): AsyncResponse[BulkWriteResult] =
+    bulkInsert(individuals)
+      .map(handleBulkWriteResult)
+      .recover(handleDuplicateKeyError[BulkWriteResult])
+
+  def addIndividual(individual: Individual): AsyncResponse[Unit] =
+    insert(individual)
+      .map(handleWriteResult(_, _ => unit))
+      .recover(handleDuplicateKeyError[Unit])
+
+  def delete(nino: String): AsyncResponse[Unit] = remove("nino" -> nino).map(handleWriteResult(_, _ -> unit))
+
+  def exists(nino: String): Future[Boolean] =
+    collection.find(Json.obj("nino" -> nino), none).one[Individual].map(_.fold(false)(_ => true))
+
+  def deleteAll: AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
+
+  val maxDocs = 10000
+
+  def listOfNinos: Future[List[String]] = findAll().map(_.map(_.nino))
+
+  def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] = {
+    val query = Json.obj("nino" -> nino)
+    val update = Json.obj("$set" -> Json.obj("individualDetails" -> individualDetails))
+    findAndUpdate(query, update).map(handleUpdateResult)
+  }
+
+  val duplicateKey = 11000
+
+  private def handleBulkWriteResult(writeResult: MultiBulkWriteResult): Response[BulkWriteResult] = {
+    val duplicates = writeResult.writeErrors.count(_.code == duplicateKey)
+    Right(BulkWriteResult(writeResult.n, duplicates, writeResult.totalN - writeResult.n - duplicates))
+  }
+
+  private def handleDuplicateKeyError[T]: PartialFunction[Throwable, Response[T]] = {
+    case exc: DatabaseException if exc.code.contains(duplicateKey) =>
+      Left(Failure(CONFLICTING_REQUEST))
+  }
+
+  private def handleUpdateResult(updateResult: Result[_]): Response[Unit] =
+    updateResult.lastError.fold[Response[Unit]] {
+      Left(Failure(SERVER_ERROR, "updateResult.lastError missing?".some))
+    } { lastError =>
+      if (lastError.updatedExisting) Right(unit) else resolveUpdateLastError(lastError)
+    }
+
+  private def handleWriteResult[T](writeResult: WriteResult, f: WriteResult => T): Response[T] =
+    if (writeResult.ok) Right(f(writeResult))
+    else Left(Failure(SERVER_ERROR, resolveWriteResultError(writeResult)))
+
+  private def resolveUpdateLastError(updateLastError: UpdateLastError): Response[Unit] =
+    Left(updateLastError.err.fold(Failure(IDENTIFIER_NOT_FOUND))(err => Failure(SERVER_ERROR, err.some)))
+
+  private def resolveWriteResultError(writeResult: WriteResult): Option[String] =
+    WriteResult
+      .lastError(writeResult)
+      .flatMap(_.errmsg.map(identity))
+      .getOrElse("Unexpected error while inserting a document.")
+      .some
 }
