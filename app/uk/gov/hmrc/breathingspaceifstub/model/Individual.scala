@@ -32,7 +32,7 @@ object Individual {
   def apply(individualInRequest: IndividualInRequest): Individual =
     Individual(individualInRequest.nino, individualInRequest.individualDetails)
 
-  def fromIndividualsInRequest(individualsInRequest: IndividualsInRequest): List[Individual] =
+  def fromIndividualsInRequest(individualsInRequest: IndividualsInRequest): Individuals =
     individualsInRequest.individuals.map(Individual(_))
 
   implicit val jsonFormat = Json.format[Individual]

@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifstub.model
+package uk.gov.hmrc.breathingspaceifstub
 
-import java.time.LocalDate
-import java.util.UUID
+import java.time.format.DateTimeFormatter
 
-import play.api.libs.json.Json
+package object model {
 
-// --------------------------------------------------------------------------------
+  type Individuals = List[Individual]
+  type PeriodsRequest = List[PeriodInRequest]
 
-final case class Period(periodID: UUID, startDate: LocalDate, endDate: Option[LocalDate])
-
-object Period {
-  implicit val format = Json.format[Period]
+  lazy val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
 }

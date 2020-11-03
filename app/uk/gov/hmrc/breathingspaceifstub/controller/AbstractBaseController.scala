@@ -31,14 +31,39 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 abstract class AbstractBaseController(cc: ControllerComponents) extends BackendController(cc) with Logging {
 
+  def composeResponse[T](status: Int, body: T)(implicit requestId: RequestId, writes: Writes[T]): Result =
+    logAndAddHeaders(Status(status)(Json.toJson(body)))
+
   val withoutBody: BodyParser[Unit] = parse.when(!_.hasBody, parse.empty, invalidBody)
 
   def withJsonBody[T](implicit reads: Reads[T]): BodyParser[Response[T]] = BodyParser { request =>
     if (request.hasBody) parseBodyAsJson[T](reads)(request) else missingBody(request)
   }
 
+  def logAndGenErrorResult(failure: Failure)(implicit requestId: RequestId): Result =
+    logAndGenHttpError(failure).value
+
+  def logAndSendErrorResult(failure: Failure)(implicit requestId: RequestId): Future[Result] =
+    logAndGenHttpError(failure).send
+
+  def logAndGenHttpError(failure: Failure)(implicit requestId: RequestId): HttpError = {
+    val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
+    logger.error(s"$requestId has error code(${failure.baseError.entryName}).$details")
+    HttpError(requestId.correlationId, failure)
+  }
+
   private def invalidBody: RequestHeader => Future[Result] =
     implicit request => HttpError(retrieveCorrelationId, Failure(INVALID_BODY)).send
+
+  private def logAndAddHeaders(result: Result)(implicit requestId: RequestId): Result = {
+    logger.debug(s"Response to $requestId has status(${result.header.status})")
+    result
+      .withHeaders(
+        HeaderNames.CONTENT_TYPE -> MimeTypes.JSON,
+        Header.CorrelationId -> requestId.correlationId.toString
+      )
+      .as(MimeTypes.JSON)
+  }
 
   private def missingBody[T]: BodyParser[Response[T]] = parse.ignore[Response[T]](Left(Failure(MISSING_BODY)))
 
@@ -54,17 +79,4 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
           }
         )
     }
-
-  def composeResponse[T](status: Int, body: T)(implicit requestId: RequestId, writes: Writes[T]): Result =
-    logAndAddHeaders(Status(status)(Json.toJson(body)))
-
-  private def logAndAddHeaders(result: Result)(implicit requestId: RequestId): Result = {
-    logger.debug(s"Response to $requestId has status(${result.header.status})")
-    result
-      .withHeaders(
-        HeaderNames.CONTENT_TYPE -> MimeTypes.JSON,
-        Header.CorrelationId -> requestId.correlationId.toString
-      )
-      .as(MimeTypes.JSON)
-  }
 }

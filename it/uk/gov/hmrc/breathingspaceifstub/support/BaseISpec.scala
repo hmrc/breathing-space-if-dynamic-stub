@@ -30,8 +30,8 @@ import play.api.libs.json.{Json, JsValue}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
 import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.controller.routes.{ErrorCodeController, IndividualController}
-import uk.gov.hmrc.breathingspaceifstub.model.{IndividualDetails, IndividualInRequest, IndividualsInRequest}
+import uk.gov.hmrc.breathingspaceifstub.controller.routes.{ErrorCodeController, IndividualController, PeriodsController}
+import uk.gov.hmrc.breathingspaceifstub.model._
 
 trait BaseISpec
   extends AnyFunSuite
@@ -65,6 +65,9 @@ trait BaseISpec
 
   def postIndividuals(individualsInRequest: IndividualsInRequest): Future[Result] =
     call(Helpers.POST, IndividualController.postIndividuals.url, Json.toJson(individualsInRequest))
+
+  def postPeriods(nino: String, postPeriods: List[PostPeriodInRequest]): Future[Result] =
+    call(Helpers.POST, PeriodsController.post(nino).url, Json.toJson(PostPeriodsInRequest(postPeriods)))
 
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): Future[Result] =
     call(Helpers.PUT, IndividualController.replaceIndividualDetails(nino).url, Json.toJson(individualDetails))

@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.breathingspaceifstub.support
 
+import java.time.{LocalDate, ZonedDateTime}
 import java.util.UUID
 
+import cats.syntax.option._
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes
 import uk.gov.hmrc.breathingspaceifstub._
@@ -43,4 +45,11 @@ trait BreathingSpaceTestSupport extends Nino {
 
   def genIndividualInRequest(individualDetails: Option[IndividualDetails] = None): IndividualInRequest =
     IndividualInRequest(genNino, individualDetails)
+
+  def genPostPeriodInRequest(withEndDate: Boolean): PostPeriodInRequest =
+    PostPeriodInRequest(
+      LocalDate.now.minusMonths(2),
+      if (withEndDate) LocalDate.now.some else none,
+      ZonedDateTime.now
+    )
 }

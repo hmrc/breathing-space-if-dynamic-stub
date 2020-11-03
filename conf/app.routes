@@ -1,6 +1,10 @@
-# Production routes
-# =================
+# Production routes (individual details)
+# ======================================
 GET     /details/NINO/:nino  uk.gov.hmrc.breathingspaceifstub.controller.IndividualDetailsController.get(nino, fields)
+
+# Production routes (BS Periods)
+# ==============================
+POST     /breathing-space/NINO/:nino/periods  uk.gov.hmrc.breathingspaceifstub.controller.PeriodsController.post(nino)
 
 # Support routes to tests
 # =======================

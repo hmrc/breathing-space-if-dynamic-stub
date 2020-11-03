@@ -18,10 +18,10 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import javax.inject.{Inject, Singleton}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import play.api.libs.json.Json
-import play.api.mvc.{Action, ControllerComponents, Result}
+import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.Response
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
@@ -37,12 +37,12 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
   }
 
   def delete(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_DeleteIndividual_DELETE)
+    implicit val requestId = RequestId(BS_Individual_DELETE)
     individualService.delete(nino).map(_.fold(logAndGenErrorResult, _ => Ok))
   }
 
   val deleteAll: Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_DeleteAll_DELETE)
+    implicit val requestId = RequestId(BS_IndividualAll_DELETE)
     individualService.deleteAll.map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("deleted" -> count))))
   }
 
@@ -56,7 +56,7 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
 
   val postIndividual: Action[Response[IndividualInRequest]] = Action.async(withJsonBody[IndividualInRequest]) {
     implicit request =>
-      implicit val requestId = RequestId(BS_AddIndividual_POST)
+      implicit val requestId = RequestId(BS_Individual_POST)
       request.body.fold(
         logAndSendErrorResult,
         individualService.addIndividual(_).map(_.fold(logAndGenErrorResult, _ => Ok))
@@ -65,7 +65,7 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
 
   val postIndividuals: Action[Response[IndividualsInRequest]] = Action.async(withJsonBody[IndividualsInRequest]) {
     implicit request =>
-      implicit val requestId = RequestId(BS_AddIndividuals_POST)
+      implicit val requestId = RequestId(BS_Individuals_POST)
       request.body.fold(
         logAndSendErrorResult,
         individualService
@@ -76,22 +76,10 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
 
   def replaceIndividualDetails(nino: String): Action[Response[IndividualDetails]] =
     Action.async(withJsonBody[IndividualDetails]) { implicit request =>
-      implicit val requestId = RequestId(BS_UpdateIndividual_PUT)
+      implicit val requestId = RequestId(BS_Individual_PUT)
       request.body.fold(
         logAndSendErrorResult,
         individualService.replaceIndividualDetails(nino, _).map(_.fold(logAndGenErrorResult, _ => Ok))
       )
     }
-
-  private def logAndGenErrorResult(failure: Failure)(implicit requestId: RequestId): Result =
-    logAndGenHttpError(failure).value
-
-  private def logAndSendErrorResult(failure: Failure)(implicit requestId: RequestId): Future[Result] =
-    logAndGenHttpError(failure).send
-
-  private def logAndGenHttpError(failure: Failure)(implicit requestId: RequestId): HttpError = {
-    val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
-    logger.error(s"$requestId has error code(${failure.baseError.entryName}).$details")
-    HttpError(requestId.correlationId, failure)
-  }
 }
