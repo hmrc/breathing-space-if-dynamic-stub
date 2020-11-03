@@ -18,27 +18,29 @@ package uk.gov.hmrc.breathingspaceifstub.service
 
 import javax.inject.{Inject, Singleton}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import cats.syntax.option._
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_JSON}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_FOUND
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
+import uk.gov.hmrc.breathingspaceifstub.schema.{IndividualDetail0, IndividualDetail1}
 
 @Singleton
-class PeriodsService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext) extends Nino {
+class IndividualDetailsService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
+    extends Nino {
 
-  def get(nino: String): AsyncResponse[Periods] =
+  def getIndividualDetail0(nino: String): AsyncResponse[IndividualDetail0] =
     individualRepository
       .findIndividual(nino)
-      .map {
-        _.fold[Response[Periods]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
-          individual => Right(Periods(individual.periods))
-        )
-      }
+      .map(_.fold[Response[IndividualDetail0]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+        Right(IndividualDetail0(individual))
+      })
 
-  def post(nino: String, postPeriods: PostPeriodsInRequest): AsyncResponse[Periods] =
-    if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods(postPeriods))
-    else Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
+  def getIndividualDetail1(nino: String): AsyncResponse[IndividualDetail1] =
+    individualRepository
+      .findIndividual(nino)
+      .map(_.fold[Response[IndividualDetail1]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+        Right(IndividualDetail1(individual))
+      })
 }

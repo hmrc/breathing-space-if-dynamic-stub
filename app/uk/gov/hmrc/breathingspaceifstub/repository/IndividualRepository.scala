@@ -80,15 +80,10 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
 
   def deleteAll: AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
 
-  def findPeriods(nino: String): AsyncResponse[Periods] =
+  def findIndividual(nino: String): Future[Option[Individual]] =
     collection
       .find(Json.obj("nino" -> nino), none)
       .one[Individual]
-      .map { indiv: Option[Individual] =>
-        indiv.fold[Response[Periods]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
-          individual => Right(Periods(individual.periods))
-        )
-      }
 
   def listOfNinos: Future[List[String]] = findAll().map(_.map(_.nino))
 

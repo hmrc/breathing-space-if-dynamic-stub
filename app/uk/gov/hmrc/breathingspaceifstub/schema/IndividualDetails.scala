@@ -18,26 +18,45 @@ package uk.gov.hmrc.breathingspaceifstub.schema
 
 import java.time.LocalDate
 
+import cats.syntax.option._
+import play.api.libs.json.Json
+import uk.gov.hmrc.breathingspaceifstub.model
+import uk.gov.hmrc.breathingspaceifstub.model.Individual
+
 // Detail0 --------------------------------------------------------------------------------
 
-final case class IndividualDetail0(nino: String, dateOfBirth: LocalDate, crnIndicator: Int)
+final case class IndividualDetail0(
+  nino: String,
+  dateOfBirth: Option[LocalDate],
+  crnIndicator: Option[Int]
+)
 object IndividualDetail0 {
   val fields = "?fields=details(nino,dateOfBirth,cnrIndicator)"
+
+  implicit val writes = Json.writes[IndividualDetail0]
+
+  def apply(individual: Individual): IndividualDetail0 =
+    individual.individualDetails.fold(IndividualDetail0(individual.nino, none, none)) { details =>
+      IndividualDetail0(individual.nino, details.dateOfBirth, details.crnIndicator)
+    }
 }
 
 // Detail1 --------------------------------------------------------------------------------
 
-final case class NameDataForDetail1(firstForename: String, surname: String, secondForename: String)
-
-final case class NameListForDetail1(name: List[NameDataForDetail1])
-
 final case class IndividualDetail1(
   nino: String,
-  dateOfBirth: LocalDate,
-  nameList: NameListForDetail1
+  dateOfBirth: Option[LocalDate],
+  nameList: Option[model.NameList]
 )
 object IndividualDetail1 {
   val fields = "?fields=details(nino,dateOfBirth),namelist(name(firstForename,secondForename,surname))"
+
+  implicit val writes = Json.writes[IndividualDetail1]
+
+  def apply(individual: Individual): IndividualDetail1 =
+    individual.individualDetails.fold(IndividualDetail1(individual.nino, none, none)) { details =>
+      IndividualDetail1(individual.nino, details.dateOfBirth, details.nameList)
+    }
 }
 
 // Full population (as sent from NPS) -----------------------------------------------------
@@ -55,6 +74,7 @@ final case class NameData(
   secondForename: Option[String],
   surname: Option[String]
 )
+final case class NameList(name: List[NameData])
 
 final case class AddressData(
   addressSequenceNumber: Option[Int],
@@ -75,6 +95,7 @@ final case class AddressData(
   addressLine5: Option[String],
   addressPostcode: Option[String]
 )
+final case class AddressList(address: List[AddressData])
 
 final case class Indicators(
   manualCodingInd: Option[Int],
@@ -112,9 +133,6 @@ final case class ResidencyData(
   dateReturningUK: Option[LocalDate],
   residencyStatusFlag: Option[Int]
 )
-
-final case class NameList(name: List[NameData])
-final case class AddressList(address: List[AddressData])
 final case class ResidencyList(residency: List[ResidencyData])
 
 // --------------------------------------------------------------------------------

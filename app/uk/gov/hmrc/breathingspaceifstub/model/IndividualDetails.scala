@@ -21,21 +21,28 @@ import java.time.LocalDate
 import cats.syntax.option._
 import play.api.libs.json.Json
 
+// --------------------------------------------------------------------------------
+
 final case class NameData(
-  firstForename: Option[String] = none,
-  surname: Option[String] = none,
-  secondForename: Option[String] = none
+  firstForename: Option[String],
+  surname: Option[String],
+  secondForename: Option[String]
 )
+
 object NameData { implicit val format = Json.format[NameData] }
 
+// --------------------------------------------------------------------------------
+
 final case class NameList(name: List[NameData])
+
 object NameList { implicit val format = Json.format[NameList] }
+
+// --------------------------------------------------------------------------------
 
 final case class IndividualDetails(
   dateOfBirth: Option[LocalDate] = none,
   crnIndicator: Option[Int] = none,
   nameList: Option[NameList] = none
 )
-object IndividualDetails {
-  implicit val format = Json.format[IndividualDetails]
-}
+
+object IndividualDetails { implicit val format = Json.format[IndividualDetails] }

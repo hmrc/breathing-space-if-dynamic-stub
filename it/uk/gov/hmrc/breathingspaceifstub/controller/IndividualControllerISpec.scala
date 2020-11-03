@@ -104,7 +104,7 @@ class IndividualControllerISpec extends BaseISpec {
 
     val individualDetails = IndividualDetails(
       dateOfBirth = LocalDate.now.some,
-      nameList = NameList(List(NameData(firstForename = "Joe".some, secondForename = "Zawinul".some))).some
+      nameList = NameList(List(NameData(firstForename = "Joe".some, surname = "Zawinul".some, none))).some
     )
     val response = replaceIndividualDetails(individual2.nino, individualDetails)
     status(response) shouldBe OK
