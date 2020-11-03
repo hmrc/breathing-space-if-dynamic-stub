@@ -54,6 +54,17 @@ trait BaseISpec
 
   override def beforeEach: Unit = await(deleteAll)
 
+  // Production endpoints
+  // ====================
+
+  def getPeriods(nino: String): Future[Result] = call(Helpers.GET, PeriodsController.get(nino).url)
+
+  def postPeriods(nino: String, postPeriods: List[PostPeriodInRequest]): Future[Result] =
+    call(Helpers.POST, PeriodsController.post(nino).url, Json.toJson(PostPeriodsInRequest(postPeriods)))
+
+  // Support endpoints
+  // =================
+
   def count: Future[Result] = call(Helpers.GET, IndividualController.count.url)
   def delete(nino: String): Future[Result] = call(Helpers.DELETE, IndividualController.delete(nino).url)
   def deleteAll: Future[Result] = call(Helpers.DELETE, IndividualController.deleteAll.url)
@@ -66,11 +77,10 @@ trait BaseISpec
   def postIndividuals(individualsInRequest: IndividualsInRequest): Future[Result] =
     call(Helpers.POST, IndividualController.postIndividuals.url, Json.toJson(individualsInRequest))
 
-  def postPeriods(nino: String, postPeriods: List[PostPeriodInRequest]): Future[Result] =
-    call(Helpers.POST, PeriodsController.post(nino).url, Json.toJson(PostPeriodsInRequest(postPeriods)))
-
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): Future[Result] =
     call(Helpers.PUT, IndividualController.replaceIndividualDetails(nino).url, Json.toJson(individualDetails))
+
+  // ==========================================================================================================
 
   def baseError(baseError: String): Future[Result] = call(Helpers.GET, ErrorCodeController.get(baseError).url)
 

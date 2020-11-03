@@ -29,6 +29,8 @@ import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 @Singleton
 class PeriodsService @Inject()(individualRepository: IndividualRepository) extends Nino {
 
+  def get(nino: String): AsyncResponse[Periods] = individualRepository.findPeriods(nino)
+
   def post(nino: String, postPeriods: PostPeriodsInRequest): AsyncResponse[Periods] =
     if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods(postPeriods))
     else Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))

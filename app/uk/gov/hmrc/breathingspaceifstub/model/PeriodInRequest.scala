@@ -42,16 +42,7 @@ final case class PostPeriodInRequest(
   pegaRequestTimestamp: ZonedDateTime
 ) extends PeriodInRequest
 
-object PostPeriodInRequest {
-  implicit val format = Json.format[PostPeriodInRequest]
-}
+object PostPeriodInRequest { implicit val format = Json.format[PostPeriodInRequest] }
 
-// --------------------------------------------------------------------------------
-
-final case class PostPeriodsInRequest(
-  periods: List[PostPeriodInRequest]
-) extends PeriodsInRequest
-
-object PostPeriodsInRequest {
-  implicit val format = Json.format[PostPeriodsInRequest]
-}
+final case class PostPeriodsInRequest(periods: List[PostPeriodInRequest]) extends PeriodsInRequest
+object PostPeriodsInRequest { implicit val format = Json.format[PostPeriodsInRequest] }

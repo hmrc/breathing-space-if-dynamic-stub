@@ -62,7 +62,14 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
 
   def addPeriods(nino: String, periods: Periods): AsyncResponse[Periods] = {
     val query = Json.obj("nino" -> nino)
-    val update = Json.obj("$push" -> Json.obj("periods" -> periods.periods))
+    val update =
+      Json.obj(
+        "$push" ->
+          Json.obj(
+            "periods" ->
+              Json.obj("$each" -> periods.periods)
+          )
+      )
     findAndUpdate(query, update, fetchNewObject = true).map(handleUpdateResult(_, periods))
   }
 
@@ -73,7 +80,15 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
 
   def deleteAll: AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
 
-  val maxDocs = 10000
+  def findPeriods(nino: String): AsyncResponse[Periods] =
+    collection
+      .find(Json.obj("nino" -> nino), none)
+      .one[Individual]
+      .map { indiv: Option[Individual] =>
+        indiv.fold[Response[Periods]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
+          individual => Right(Periods(individual.periods))
+        )
+      }
 
   def listOfNinos: Future[List[String]] = findAll().map(_.map(_.nino))
 
