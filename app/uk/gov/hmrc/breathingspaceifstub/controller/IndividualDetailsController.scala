@@ -18,17 +18,41 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import javax.inject.{Inject, Singleton}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.service.IndividualService
+import play.api.libs.json.Json
+import play.api.mvc.{Action, ControllerComponents}
+import uk.gov.hmrc.breathingspaceifstub.model.{Failure, RequestId}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Detail0_GET, BS_Detail1_GET, BS_Detail_GET}
+import uk.gov.hmrc.breathingspaceifstub.schema.{IndividualDetail0, IndividualDetail1}
+import uk.gov.hmrc.breathingspaceifstub.service.IndividualDetailsService
 
 @Singleton()
-class IndividualDetailsController @Inject()(individualService: IndividualService, cc: ControllerComponents)(
+class IndividualDetailsController @Inject()(
+  individualDetailsService: IndividualDetailsService,
+  cc: ControllerComponents
+)(
   implicit val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
-  def get(nino: String, fields: String): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok(request.path))
+  def get(nino: String, fields: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
+    fields.replaceAll("\\s+", "") match {
+      case IndividualDetail0.fields =>
+        implicit val requestId = RequestId(BS_Detail0_GET)
+        individualDetailsService
+          .getIndividualDetail0(nino)
+          .map(_.fold(logAndGenErrorResult, individualDetail0 => Ok(Json.toJson(individualDetail0))))
+
+      case IndividualDetail1.fields =>
+        implicit val requestId = RequestId(BS_Detail1_GET)
+        individualDetailsService
+          .getIndividualDetail1(nino)
+          .map(_.fold(logAndGenErrorResult, individualDetail1 => Ok(Json.toJson(individualDetail1))))
+
+      case _ =>
+        implicit val requestId = RequestId(BS_Detail_GET)
+        logAndGenHttpError(Failure(UNKNOWN_DATA_ITEM)).send
+    }
   }
 }

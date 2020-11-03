@@ -23,6 +23,7 @@ import com.github.andyglow.json.JsonFormatter.format
 import com.github.andyglow.jsonschema.AsValue
 import json.{Json, Schema}
 import json.schema.Version.Draft04
+import uk.gov.hmrc.breathingspaceifstub.model
 
 object GenIndividualDetailsSchema extends App {
 
@@ -36,8 +37,8 @@ object GenIndividualDetailsSchema extends App {
 
   // Detail1 --------------------------------------------------------------------------------
 
-  implicit val nameDataForDetail1Schema: Schema[NameDataForDetail1] = Json.schema[NameDataForDetail1]
-  implicit val nameListForDetail1Schema: Schema[NameListForDetail1] = Json.schema[NameListForDetail1]
+  implicit val nameDataForDetail1Schema: Schema[model.NameData] = Json.schema[model.NameData]
+  implicit val nameListForDetail1Schema: Schema[model.NameList] = Json.schema[model.NameList]
 
   implicit val detail1Schema: Schema[IndividualDetail1] =
     Json.schema[IndividualDetail1].withTitle(title).withDescription(s"$description(filter #1)")
