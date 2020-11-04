@@ -11,7 +11,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
   test("\"get\" Periods should return all periods for an existing Nino, if any") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
 
     val postPeriod1 = genPostPeriodInRequest(withEndDate)
     val postPeriod2 = genPostPeriodInRequest(noEndDate)
@@ -32,7 +32,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
   test("\"get\" Periods should return an empty list if no one is found for the provided Nino") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
 
     val response = getPeriods(individual.nino)
     status(response) shouldBe OK
@@ -45,7 +45,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
   test("\"post\" Periods should successfully add a single period for the provided Nino") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
 
     val postPeriodsInRequest = List(genPostPeriodInRequest(withEndDate))
     status(postPeriods(individual.nino, postPeriodsInRequest)) shouldBe CREATED
@@ -53,7 +53,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
   test("\"post\" Periods should successfully add multiple periods for the provided Nino") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
 
     val postPeriodsInRequest = List(
       genPostPeriodInRequest(withEndDate),
@@ -64,7 +64,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
   test("Multiple \"post\" Periods ops to the same Nino should append all provided periods") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
 
     val postPeriodsInRequest1 = List(genPostPeriodInRequest(noEndDate))
     status(postPeriods(individual.nino, postPeriodsInRequest1)) shouldBe CREATED
@@ -81,7 +81,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
   test("\"post\" Periods should report if the provided Nino is unknown") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
 
     val postPeriodsInRequest = List(genPostPeriodInRequest(withEndDate))
     status(postPeriods(genNino, postPeriodsInRequest)) shouldBe NOT_FOUND

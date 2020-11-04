@@ -18,7 +18,6 @@ package uk.gov.hmrc.breathingspaceifstub.model
 
 import java.time.LocalDate
 
-import cats.syntax.option._
 import play.api.libs.json.Json
 
 // --------------------------------------------------------------------------------
@@ -40,9 +39,9 @@ object NameList { implicit val format = Json.format[NameList] }
 // --------------------------------------------------------------------------------
 
 final case class IndividualDetails(
-  dateOfBirth: Option[LocalDate] = none,
-  crnIndicator: Option[Int] = none,
-  nameList: Option[NameList] = none
+  dateOfBirth: Option[LocalDate],
+  crnIndicator: Option[Int],
+  nameList: Option[NameList]
 )
 
 object IndividualDetails { implicit val format = Json.format[IndividualDetails] }

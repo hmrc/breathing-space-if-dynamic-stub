@@ -13,8 +13,8 @@ class IndividualDetailsControllerISpec extends BaseISpec {
 
   test("\"get\" with query parameter \"fields\" equal to detail #0)") {
     val dateOfBirth = LocalDate.now
-    val individual = genIndividualInRequest(IndividualDetails(dateOfBirth.some).some)
-    status(postIndividual(individual)) shouldBe OK
+    val individual = genIndividualInRequest(IndividualDetails(dateOfBirth.some, none, none).some)
+    status(postIndividual(individual)) shouldBe CREATED
 
     val response = getIndividualDetails(individual.nino, IndividualDetail0.fields)
     status(response) shouldBe OK
@@ -30,11 +30,12 @@ class IndividualDetailsControllerISpec extends BaseISpec {
 
     val individualDetails = IndividualDetails(
       dateOfBirth = dateOfBirth.some,
+      crnIndicator = none,
       nameList = nameList.some
     )
 
     val individual = genIndividualInRequest(individualDetails.some)
-    status(postIndividual(individual)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
 
     val response = getIndividualDetails(individual.nino, IndividualDetail1.fields)
     status(response) shouldBe OK

@@ -23,9 +23,9 @@ class IndividualControllerISpec extends BaseISpec {
 
   test("\"delete(nino)\" should wipe out the \"individual\" document for the given Nino") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
-    contentAsString(exists(individual.nino)) shouldBe "true"
-    status(delete(individual.nino)) shouldBe OK
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
+    status(delete(individual.nino)) shouldBe NO_CONTENT
 
     val response = count
     status(response) shouldBe OK
@@ -45,10 +45,10 @@ class IndividualControllerISpec extends BaseISpec {
 
   test("\"exists(nino)\" should confirm if the \"individual\" collection contains or not the given Nino") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
-    contentAsString(exists(individual.nino)) shouldBe "true"
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
 
-    contentAsString(exists(genNino)) shouldBe "false"
+    contentAsString(exists(genNino)) shouldBe """{"exists":false}"""
   }
 
   test("\"listOfNinos\" should return the list of all Ninos in the \"individual\" collection") {
@@ -63,14 +63,14 @@ class IndividualControllerISpec extends BaseISpec {
 
   test("\"postIndividual\" should successfully add a new document to the \"individual\" collection") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
-    contentAsString(exists(individual.nino)) shouldBe "true"
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
   }
 
   test("\"postIndividual\" should return 409(CONFLICT) when adding an existing Nino to the \"individual\" collection") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
-    contentAsString(exists(individual.nino)) shouldBe "true"
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
 
     val response = postIndividual(individual)
     status(response) shouldBe CONFLICT
@@ -104,18 +104,19 @@ class IndividualControllerISpec extends BaseISpec {
 
     val individualDetails = IndividualDetails(
       dateOfBirth = LocalDate.now.some,
+      crnIndicator = none,
       nameList = NameList(List(NameData(firstForename = "Joe".some, surname = "Zawinul".some, none))).some
     )
     val response = replaceIndividualDetails(individual2.nino, individualDetails)
-    status(response) shouldBe OK
+    status(response) shouldBe NO_CONTENT
   }
 
   test("\"replaceIndividualDetails\" should return 404(NOT_FOUND) when trying to update an unknown Nino") {
     val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe OK
-    contentAsString(exists(individual.nino)) shouldBe "true"
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
 
-    val individualDetails = IndividualDetails(dateOfBirth = LocalDate.now.some)
+    val individualDetails = IndividualDetails(dateOfBirth = LocalDate.now.some, none, none)
     val response = replaceIndividualDetails(genNino, individualDetails)
     status(response) shouldBe NOT_FOUND
   }

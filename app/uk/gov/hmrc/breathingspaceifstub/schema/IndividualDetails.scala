@@ -31,7 +31,7 @@ final case class IndividualDetail0(
   crnIndicator: Option[Int]
 )
 object IndividualDetail0 {
-  val fields = "?fields=details(nino,dateOfBirth,cnrIndicator)"
+  val fields = "details(nino,dateOfBirth,cnrIndicator)"
 
   implicit val writes = Json.writes[IndividualDetail0]
 
@@ -49,7 +49,7 @@ final case class IndividualDetail1(
   nameList: Option[model.NameList]
 )
 object IndividualDetail1 {
-  val fields = "?fields=details(nino,dateOfBirth),namelist(name(firstForename,secondForename,surname))"
+  val fields = "details(nino,dateOfBirth),namelist(name(firstForename,secondForename,surname))"
 
   implicit val writes = Json.writes[IndividualDetail1]
 
