@@ -73,7 +73,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
     findAndUpdate(query, update, fetchNewObject = true).map(handleUpdateResult(_, periods))
   }
 
-  def delete(nino: String): AsyncResponse[Unit] = remove("nino" -> nino).map(handleWriteResult(_, _ -> unit))
+  def delete(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
 
   def exists(nino: String): Future[Boolean] =
     collection.find(Json.obj("nino" -> nino), none).one[Individual].map(_.fold(false)(_ => true))
