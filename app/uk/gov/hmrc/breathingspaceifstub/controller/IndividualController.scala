@@ -38,7 +38,7 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
 
   def delete(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
     implicit val requestId = RequestId(BS_Individual_DELETE)
-    individualService.delete(nino).map(_.fold(logAndGenErrorResult, _ => Ok))
+    individualService.delete(nino).map(_.fold(logAndGenErrorResult, _ => NoContent))
   }
 
   val deleteAll: Action[Unit] = Action.async(withoutBody) { implicit request =>
@@ -47,7 +47,7 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
   }
 
   def exists(nino: String): Action[Unit] = Action.async(withoutBody) { _ =>
-    individualService.exists(nino).map(result => Ok(result.toString))
+    individualService.exists(nino).map(result => Ok(Json.obj("exists" -> result)))
   }
 
   val listOfNinos: Action[Unit] = Action.async(withoutBody) { _ =>
@@ -59,7 +59,7 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
       implicit val requestId = RequestId(BS_Individual_POST)
       request.body.fold(
         logAndSendErrorResult,
-        individualService.addIndividual(_).map(_.fold(logAndGenErrorResult, _ => Ok))
+        individualService.addIndividual(_).map(_.fold(logAndGenErrorResult, _ => Created))
       )
   }
 
@@ -79,7 +79,7 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
       implicit val requestId = RequestId(BS_Individual_PUT)
       request.body.fold(
         logAndSendErrorResult,
-        individualService.replaceIndividualDetails(nino, _).map(_.fold(logAndGenErrorResult, _ => Ok))
+        individualService.replaceIndividualDetails(nino, _).map(_.fold(logAndGenErrorResult, _ => NoContent))
       )
     }
 }
