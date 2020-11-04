@@ -32,6 +32,10 @@ class IndividualControllerISpec extends BaseISpec {
     contentAsString(response) shouldBe """{"count":0}"""
   }
 
+  test("\"delete(nino)\" should return 404(NOT_FOUND) if the provided Nino is unknown") {
+    status(delete(genNino)) shouldBe NOT_FOUND
+  }
+
   test("\"deleteAll\" should wipe out all documents in the \"individual\" collection") {
     val individual1 = genIndividualInRequest()
     val individual2 = genIndividualInRequest()

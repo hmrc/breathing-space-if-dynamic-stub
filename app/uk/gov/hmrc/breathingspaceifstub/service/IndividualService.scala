@@ -22,8 +22,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_NINO
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_NINO}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
+import uk.gov.hmrc.breathingspaceifstub.unit
 
 @Singleton
 class IndividualService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
@@ -40,7 +41,10 @@ class IndividualService @Inject()(individualRepository: IndividualRepository)(im
 
   def count: Future[Int] = individualRepository.count
 
-  def delete(nino: String): AsyncResponse[Unit] = individualRepository.delete(nino)
+  def delete(nino: String): AsyncResponse[Unit] =
+    individualRepository.delete(nino).collect {
+      case Right(n) => if (n == 0) Left(Failure(IDENTIFIER_NOT_FOUND)) else Right(unit)
+    }
 
   def deleteAll: AsyncResponse[Int] = individualRepository.deleteAll
 

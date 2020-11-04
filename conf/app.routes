@@ -9,13 +9,13 @@ POST    /breathing-space/NINO/:nino/periods  uk.gov.hmrc.breathingspaceifstub.co
 
 # Support routes to tests
 # =======================
+DELETE  /wipe-all      uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.deleteAll
 DELETE  /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.delete(nino)
-DELETE  /              uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.deleteAll
 GET     /count         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.count
 GET     /ninos         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.listOfNinos
 GET     /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.exists(nino)
 POST    /bulk          uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.postIndividuals
-POST    /              uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.postIndividual
+POST    /single        uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.postIndividual
 PUT     /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.replaceIndividualDetails(nino)
 
 GET     /error/:code   uk.gov.hmrc.breathingspaceifstub.controller.ErrorCodeController.get(code)
