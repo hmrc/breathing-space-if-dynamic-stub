@@ -36,35 +36,39 @@ class IndividualDetailsController @Inject()(
   implicit val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
-  def get(nino: String, fields: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    fields.replaceAll("\\s+", "") match {
-      case IndividualDetail0.fields =>
-        implicit val requestId = RequestId(BS_Detail0_GET)
-        individualDetailsService
-          .getIndividualDetail0(nino)
-          .map(_.fold(logAndGenErrorResult, individualDetail0 => Ok(Json.toJson(individualDetail0))))
-
-      case IndividualDetail1.fields =>
-        implicit val requestId = RequestId(BS_Detail1_GET)
-        individualDetailsService
-          .getIndividualDetail1(nino)
-          .map(_.fold(logAndGenErrorResult, individualDetail1 => Ok(Json.toJson(individualDetail1))))
-
-      case "" =>
-        implicit val requestId = RequestId(BS_Details_GET)
-        individualDetailsService
-          .getIndividualDetails(nino)
-          .map(
-            _.fold(
-              logAndGenErrorResult,
-              individualDetails =>
-                Ok(Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject])
-            )
+  def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
+    fields.fold {
+      implicit val requestId = RequestId(BS_Details_GET)
+      individualDetailsService
+        .getIndividualDetails(nino)
+        .map(
+          _.fold(
+            logAndGenErrorResult,
+            individualDetails => {
+              val res = (Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject]).toString
+              print(res)
+              Ok(Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject])
+            }
           )
+        )
+    } {
+      _.replaceAll("\\s+", "") match {
+        case IndividualDetail0.fields =>
+          implicit val requestId = RequestId(BS_Detail0_GET)
+          individualDetailsService
+            .getIndividualDetail0(nino)
+            .map(_.fold(logAndGenErrorResult, individualDetail0 => Ok(Json.toJson(individualDetail0))))
 
-      case _ =>
-        implicit val requestId = RequestId(BS_Detail_GET)
-        logAndGenHttpError(Failure(UNKNOWN_DATA_ITEM)).send
+        case IndividualDetail1.fields =>
+          implicit val requestId = RequestId(BS_Detail1_GET)
+          individualDetailsService
+            .getIndividualDetail1(nino)
+            .map(_.fold(logAndGenErrorResult, individualDetail1 => Ok(Json.toJson(individualDetail1))))
+
+        case _ =>
+          implicit val requestId = RequestId(BS_Detail_GET)
+          logAndGenHttpError(Failure(UNKNOWN_DATA_ITEM)).send
+      }
     }
   }
 }

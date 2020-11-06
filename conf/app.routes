@@ -1,6 +1,6 @@
 # Production routes (individual details)
 # ======================================
-GET     /details/NINO/:nino  uk.gov.hmrc.breathingspaceifstub.controller.IndividualDetailsController.get(nino, fields)
+GET     /details/NINO/:nino  uk.gov.hmrc.breathingspaceifstub.controller.IndividualDetailsController.get(nino, fields: Option[String])
 
 # Production routes (BS Periods)
 # ==============================
