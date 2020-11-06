@@ -23,27 +23,14 @@ import com.github.andyglow.json.JsonFormatter.format
 import com.github.andyglow.jsonschema.AsValue
 import json.{Json, Schema}
 import json.schema.Version.Draft04
-import uk.gov.hmrc.breathingspaceifstub.model
+import uk.gov.hmrc.breathingspaceifstub.model._
 
 object GenIndividualDetailsSchema extends App {
 
   val title = "Individual's Details"
   val description = "Schema of GET Individual's Details "
 
-  // Detail0 --------------------------------------------------------------------------------
-
-  implicit val detail0Schema: Schema[IndividualDetail0] =
-    Json.schema[IndividualDetail0].withTitle(title).withDescription(s"$description(filter #0)")
-
-  // Detail1 --------------------------------------------------------------------------------
-
-  implicit val nameDataForDetail1Schema: Schema[model.NameData] = Json.schema[model.NameData]
-  implicit val nameListForDetail1Schema: Schema[model.NameList] = Json.schema[model.NameList]
-
-  implicit val detail1Schema: Schema[IndividualDetail1] =
-    Json.schema[IndividualDetail1].withTitle(title).withDescription(s"$description(filter #1)")
-
-  // Full population (as sent from NPS) -----------------------------------------------------
+  // Full population ------------------------------------------------------------------------
 
   implicit val nameDataSchema: Schema[NameData] = Json.schema[NameData]
   implicit val addressDataSchema: Schema[AddressData] = Json.schema[AddressData]
@@ -53,8 +40,18 @@ object GenIndividualDetailsSchema extends App {
   implicit val addressListSchema: Schema[AddressList] = Json.schema[AddressList]
   implicit val residencyListSchema: Schema[ResidencyList] = Json.schema[ResidencyList]
 
-  implicit val detailsSchema: Schema[IndividualDetails_FullPopulation] =
-    Json.schema[IndividualDetails_FullPopulation].withTitle(title).withDescription(s"$description(full population)")
+  implicit val detailsSchema: Schema[IndividualDetails] =
+    Json.schema[IndividualDetails].withTitle(title).withDescription(s"$description(full population)")
+
+  // Detail0 --------------------------------------------------------------------------------
+
+  implicit val detail0Schema: Schema[IndividualDetail0] =
+    Json.schema[IndividualDetail0].withTitle(title).withDescription(s"$description(filter #0)")
+
+  // Detail1 --------------------------------------------------------------------------------
+
+  implicit val detail1Schema: Schema[IndividualDetail1] =
+    Json.schema[IndividualDetail1].withTitle(title).withDescription(s"$description(filter #1)")
 
   // ----------------------------------------------------------------------------------------
 

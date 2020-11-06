@@ -20,38 +20,44 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.syntax.option._
 import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_NINO}
-import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
+import uk.gov.hmrc.breathingspaceifstub.repository.{Individual, IndividualRepository}
 import uk.gov.hmrc.breathingspaceifstub.unit
 
 @Singleton
 class IndividualService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
-    extends Nino {
+    extends NinoValidation {
 
   def addIndividual(individualInRequest: IndividualInRequest): AsyncResponse[Unit] =
-    if (isValid(individualInRequest.nino)) individualRepository.addIndividual(Individual(individualInRequest))
-    else Future.successful(Left(Failure(INVALID_NINO)))
+    stripNinoSuffixAndExecOp(
+      individualInRequest.nino,
+      nino => individualRepository.addIndividual(Individual(individualInRequest.copy(nino = nino)))
+    )
+
+  val validateNino = (nino: String) => isValid(nino) && nino.length == 8
 
   def addIndividuals(individualsInRequest: IndividualsInRequest): AsyncResponse[BulkWriteResult] =
-    if (individualsInRequest.individuals.forall(individual => isValid(individual.nino))) {
+    if (individualsInRequest.individuals.forall(individual => validateNino(individual.nino))) {
       individualRepository.addIndividuals(Individual.fromIndividualsInRequest(individualsInRequest))
-    } else Future.successful(Left(Failure(INVALID_NINO)))
+    } else Future.successful(Left(Failure(INVALID_NINO, "Maybe a Nino with Suffix? (Not valid for this action)".some)))
 
   def count: Future[Int] = individualRepository.count
 
   def delete(nino: String): AsyncResponse[Unit] =
-    individualRepository.delete(nino).collect {
+    stripNinoSuffixAndExecOp(nino, individualRepository.delete(_).collect {
       case Right(n) => if (n == 0) Left(Failure(IDENTIFIER_NOT_FOUND)) else Right(unit)
-    }
+    })
 
   def deleteAll: AsyncResponse[Int] = individualRepository.deleteAll
 
-  def exists(nino: String): Future[Boolean] = individualRepository.exists(nino)
+  def exists(nino: String): AsyncResponse[Boolean] =
+    stripNinoSuffixAndExecOp(nino, individualRepository.exists(_).map(Right(_)))
 
   def listOfNinos: Future[List[String]] = individualRepository.listOfNinos
 
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] =
-    individualRepository.replaceIndividualDetails(nino, individualDetails)
+    stripNinoSuffixAndExecOp(nino, individualRepository.replaceIndividualDetails(_, individualDetails))
 }

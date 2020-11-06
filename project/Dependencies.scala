@@ -7,6 +7,7 @@ object Dependencies {
     "uk.gov.hmrc"         %% "bootstrap-backend-play-27"  % "2.25.0",
     "org.typelevel"       %% "cats-core"                  % "2.2.0",
     "com.beachape"        %% "enumeratum"                 % "1.6.1",
+    "ai.x"                %% "play-json-extensions"       % "0.42.0",
     "com.github.andyglow" %% "scala-jsonschema"           % "0.4.0",
     "uk.gov.hmrc"         %% "simple-reactivemongo"       % "7.30.0-play-27"
   )

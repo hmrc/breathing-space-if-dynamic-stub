@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifstub
+package uk.gov.hmrc.breathingspaceifstub.model
 
-import java.time.format.DateTimeFormatter
+import java.time.LocalDate
 
+import cats.syntax.option.none
+import play.api.libs.json.Json
 import uk.gov.hmrc.breathingspaceifstub.repository.Individual
 
-package object model {
+final case class IndividualDetail0(nino: String, dateOfBirth: Option[LocalDate], crnIndicator: Option[Int])
 
-  type Individuals = List[Individual]
-  type PeriodsRequest = List[PeriodInRequest]
+object IndividualDetail0 {
+  val fields = "details(nino,dateOfBirth,cnrIndicator)"
 
-  lazy val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+  implicit val writes = Json.writes[IndividualDetail0]
+
+  def apply(individual: Individual): IndividualDetail0 =
+    individual.individualDetails.fold(IndividualDetail0(individual.nino, none, none)) { details =>
+      IndividualDetail0(individual.nino, details.dateOfBirth, details.crnIndicator)
+    }
 }

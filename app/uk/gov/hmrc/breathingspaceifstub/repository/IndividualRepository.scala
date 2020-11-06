@@ -70,7 +70,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
               Json.obj("$each" -> periods.periods)
           )
       )
-    findAndUpdate(query, update, fetchNewObject = true).map(handleUpdateResult(_, periods))
+    findAndUpdate(query, update).map(handleUpdateResult(_, periods))
   }
 
   def delete(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))

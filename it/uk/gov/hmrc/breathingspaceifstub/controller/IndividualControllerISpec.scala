@@ -55,6 +55,18 @@ class IndividualControllerISpec extends BaseISpec {
     contentAsString(exists(genNino)) shouldBe """{"exists":false}"""
   }
 
+  test("\"exists(nino)\" should work even when the provided Nino includes the suffix") {
+    val individual = IndividualInRequest(genNinoWithSuffix, none)
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
+  }
+
+  test("\"exists(nino)\" should work when the provided Nino does not includes the suffix used for at creation") {
+    val individual = IndividualInRequest(genNinoWithSuffix, none)
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino.substring(0, 8))) shouldBe """{"exists":true}"""
+  }
+
   test("\"listOfNinos\" should return the list of all Ninos in the \"individual\" collection") {
     val individual1 = genIndividualInRequest()
     val individual2 = genIndividualInRequest()
@@ -67,6 +79,12 @@ class IndividualControllerISpec extends BaseISpec {
 
   test("\"postIndividual\" should successfully add a new document to the \"individual\" collection") {
     val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+    contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
+  }
+
+  test("\"postIndividual\" should successfully add a new document even for Nino with Suffix") {
+    val individual = IndividualInRequest(genNinoWithSuffix, none)
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
   }
@@ -101,15 +119,22 @@ class IndividualControllerISpec extends BaseISpec {
     contentAsString(count) shouldBe """{"count":2}"""
   }
 
+  test("\"postIndividuals\" should return 400(BAD_REQUEST) and INVALID_NINO if Ninos with suffix were given") {
+    val individual1 = genIndividualInRequest()
+    val individual2 = IndividualInRequest(genNinoWithSuffix, none)
+    val response = postIndividuals(IndividualsInRequest(List(individual1, individual2, individual1)))
+    status(response) shouldBe BAD_REQUEST
+    (contentAsJson(response) \ "failures" \\ "code").head.as[String] shouldBe "INVALID_NINO"
+  }
+
   test("\"replaceIndividualDetails\" should successfully replace the individual details for the given Nino") {
     val individual1 = genIndividualInRequest()
     val individual2 = genIndividualInRequest()
     status(postIndividuals(IndividualsInRequest(List(individual1, individual2)))) shouldBe OK
 
-    val individualDetails = IndividualDetails(
+    val individualDetails = IndividualDetails.empty.copy(
       dateOfBirth = LocalDate.now.some,
-      crnIndicator = none,
-      nameList = NameList(List(NameData(firstForename = "Joe".some, surname = "Zawinul".some, none))).some
+      nameList = NameList(List(NameData.empty.copy(firstForename = "Joe".some, surname = "Zawinul".some))).some
     )
     val response = replaceIndividualDetails(individual2.nino, individualDetails)
     status(response) shouldBe NO_CONTENT
@@ -120,7 +145,7 @@ class IndividualControllerISpec extends BaseISpec {
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
 
-    val individualDetails = IndividualDetails(dateOfBirth = LocalDate.now.some, none, none)
+    val individualDetails = IndividualDetails.empty.copy(dateOfBirth = LocalDate.now.some)
     val response = replaceIndividualDetails(genNino, individualDetails)
     status(response) shouldBe NOT_FOUND
   }
