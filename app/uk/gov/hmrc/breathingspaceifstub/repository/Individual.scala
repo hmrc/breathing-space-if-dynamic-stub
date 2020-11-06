@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifstub.model
+package uk.gov.hmrc.breathingspaceifstub.repository
 
 import play.api.libs.json.Json
 import reactivemongo.bson.BSONObjectID
+import uk.gov.hmrc.breathingspaceifstub.model.{
+  IndividualDetails,
+  IndividualInRequest,
+  Individuals,
+  IndividualsInRequest,
+  Period
+}
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats._
 
 final case class Individual(

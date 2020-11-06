@@ -46,8 +46,9 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
     individualService.deleteAll.map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("deleted" -> count))))
   }
 
-  def exists(nino: String): Action[Unit] = Action.async(withoutBody) { _ =>
-    individualService.exists(nino).map(result => Ok(Json.obj("exists" -> result)))
+  def exists(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
+    implicit val requestId = RequestId(BS_IndividualExists_GET)
+    individualService.exists(nino).map(_.fold(logAndGenErrorResult, exists => Ok(Json.obj("exists" -> exists))))
   }
 
   val listOfNinos: Action[Unit] = Action.async(withoutBody) { _ =>

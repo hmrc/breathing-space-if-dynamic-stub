@@ -24,23 +24,39 @@ import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_FOUND
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
-import uk.gov.hmrc.breathingspaceifstub.schema.{IndividualDetail0, IndividualDetail1}
+import uk.gov.hmrc.breathingspaceifstub.schema.IndividualDetail1
 
 @Singleton
 class IndividualDetailsService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
-    extends Nino {
+    extends NinoValidation {
 
   def getIndividualDetail0(nino: String): AsyncResponse[IndividualDetail0] =
-    individualRepository
-      .findIndividual(nino)
-      .map(_.fold[Response[IndividualDetail0]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
-        Right(IndividualDetail0(individual))
-      })
+    stripNinoSuffixAndExecOp(
+      nino,
+      individualRepository
+        .findIndividual(_)
+        .map(_.fold[Response[IndividualDetail0]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+          Right(IndividualDetail0(individual))
+        })
+    )
 
   def getIndividualDetail1(nino: String): AsyncResponse[IndividualDetail1] =
-    individualRepository
-      .findIndividual(nino)
-      .map(_.fold[Response[IndividualDetail1]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
-        Right(IndividualDetail1(individual))
-      })
+    stripNinoSuffixAndExecOp(
+      nino,
+      individualRepository
+        .findIndividual(_)
+        .map(_.fold[Response[IndividualDetail1]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+          Right(IndividualDetail1(individual))
+        })
+    )
+
+  def getIndividualDetails(nino: String): AsyncResponse[IndividualDetails] =
+    stripNinoSuffixAndExecOp(
+      nino,
+      individualRepository
+        .findIndividual(_)
+        .map(_.fold[Response[IndividualDetails]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+          Right(IndividualDetails(individual))
+        })
+    )
 }

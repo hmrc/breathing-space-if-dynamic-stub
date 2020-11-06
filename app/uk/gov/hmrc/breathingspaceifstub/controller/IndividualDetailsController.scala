@@ -20,12 +20,12 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.ExecutionContext
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model.{Failure, RequestId}
+import uk.gov.hmrc.breathingspaceifstub.model.{Failure, IndividualDetail0, RequestId}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Detail0_GET, BS_Detail1_GET, BS_Detail_GET}
-import uk.gov.hmrc.breathingspaceifstub.schema.{IndividualDetail0, IndividualDetail1}
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
+import uk.gov.hmrc.breathingspaceifstub.schema.IndividualDetail1
 import uk.gov.hmrc.breathingspaceifstub.service.IndividualDetailsService
 
 @Singleton()
@@ -49,6 +49,18 @@ class IndividualDetailsController @Inject()(
         individualDetailsService
           .getIndividualDetail1(nino)
           .map(_.fold(logAndGenErrorResult, individualDetail1 => Ok(Json.toJson(individualDetail1))))
+
+      case "" =>
+        implicit val requestId = RequestId(BS_Details_GET)
+        individualDetailsService
+          .getIndividualDetails(nino)
+          .map(
+            _.fold(
+              logAndGenErrorResult,
+              individualDetails =>
+                Ok(Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject])
+            )
+          )
 
       case _ =>
         implicit val requestId = RequestId(BS_Detail_GET)

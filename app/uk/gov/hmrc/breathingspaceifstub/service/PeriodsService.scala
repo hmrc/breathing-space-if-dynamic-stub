@@ -27,18 +27,26 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, I
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
-class PeriodsService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext) extends Nino {
+class PeriodsService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
+    extends NinoValidation {
 
   def get(nino: String): AsyncResponse[Periods] =
-    individualRepository
-      .findIndividual(nino)
-      .map {
-        _.fold[Response[Periods]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
-          individual => Right(Periods(individual.periods))
-        )
-      }
+    stripNinoSuffixAndExecOp(
+      nino,
+      individualRepository
+        .findIndividual(_)
+        .map {
+          _.fold[Response[Periods]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
+            individual => Right(Periods(individual.periods))
+          )
+        }
+    )
 
-  def post(nino: String, postPeriods: PostPeriodsInRequest): AsyncResponse[Periods] =
-    if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods(postPeriods))
-    else Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
+  def post(maybeNino: String, postPeriods: PostPeriodsInRequest): AsyncResponse[Periods] =
+    stripNinoSuffixAndExecOp(
+      maybeNino,
+      nino =>
+        if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods(postPeriods))
+        else Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
+    )
 }

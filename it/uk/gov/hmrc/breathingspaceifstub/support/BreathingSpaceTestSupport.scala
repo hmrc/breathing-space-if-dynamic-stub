@@ -25,7 +25,7 @@ import play.api.http.MimeTypes
 import uk.gov.hmrc.breathingspaceifstub._
 import uk.gov.hmrc.breathingspaceifstub.model._
 
-trait BreathingSpaceTestSupport extends Nino {
+trait BreathingSpaceTestSupport extends NinoValidation {
 
   val randomUUID = UUID.randomUUID
   val randomUUIDAsString = randomUUID.toString

@@ -24,6 +24,7 @@ object EndpointId extends Enum[EndpointId] {
 
   case object BS_IndividualAll_DELETE extends EndpointId
   case object BS_Individual_DELETE extends EndpointId
+  case object BS_IndividualExists_GET extends EndpointId
   case object BS_Individual_POST extends EndpointId
   case object BS_Individuals_POST extends EndpointId
   case object BS_Individual_PUT extends EndpointId
@@ -31,6 +32,7 @@ object EndpointId extends Enum[EndpointId] {
   case object BS_Detail_GET extends EndpointId
   case object BS_Detail0_GET extends EndpointId
   case object BS_Detail1_GET extends EndpointId
+  case object BS_Details_GET extends EndpointId
   case object BS_Periods_GET extends EndpointId
   case object BS_Periods_POST extends EndpointId
   case object BS_Periods_PUT extends EndpointId

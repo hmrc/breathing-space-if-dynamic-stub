@@ -16,13 +16,26 @@
 
 package uk.gov.hmrc.breathingspaceifstub.model
 
+import scala.concurrent.Future
 import scala.util.Random
 
-trait Nino {
+import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_NINO
+
+trait NinoValidation {
 
   val validNinoFormat = "^((?!(BG|GB|KN|NK|NT|TN|ZZ)|(D|F|I|Q|U|V)[A-Z]|[A-Z](D|F|I|O|Q|U|V))[A-Z]{2})[0-9]{6}[A-D ]?$"
 
   def isValid(nino: String): Boolean = nino.matches(validNinoFormat)
+
+  def stripNinoSuffixAndExecOp[T](nino: String, f: String => AsyncResponse[T]): AsyncResponse[T] =
+    if (!isValid(nino)) Future.successful(Left(Failure(INVALID_NINO)))
+    else
+      nino.length match {
+        case 8 => f(nino)
+        case 9 => f(nino.substring(0, 8))
+        case _ => Future.successful(Left(Failure(INVALID_NINO)))
+      }
 
   lazy val valid1stChars = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'Q', 'U', 'V').contains).map(_.toString)
   lazy val valid2ndChars = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'O', 'Q', 'U', 'V').contains).map(_.toString)
