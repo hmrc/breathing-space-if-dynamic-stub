@@ -16,7 +16,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest(IndividualDetails.empty.copy(dateOfBirth = dateOfBirth.some).some)
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(individual.nino, IndividualDetail0.fields)
+    val response = getIndividualDetails(individual.nino, IndividualDetail0.fields.some)
     status(response) shouldBe OK
     contentAsJson(response).toString shouldBe
       s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"}"""
@@ -33,7 +33,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest(individualDetails.some)
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(individual.nino, IndividualDetail1.fields)
+    val response = getIndividualDetails(individual.nino, IndividualDetail1.fields.some)
     status(response) shouldBe OK
 
     contentAsJson(response).toString shouldBe
@@ -43,7 +43,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
         .filterNot(_ == '\n')
   }
 
-  test("\"get\" without query parameter \"fields\" (full population)") {
+  test("\"get\" with query parameter \"fields\" for full population") {
     val dateOfBirth = LocalDate.now
     val firstForename = "Joe"
     val surname = "Zawinul"
@@ -54,7 +54,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest(individualDetails.some)
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(individual.nino, "")
+    val response = getIndividualDetails(individual.nino, none)
     status(response) shouldBe OK
 
     contentAsJson(response).toString shouldBe
@@ -74,18 +74,18 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     )
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(ninoWithSuffix, IndividualDetail0.fields)
+    val response = getIndividualDetails(ninoWithSuffix, IndividualDetail0.fields.some)
     status(response) shouldBe OK
     contentAsJson(response).toString shouldBe
       s"""{"nino":"${ninoWithoutSuffix}","dateOfBirth":"$dateOfBirth"}"""
   }
 
   test("\"get\" should return 404(NOT_FOUND) when trying to retrieve details for an unknown Nino") {
-    status(getIndividualDetails(genNino, IndividualDetail0.fields)) shouldBe NOT_FOUND
+    status(getIndividualDetails(genNino, IndividualDetail0.fields.some)) shouldBe NOT_FOUND
   }
 
   test("\"get\" should return 422(UNPROCESSABLE_ENTITY) when \"fields\" provides an unknown \"detail\" value") {
-    val response = getIndividualDetails(genNino, "?fields=details(dateOfBirth,cnrIndicator)")
+    val response = getIndividualDetails(genNino, "?fields=details(dateOfBirth,cnrIndicator)".some)
     status(response) shouldBe UNPROCESSABLE_ENTITY
     (contentAsJson(response) \ "failures" \\ "code").head.as[String] shouldBe UNKNOWN_DATA_ITEM.entryName
   }
