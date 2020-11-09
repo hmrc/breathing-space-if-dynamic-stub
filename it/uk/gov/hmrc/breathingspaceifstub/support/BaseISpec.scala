@@ -30,9 +30,7 @@ import play.api.libs.json.{Json, JsValue}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
 import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.controller.routes.{
-  ErrorCodeController, IndividualController, IndividualDetailsController, PeriodsController
-}
+import uk.gov.hmrc.breathingspaceifstub.controller.routes.{ErrorCodeController, IndividualController, IndividualDetailsController, PeriodsController}
 import uk.gov.hmrc.breathingspaceifstub.model._
 
 trait BaseISpec
@@ -59,7 +57,7 @@ trait BaseISpec
   // Production endpoints
   // ====================
 
-  def getIndividualDetails(nino: String, fields: String): Future[Result] =
+  def getIndividualDetails(nino: String, fields: Option[String]): Future[Result] =
     call(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
 
   def getPeriods(nino: String): Future[Result] = call(Helpers.GET, PeriodsController.get(nino).url)
