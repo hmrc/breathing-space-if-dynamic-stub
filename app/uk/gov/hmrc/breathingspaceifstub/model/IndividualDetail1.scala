@@ -18,7 +18,7 @@ package uk.gov.hmrc.breathingspaceifstub.schema
 
 import java.time.LocalDate
 
-import cats.syntax.option._
+import cats.syntax.option.none
 import play.api.libs.json.Json
 import uk.gov.hmrc.breathingspaceifstub.model
 import uk.gov.hmrc.breathingspaceifstub.repository.Individual

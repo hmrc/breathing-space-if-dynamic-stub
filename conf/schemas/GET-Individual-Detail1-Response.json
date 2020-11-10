@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Schema of GET Individual's Details (filter #1)",
+  "description": "Schema of GET Individual's Details Response (filter #1)",
   "title": "Individual's Details",
   "type": "object",
   "additionalProperties": false,

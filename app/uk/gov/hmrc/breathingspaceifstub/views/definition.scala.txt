@@ -1,0 +1,25 @@
+@import play.api.libs.json.Json
+
+@(v1WhitelistedApplicationIds:  Seq[String])
+
+{
+  "scopes":[],
+  "api": {
+    "name": "Breathing Space Test Support",
+    "description": "Enables setting up test data and simulation of downstream layers for the Breathing Space service.",
+    "context": "breathing-space-test-support",
+    "isTestSupport": true,
+    "categories": ["OTHER"],
+    "versions": [
+      {
+        "version": "1.0",
+        "status": "BETA",
+        "endpointsEnabled": true,
+        "access": {
+          "type": "PRIVATE",
+          "whitelistedApplicationIds": @{Json.toJson(v1WhitelistedApplicationIds)}
+        }
+      }
+    ]
+  }
+}

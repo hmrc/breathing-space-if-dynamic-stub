@@ -3,6 +3,7 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 import java.time.LocalDate
 
 import cats.syntax.option._
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
@@ -18,8 +19,9 @@ class IndividualDetailsControllerISpec extends BaseISpec {
 
     val response = getIndividualDetails(individual.nino, IndividualDetail0.fields.some)
     status(response) shouldBe OK
-    contentAsJson(response).toString shouldBe
-      s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"}"""
+
+    val expectedBody = Json.parse(s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"}""")
+    assert(contentAsJson(response) == expectedBody)
   }
 
   test("\"get\" with query parameter \"fields\" equal to detail #1)") {
@@ -36,14 +38,17 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val response = getIndividualDetails(individual.nino, IndividualDetail1.fields.some)
     status(response) shouldBe OK
 
-    contentAsJson(response).toString shouldBe
+    val expectedBody = Json.parse(
       s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth",
          |"nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]}}"""
         .stripMargin
         .filterNot(_ == '\n')
+    )
+
+    assert(contentAsJson(response) == expectedBody)
   }
 
-  test("\"get\" with query parameter \"fields\" for full population") {
+  test("\"get\" without query parameter \"fields\" (full population)") {
     val dateOfBirth = LocalDate.now
     val firstForename = "Joe"
     val surname = "Zawinul"
@@ -54,14 +59,17 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest(individualDetails.some)
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(individual.nino, none)
+    val response = getIndividualDetails(individual.nino)
     status(response) shouldBe OK
 
-    contentAsJson(response).toString shouldBe
-      s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth",
-         |"nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]}}"""
+    val expectedBody =
+      Json.parse(s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth",
+          |"nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]}}"""
         .stripMargin
         .filterNot(_ == '\n')
+      )
+
+    assert(contentAsJson(response) == expectedBody)
   }
 
   test("\"get\" should work even when the given Nino includes the suffix") {
@@ -76,12 +84,13 @@ class IndividualDetailsControllerISpec extends BaseISpec {
 
     val response = getIndividualDetails(ninoWithSuffix, IndividualDetail0.fields.some)
     status(response) shouldBe OK
-    contentAsJson(response).toString shouldBe
-      s"""{"nino":"${ninoWithoutSuffix}","dateOfBirth":"$dateOfBirth"}"""
+
+    val expectedBody = Json.parse(s"""{"nino":"${ninoWithoutSuffix}","dateOfBirth":"$dateOfBirth"}""")
+    assert(contentAsJson(response) == expectedBody)
   }
 
   test("\"get\" should return 404(NOT_FOUND) when trying to retrieve details for an unknown Nino") {
-    status(getIndividualDetails(genNino, IndividualDetail0.fields.some)) shouldBe NOT_FOUND
+    status(getIndividualDetails(genNino)) shouldBe NOT_FOUND
   }
 
   test("\"get\" should return 422(UNPROCESSABLE_ENTITY) when \"fields\" provides an unknown \"detail\" value") {

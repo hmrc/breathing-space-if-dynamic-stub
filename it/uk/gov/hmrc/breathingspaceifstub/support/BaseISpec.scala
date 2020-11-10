@@ -19,6 +19,7 @@ package uk.gov.hmrc.breathingspaceifstub.support
 import scala.concurrent.Future
 
 import akka.stream.Materializer
+import cats.syntax.option._
 import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -30,7 +31,9 @@ import play.api.libs.json.{Json, JsValue}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
 import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.controller.routes.{ErrorCodeController, IndividualController, IndividualDetailsController, PeriodsController}
+import uk.gov.hmrc.breathingspaceifstub.controller.routes.{
+  ErrorCodeController, IndividualController, IndividualDetailsController, PeriodsController
+}
 import uk.gov.hmrc.breathingspaceifstub.model._
 
 trait BaseISpec
@@ -57,7 +60,7 @@ trait BaseISpec
   // Production endpoints
   // ====================
 
-  def getIndividualDetails(nino: String, fields: Option[String]): Future[Result] =
+  def getIndividualDetails(nino: String, fields: Option[String] = none): Future[Result] =
     call(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
 
   def getPeriods(nino: String): Future[Result] = call(Helpers.GET, PeriodsController.get(nino).url)

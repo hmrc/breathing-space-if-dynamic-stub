@@ -1,14 +1,14 @@
 # Production routes (individual details)
 # ======================================
-GET     /details/NINO/:nino  uk.gov.hmrc.breathingspaceifstub.controller.IndividualDetailsController.get(nino, fields: Option[String])
+GET   /individuals/details/NINO/:nino  uk.gov.hmrc.breathingspaceifstub.controller.IndividualDetailsController.get(nino, fields: Option[String])
 
 # Production routes (BS Periods)
 # ==============================
-GET     /breathing-space/NINO/:nino/periods  uk.gov.hmrc.breathingspaceifstub.controller.PeriodsController.get(nino)
-POST    /breathing-space/NINO/:nino/periods  uk.gov.hmrc.breathingspaceifstub.controller.PeriodsController.post(nino)
+GET   /individuals/breathing-space/NINO/:nino/periods  uk.gov.hmrc.breathingspaceifstub.controller.PeriodsController.get(nino)
+POST  /individuals/breathing-space/NINO/:nino/periods  uk.gov.hmrc.breathingspaceifstub.controller.PeriodsController.post(nino)
 
-# Support routes to tests
-# =======================
+# Test support routes
+# ===================
 DELETE  /wipe-all      uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.deleteAll
 DELETE  /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.delete(nino)
 GET     /count         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.count
