@@ -1,80 +1,92 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Schema of GET Individual's Details (full population)",
-  "title": "Individual's Details",
+  "description": "Schema of POST Individual document request",
+  "title": "Breathing Space Individual Documents",
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "ninoSuffix": {
+    "nino": {
       "type": "string"
     },
-    "residencyList": {
-      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.ResidencyList"
-    },
-    "mergeStatus": {
-      "type": "integer"
-    },
-    "marriageStatusType": {
-      "type": "integer"
-    },
-    "nameList": {
-      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.NameList"
-    },
-    "ntTaxCodeInd": {
-      "type": "integer"
-    },
-    "dateOfDeath": {
-      "type": "string",
-      "format": "date"
-    },
-    "dateOfBirth": {
-      "type": "string",
-      "format": "date"
-    },
-    "liveCapacitorInd": {
-      "type": "integer"
-    },
-    "dateOfRegistration": {
-      "type": "string",
-      "format": "date"
-    },
-    "accountStatusType": {
-      "type": "integer"
-    },
-    "sex": {
-      "type": "string"
-    },
-    "dateOfEntry": {
-      "type": "string",
-      "format": "date"
-    },
-    "dateOfDeathStatus": {
-      "type": "integer"
-    },
-    "permanentTSuffixCaseIndicator": {
-      "type": "integer"
-    },
-    "crnIndicator": {
-      "type": "integer"
-    },
-    "adultRegSerialNumber": {
-      "type": "string"
-    },
-    "indicators": {
-      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.Indicators"
-    },
-    "dateOfBirthStatus": {
-      "type": "integer"
-    },
-    "addressList": {
-      "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.AddressList"
-    },
-    "registrationType": {
-      "type": "integer"
+    "individualDetails": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ninoSuffix": {
+          "type": "string"
+        },
+        "sex": {
+          "type": "string"
+        },
+        "adultRegSerialNumber": {
+          "type": "string"
+        },
+        "mergeStatus": {
+          "type": "integer"
+        },
+        "marriageStatusType": {
+          "type": "integer"
+        },
+        "ntTaxCodeInd": {
+          "type": "integer"
+        },
+        "liveCapacitorInd": {
+          "type": "integer"
+        },
+        "accountStatusType": {
+          "type": "integer"
+        },
+        "dateOfDeathStatus": {
+          "type": "integer"
+        },
+        "permanentTSuffixCaseIndicator": {
+          "type": "integer"
+        },
+        "crnIndicator": {
+          "type": "integer"
+        },
+        "dateOfBirthStatus": {
+          "type": "integer"
+        },
+        "registrationType": {
+          "type": "integer"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "format": "date"
+        },
+        "dateOfDeath": {
+          "type": "string",
+          "format": "date"
+        },
+        "dateOfEntry": {
+          "type": "string",
+          "format": "date"
+        },
+        "dateOfRegistration": {
+          "type": "string",
+          "format": "date"
+        },
+        "nameList": {
+          "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.NameList"
+        },
+        "addressList": {
+          "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.AddressList"
+        },
+        "residencyList": {
+          "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.ResidencyList"
+        },
+        "indicators": {
+          "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.Indicators"
+        }
+      },
+      "required": [
+
+      ]
     }
   },
   "required": [
-
+    "nino"
   ],
   "definitions": {
     "uk.gov.hmrc.breathingspaceifstub.model.AddressData": {

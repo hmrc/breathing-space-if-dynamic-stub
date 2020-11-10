@@ -1,0 +1,271 @@
+#%RAML 1.0
+---
+
+title: Breathing Space
+version: 1.0
+protocols: [ HTTPS ]
+baseUri: https://api.service.hmrc.gov.uk/
+(annotations.deprecationMessage): This version of the API is now deprecated and will be retired soon
+
+documentation:
+  - title: Overview
+    content: !include docs/overview.md
+  - title: Versioning
+    content: !include https://developer.service.hmrc.gov.uk/api-documentation/assets/common/docs/versioning.md
+  - title: Errors
+    content: !include https://developer.service.hmrc.gov.uk/api-documentation/assets/common/docs/errors.md
+
+mediaType: [ application/json ]
+
+uses:
+  sec: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/securitySchemes.raml
+  headers: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/headers.raml
+  annotations: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/annotations.raml
+  types: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/types.raml
+
+/breathing-space-test:
+  /single:
+    post:
+      displayName: Add a new Breathing Space Individual document
+      description: |
+        Add a new Breathing Space Individual document given a non-existing Nino.
+
+        Note that the Nino suffix, if any, must be provided as "individualDetails"'s attribute.
+        The given Nino must not include the suffix, accordingly.
+      is: [headers.contentHeader]
+      securedBy: [ sec.x-application ]
+      body:
+        application/json:
+          examples:
+            examples-1:
+              value: !include examples/POST-Individual-Request-1.json
+            examples-2:
+              value: !include examples/POST-Individual-Request-2.json
+            examples-3:
+              value: !include examples/POST-Individual-Request-3.json
+      responses:
+        201:
+          description: Created
+
+        400:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                invalidJson:
+                  description: Invalid Json
+                  value:
+                    code: INVALID_JSON
+                invalidNino:
+                  description: Invalid Nino
+                  value:
+                    code: INVALID_NINO
+                missingBody:
+                  description: Missing Body
+                  value:
+                    code: MISSING_BODY
+
+        409:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                duplicatedKey:
+                  description: The provided Nino is already existing
+                  value:
+                    code: CONFLICTING_REQUEST
+
+  /bulk:
+    post:
+      displayName: Add one or more new Breathing Space Individual documents
+      description: |
+        Add one or more new Breathing Space Individual documents.
+
+        Note that the Nino suffix, if any, must be provided as "individualDetails"'s attribute.
+        The given Ninos must not include the suffix, accordingly.
+      is: [headers.contentHeader]
+      securedBy: [ sec.x-application ]
+      body:
+        application/json:
+          examples:
+            examples-1:
+              value: !include examples/POST-Individuals-Request-1.json
+            examples-2:
+              value: !include examples/POST-Individuals-Request-2.json
+      responses:
+        200:
+          body:
+            application/json:
+              type: !include schemas/POST-Individuals-Response.json
+              examples:
+                examples-1:
+                  value: !include examples/POST-Individuals-Response.json
+
+        400:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                invalidJson:
+                  description: Invalid Json
+                  value:
+                    code: INVALID_JSON
+                invalidNino:
+                  description: Invalid Nino
+                  value:
+                    code: INVALID_NINO
+                missingBody:
+                  description: Missing Body
+                  value:
+                    code: MISSING_BODY
+
+  /count:
+    get:
+      displayName: Count of the existing Breathing Space Individual documents
+      description: Count of the existing Breathing Space Individual documents.
+      securedBy: [ sec.x-application ]
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/GET-Count-Individuals-Response.json
+              example: !include examples/GET-Count-Individuals-Response.json
+
+  /ninos:
+    get:
+      displayName: List of Ninos of all existing Breathing Space Individual documents
+      description: List of Ninos of all existing Breathing Space Individual documents.
+      securedBy: [ sec.x-application ]
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/GET-List-Individual-Ninos-Response.json
+              example: !include examples/GET-List-Individual-Ninos-Response.json
+
+  /wipe-all:
+    delete:
+      displayName: Remove all Breathing Space Individual documents
+      description: Remove all Breathing Space Individual documents.
+      securedBy: [ sec.x-application ]
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/DELETE-All-Individuals-Response.json
+              example: !include examples/DELETE-All-Individuals-Response.json
+
+  /{nino}:
+    uriParameters:
+      nino:
+        description: |
+          National Insurance Number.
+
+          Must conform to the regular expression. Note that the suffix can optionally be included.
+
+          <code>^((?:[ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]?$</code>
+        type: string
+        example: "MZ006526C, MZ006526"
+
+    delete:
+      displayName: Remove the Breathing Space Individual document of the provided Nino
+      description: Remove the Breathing Space Individual document of the provided Nino.
+      securedBy: [ sec.x-application ]
+      responses:
+        204:
+          description: No Content
+
+        400:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                invalidNino:
+                  description: Invalid Nino
+                  value:
+                    code: INVALID_NINO
+
+        404:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                resourceNotFound:
+                  description: The provided Nino was not found
+                  value:
+                    code: RESOURCE_NOT_FOUND
+
+    get:
+      displayName: Determines if a Breathing Space Individual document exists for the provided Nino
+      description: Determines if a Breathing Space Individual document exists for the provided Nino.
+      securedBy: [ sec.x-application ]
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/GET-Exists-Individual-Response.json
+              example: !include examples/GET-Exists-Individual-Response.json
+
+        400:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                invalidNino:
+                  description: Invalid Nino
+                  value:
+                    code: INVALID_NINO
+
+        404:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                resourceNotFound:
+                  description: The provided Nino was not found
+                  value:
+                    code: RESOURCE_NOT_FOUND
+
+    put:
+      displayName: Replace the Individual details for the provided Nino
+      description: Replace the Individual details for the provided Nino.
+      is: [headers.contentHeader]
+      securedBy: [ sec.x-application ]
+      body:
+        application/json:
+          examples:
+            examples-1:
+              value: !include examples/PUT-Individual-Details-Request-1.json
+            examples-2:
+              value: !include examples/PUT-Individual-Details-Request-2.json
+      responses:
+        204:
+          description: No Content
+
+        400:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                invalidJson:
+                  description: Invalid Json
+                  value:
+                    code: INVALID_JSON
+                invalidNino:
+                  description: Invalid Nino
+                  value:
+                    code: INVALID_NINO
+                missingBody:
+                  description: Missing Body
+                  value:
+                    code: MISSING_BODY
+
+        404:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                resourceNotFound:
+                  description: The provided Nino was not found
+                  value:
+                    code: RESOURCE_NOT_FOUND

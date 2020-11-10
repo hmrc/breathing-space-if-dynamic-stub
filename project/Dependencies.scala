@@ -9,6 +9,7 @@ object Dependencies {
     "com.beachape"        %% "enumeratum"                 % "1.6.1",
     "ai.x"                %% "play-json-extensions"       % "0.42.0",
     "com.github.andyglow" %% "scala-jsonschema"           % "0.4.0",
+    "uk.gov.hmrc"         %% "raml-tools"                 % "1.18.0",
     "uk.gov.hmrc"         %% "simple-reactivemongo"       % "7.30.0-play-27"
   )
 

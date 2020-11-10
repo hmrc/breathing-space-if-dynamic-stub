@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Schema of GET Individual's Details (full population)",
-  "title": "Individual's Details",
+  "description": "Schema of PUT Individual Details document request",
+  "title": "Breathing Space Individual Documents",
   "type": "object",
   "additionalProperties": false,
   "properties": {

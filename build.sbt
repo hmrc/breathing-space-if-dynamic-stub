@@ -13,6 +13,7 @@ lazy val microservice = Project(appName, file("."))
     majorVersion             := 0,
     scalaVersion             := "2.12.12",
     PlayKeys.playDefaultPort := 9601,
+    TwirlKeys.templateImports := Seq(),
     libraryDependencies      ++= Dependencies.compile ++ Dependencies.test,
     scalacOptions ++= Seq(
       "-Xfatal-warnings",
@@ -43,9 +44,10 @@ unmanagedResourceDirectories in IntegrationTest += baseDirectory.value / "it" / 
 lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   coverageExcludedPackages := List(
     "<empty>",
+    "uk\\.gov\\.hmrc\\.breathingspaceifproxy\\.views\\..*",
     ".*(Reverse|AuthService|BuildInfo|Routes).*"
   ).mkString(";"),
-  coverageMinimum := 96,
+  coverageMinimum := 90,
   coverageFailOnMinimum := false,
   coverageHighlighting := true
 )

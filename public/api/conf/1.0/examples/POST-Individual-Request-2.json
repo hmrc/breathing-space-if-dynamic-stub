@@ -1,0 +1,22 @@
+{
+  "nino": "MZ123456",
+  "individualDetails": {
+    "ninoSuffix": "A",
+    "sex": "M",
+    "adultRegSerialNumber": "A",
+    "mergeStatus": 0,
+    "marriageStatusType": 0,
+    "ntTaxCodeInd": 0,
+    "liveCapacitorInd": 0,
+    "accountStatusType": 0,
+    "dateOfDeathStatus": 0,
+    "permanentTSuffixCaseIndicator": 0,
+    "crnIndicator": 0,
+    "dateOfBirthStatus": 0,
+    "registrationType": 0,
+    "dateOfBirth": "1976-12-11",
+    "dateOfDeath": "1976-12-11",
+    "dateOfEntry": "1976-12-11",
+    "dateOfRegistration": "1976-12-11"
+  }
+}

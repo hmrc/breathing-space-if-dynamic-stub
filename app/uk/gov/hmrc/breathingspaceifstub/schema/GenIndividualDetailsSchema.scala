@@ -27,8 +27,10 @@ import uk.gov.hmrc.breathingspaceifstub.model._
 
 object GenIndividualDetailsSchema extends App {
 
-  val title = "Individual's Details"
-  val description = "Schema of GET Individual's Details "
+  val titleForDetails = "Individual's Details"
+  val titleForIndividual = "Breathing Space Individual Documents"
+
+  val destinationFolder = "conf/schemas"
 
   // Full population ------------------------------------------------------------------------
 
@@ -40,30 +42,71 @@ object GenIndividualDetailsSchema extends App {
   implicit val addressListSchema: Schema[AddressList] = Json.schema[AddressList]
   implicit val residencyListSchema: Schema[ResidencyList] = Json.schema[ResidencyList]
 
-  implicit val detailsSchema: Schema[IndividualDetails] =
-    Json.schema[IndividualDetails].withTitle(title).withDescription(s"$description(full population)")
+  final case class ListOfNinos(ninos: List[String])
 
-  // Detail0 --------------------------------------------------------------------------------
+  private def genPostIndividualRequestSchema(): Unit = {
+    val description = "Schema of POST Individual document request"
+    genSchemaFile(
+      Json.schema[IndividualInRequest].withTitle(titleForIndividual).withDescription(description),
+      destinationFile = "POST-Individual-Request.json"
+    )
+  }
 
-  implicit val detail0Schema: Schema[IndividualDetail0] =
-    Json.schema[IndividualDetail0].withTitle(title).withDescription(s"$description(filter #0)")
+  private def genPostIndividualsRequestSchema(): Unit = {
+    val description = "Schema of POST Individual documents request"
+    genSchemaFile(
+      Json.schema[IndividualsInRequest].withTitle(titleForIndividual).withDescription(description),
+      destinationFile = "POST-Individuals-Request.json"
+    )
+  }
 
-  // Detail1 --------------------------------------------------------------------------------
+  private def genPostIndividualsResponseSchema(): Unit = {
+    val description = "Schema of POST Individual documents response"
+    genSchemaFile(
+      Json.schema[BulkWriteResult].withTitle(titleForIndividual).withDescription(description),
+      destinationFile = "POST-Individuals-Response.json"
+    )
+  }
 
-  implicit val detail1Schema: Schema[IndividualDetail1] =
-    Json.schema[IndividualDetail1].withTitle(title).withDescription(s"$description(filter #1)")
+  private def genPutIndividualRequestSchema(): Unit = {
+    val description = "Schema of PUT Individual Details document request"
+    genSchemaFile(
+      Json.schema[IndividualDetails].withTitle(titleForIndividual).withDescription(description),
+      destinationFile = "PUT-Individual-Details-Request.json"
+    )
+  }
 
-  // ----------------------------------------------------------------------------------------
+  private def genGetListOfNinosResponseSchema(): Unit = {
+    val description = "Schema of List of Ninos of all existing Individual Documents response"
+    genSchemaFile(
+      Json.schema[ListOfNinos].withTitle(titleForIndividual).withDescription(description),
+      destinationFile = "GET-List-Individual-Ninos-Response.json"
+    )
+  }
 
-  val destinationFolder = "conf/schemas"
+  private def genGetIndividualDetail0ResponseSchema(): Unit = {
+    val description = "Schema of GET Individual's Details Response (filter #0)"
+    genSchemaFile(
+      Json.schema[IndividualDetail0].withTitle(titleForDetails).withDescription(description),
+      destinationFile = "GET-Individual-Detail0-Response.json"
+    )
+  }
 
-  print("\n")
+  private def genGetIndividualDetail1ResponseSchema(): Unit = {
+    val description = "Schema of GET Individual's Details Response (filter #1)"
+    genSchemaFile(
+      Json.schema[IndividualDetail1].withTitle(titleForDetails).withDescription(description),
+      destinationFile = "GET-Individual-Detail1-Response.json"
+    )
+  }
 
-  genSchemaFile(detail0Schema, "GET-Individual-Detail0-Schema.json")
-  genSchemaFile(detail1Schema, "GET-Individual-Detail1-Schema.json")
-  genSchemaFile(detailsSchema, "GET-Individual-Details-Schema.json")
-
-  print(s"\n\nAll Json schema were generated Generated in $destinationFolder\n\n")
+  private def genGetIndividualDetailsSchema(): Unit = {
+    val description = "Schema of GET Individual's Details (full population)"
+    genSchemaFile(
+      Json.schema[IndividualDetails].withTitle(titleForDetails).withDescription(description),
+      destinationFile = "GET-Individual-Details.json"
+    )
+  }
 
   private def genSchemaFile[T](schema: Schema[T], destinationFile: String): Unit = {
     val path = Paths.get(s"$destinationFolder/$destinationFile")
@@ -72,4 +115,17 @@ object GenIndividualDetailsSchema extends App {
     Files.write(path, format(AsValue.schema(schema, Draft04())).getBytes(StandardCharsets.UTF_8))
     print(s"\nGenerated a Json schema($destinationFile) in $destinationFolder")
   }
+
+  print("\n")
+
+  genPostIndividualRequestSchema()
+  genPostIndividualsRequestSchema()
+  genPostIndividualsResponseSchema()
+  genPutIndividualRequestSchema()
+  genGetListOfNinosResponseSchema()
+  genGetIndividualDetail0ResponseSchema()
+  genGetIndividualDetail1ResponseSchema()
+  genGetIndividualDetailsSchema()
+
+  print(s"\n\nAll Json schema were generated Generated in $destinationFolder\n\n")
 }
