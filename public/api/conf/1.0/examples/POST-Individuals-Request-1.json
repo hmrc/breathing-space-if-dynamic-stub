@@ -6,6 +6,7 @@
     {
       "nino": "AS000002",
       "individualDetails": {
+        "ninoSuffix": "C",
         "dateOfBirth": "1980-01-01"
       }
     }

@@ -5,7 +5,7 @@ title: Breathing Space
 version: 1.0
 protocols: [ HTTPS ]
 baseUri: https://api.service.hmrc.gov.uk/
-(annotations.deprecationMessage): This version of the API is now deprecated and will be retired soon
+(annotations.deprecationMessage): The version of the API is now deprecated and will be retired soon
 
 documentation:
   - title: Overview
@@ -23,25 +23,29 @@ uses:
   annotations: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/annotations.raml
   types: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/types.raml
 
-/breathing-space-test:
+/breathing-space-test-support:
   /single:
     post:
       displayName: Add a new Breathing Space Individual document
       description: |
         Add a new Breathing Space Individual document given a non-existing Nino.
 
-        Note that the Nino suffix, if any, must be provided as "individualDetails"'s attribute.
-        The given Nino must not include the suffix, accordingly.
+        Note that the Nino suffix is removed if included in the "nino" attribute.
+        The Nino suffix, if any, can only be provided as "individualDetails"'s attribute.
       is: [headers.contentHeader]
       securedBy: [ sec.x-application ]
       body:
         application/json:
+          type: !include schemas/POST-Individual-Request.json
           examples:
             examples-1:
+              description: 1
               value: !include examples/POST-Individual-Request-1.json
             examples-2:
+              description: 2
               value: !include examples/POST-Individual-Request-2.json
             examples-3:
+              description: 2
               value: !include examples/POST-Individual-Request-3.json
       responses:
         201:
@@ -82,15 +86,18 @@ uses:
         Add one or more new Breathing Space Individual documents.
 
         Note that the Nino suffix, if any, must be provided as "individualDetails"'s attribute.
-        The given Ninos must not include the suffix, accordingly.
+        The given "nino" attributes must not include the suffix.
       is: [headers.contentHeader]
       securedBy: [ sec.x-application ]
       body:
         application/json:
+          type: !include schemas/POST-Individuals-Request.json
           examples:
             examples-1:
+              description: 1
               value: !include examples/POST-Individuals-Request-1.json
             examples-2:
+              description: 2
               value: !include examples/POST-Individuals-Request-2.json
       responses:
         200:
@@ -168,8 +175,8 @@ uses:
         example: "MZ006526C, MZ006526"
 
     delete:
-      displayName: Remove the Breathing Space Individual document of the provided Nino
-      description: Remove the Breathing Space Individual document of the provided Nino.
+      displayName: Remove the Breathing Space Individual document of the given Nino
+      description: Remove the Breathing Space Individual document of the given Nino.
       securedBy: [ sec.x-application ]
       responses:
         204:
@@ -196,8 +203,8 @@ uses:
                     code: RESOURCE_NOT_FOUND
 
     get:
-      displayName: Determines if a Breathing Space Individual document exists for the provided Nino
-      description: Determines if a Breathing Space Individual document exists for the provided Nino.
+      displayName: Determines if a Breathing Space Individual document exists for the given Nino
+      description: Determines if a Breathing Space Individual document exists for the given Nino.
       securedBy: [ sec.x-application ]
       responses:
         200:
@@ -227,16 +234,19 @@ uses:
                     code: RESOURCE_NOT_FOUND
 
     put:
-      displayName: Replace the Individual details for the provided Nino
-      description: Replace the Individual details for the provided Nino.
+      displayName: Replace the Individual details for the given Nino
+      description: Replace the Individual details for the given Nino.
       is: [headers.contentHeader]
       securedBy: [ sec.x-application ]
       body:
         application/json:
+          type: !include schemas/IndividualDetails.json
           examples:
             examples-1:
+              description: 1
               value: !include examples/PUT-Individual-Details-Request-1.json
             examples-2:
+              description: 2
               value: !include examples/PUT-Individual-Details-Request-2.json
       responses:
         204:

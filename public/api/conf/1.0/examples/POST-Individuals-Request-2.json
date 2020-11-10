@@ -1,8 +1,9 @@
 {
   "individuals": [
     {
-      "nino": "AS000007A",
+      "nino": "AS000006",
       "individualDetails": {
+        "dateOfBirth": "1954-06-05",
         "nameList": {
           "name": [
             {
@@ -16,11 +17,27 @@
     {
       "nino": "AS000007",
       "individualDetails": {
-        "dateOfBirth": "1990-12-31",
+        "dateOfBirth": "1951-12-01",
         "nameList": {
           "name": [
             {
-              "firstForename": "Jaco"
+              "firstForename": "Jaco",
+              "surname": "Pastorius"
+            }
+          ]
+        },
+        "addressList": {
+          "address": [
+            {
+              "addressLine1": "Heaven"
+            }
+          ]
+        },
+        "residencyList": {
+          "residency": [
+            {
+              "residencySequenceNumber": 9999,
+              "dateLeavingUK": "1987-09-21"
             }
           ]
         }
