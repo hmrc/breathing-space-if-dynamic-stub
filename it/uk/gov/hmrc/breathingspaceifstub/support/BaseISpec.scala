@@ -31,9 +31,7 @@ import play.api.libs.json.{Json, JsValue}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
 import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.controller.routes.{
-  ErrorCodeController, IndividualController, IndividualDetailsController, PeriodsController
-}
+import uk.gov.hmrc.breathingspaceifstub.controller.routes._
 import uk.gov.hmrc.breathingspaceifstub.model._
 
 trait BaseISpec
