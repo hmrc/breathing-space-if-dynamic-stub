@@ -9,8 +9,8 @@ POST  /individuals/breathing-space/NINO/:nino/periods  uk.gov.hmrc.breathingspac
 
 # API Definitions specific routes
 # ===============================
-GET   /api/definition           uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.getDefinition
-GET   /api/conf/:version/*file  uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.conf(version, file)
+GET   /api/definition           uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.definition
+GET   /api/conf/:version/*file  uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.raml(version, file)
 
 GET   /api/raml                 uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.verify(ramlUrl)
 

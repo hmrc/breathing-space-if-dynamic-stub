@@ -23,7 +23,7 @@ uses:
   annotations: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/annotations.raml
   types: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/types.raml
 
-/breathing-space-test-support:
+/test/individuals/breathing-space:
   /single:
     post:
       displayName: Add a new Breathing Space Individual document
@@ -33,7 +33,8 @@ uses:
         Note that the Nino suffix is removed if included in the "nino" attribute.
         The Nino suffix, if any, can only be provided as "individualDetails"'s attribute.
       is: [headers.contentHeader]
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       body:
         application/json:
           type: !include schemas/POST-Individual-Request.json
@@ -88,7 +89,8 @@ uses:
         Note that the Nino suffix, if any, must be provided as "individualDetails"'s attribute.
         The given "nino" attributes must not include the suffix.
       is: [headers.contentHeader]
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       body:
         application/json:
           type: !include schemas/POST-Individuals-Request.json
@@ -130,7 +132,8 @@ uses:
     get:
       displayName: Count of the existing Breathing Space Individual documents
       description: Count of the existing Breathing Space Individual documents.
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       responses:
         200:
           body:
@@ -142,7 +145,8 @@ uses:
     get:
       displayName: List of Ninos of all existing Breathing Space Individual documents
       description: List of Ninos of all existing Breathing Space Individual documents.
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       responses:
         200:
           body:
@@ -154,7 +158,8 @@ uses:
     delete:
       displayName: Remove all Breathing Space Individual documents
       description: Remove all Breathing Space Individual documents.
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       responses:
         200:
           body:
@@ -177,7 +182,8 @@ uses:
     delete:
       displayName: Remove the Breathing Space Individual document of the given Nino
       description: Remove the Breathing Space Individual document of the given Nino.
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       responses:
         204:
           description: No Content
@@ -205,7 +211,8 @@ uses:
     get:
       displayName: Determines if a Breathing Space Individual document exists for the given Nino
       description: Determines if a Breathing Space Individual document exists for the given Nino.
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       responses:
         200:
           body:
@@ -237,7 +244,8 @@ uses:
       displayName: Replace the Individual details for the given Nino
       description: Replace the Individual details for the given Nino.
       is: [headers.contentHeader]
-      securedBy: [ sec.x-application ]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
       body:
         application/json:
           type: !include schemas/IndividualDetails.json
