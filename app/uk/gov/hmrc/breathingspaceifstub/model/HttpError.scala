@@ -37,6 +37,12 @@ object HttpError extends Logging {
     apply(correlationId.toString.some, if (httpCode == 0) failure.baseError.httpCode else httpCode, payload)
   }
 
+  def asErrorItem(correlationId: => Option[String], failure: Failure, httpCode: Int = 0): HttpError = {
+    implicit val writes = Failure.asErrorItem
+    val payload = Json.obj("errors" -> List(failure))
+    apply(correlationId.toString.some, if (httpCode == 0) failure.baseError.httpCode else httpCode, payload)
+  }
+
   def apply(correlationId: Option[String], httpCode: Int, payload: JsObject): HttpError = {
     val headers = List(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
     new HttpError(

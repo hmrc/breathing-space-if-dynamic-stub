@@ -41,12 +41,24 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
   }
 
   def logAndGenErrorResult(failure: Failure)(implicit requestId: RequestId): Result =
-    logAndGenHttpError(failure).value
+    logAndGenErrorItem(failure).value
 
   def logAndSendErrorResult(failure: Failure)(implicit requestId: RequestId): Future[Result] =
-    logAndGenHttpError(failure).send
+    logAndGenErrorItem(failure).send
 
-  def logAndGenHttpError(failure: Failure)(implicit requestId: RequestId): HttpError = {
+  private def logAndGenErrorItem(failure: Failure)(implicit requestId: RequestId): HttpError = {
+    val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
+    logger.error(s"$requestId has error code(${failure.baseError.entryName}).$details")
+    HttpError.asErrorItem(requestId.correlationId, failure)
+  }
+
+  def logAndGenFailureResult(failure: Failure)(implicit requestId: RequestId): Result =
+    logAndGenFailure(failure).value
+
+  def logAndSendFailureResult(failure: Failure)(implicit requestId: RequestId): Future[Result] =
+    logAndGenFailure(failure).send
+
+  private def logAndGenFailure(failure: Failure)(implicit requestId: RequestId): HttpError = {
     val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
     logger.error(s"$requestId has error code(${failure.baseError.entryName}).$details")
     HttpError(requestId.correlationId, failure)

@@ -36,17 +36,17 @@ class PeriodsController @Inject()(periodsService: PeriodsService, cc: Controller
     implicit val requestId = RequestId(BS_Detail0_GET)
     periodsService
       .get(nino)
-      .map(_.fold(logAndGenErrorResult, periods => Ok(Json.toJson(periods))))
+      .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
   }
 
   def post(nino: String): Action[Response[PostPeriodsInRequest]] =
     Action.async(withJsonBody[PostPeriodsInRequest]) { implicit request =>
       implicit val requestId = RequestId(BS_Periods_POST)
       request.body.fold(
-        logAndSendErrorResult,
+        logAndSendFailureResult,
         periodsService
           .post(nino, _)
-          .map(_.fold(logAndGenErrorResult, periods => Created(Json.toJson(periods))))
+          .map(_.fold(logAndGenFailureResult, periods => Created(Json.toJson(periods))))
       )
     }
 }

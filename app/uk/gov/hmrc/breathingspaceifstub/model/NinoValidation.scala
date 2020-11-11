@@ -29,13 +29,13 @@ trait NinoValidation {
   def isValid(nino: String): Boolean = nino.matches(validNinoFormat)
 
   def stripNinoSuffixAndExecOp[T](nino: String, f: String => AsyncResponse[T]): AsyncResponse[T] =
-    if (!isValid(nino)) Future.successful(Left(Failure(INVALID_NINO)))
-    else
+    if (isValid(nino)) {
       nino.length match {
         case 8 => f(nino)
         case 9 => f(nino.substring(0, 8))
         case _ => Future.successful(Left(Failure(INVALID_NINO)))
       }
+    } else Future.successful(Left(Failure(INVALID_NINO)))
 
   lazy val valid1stChars = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'Q', 'U', 'V').contains).map(_.toString)
   lazy val valid2ndChars = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'O', 'Q', 'U', 'V').contains).map(_.toString)
