@@ -1,69 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Breathing Space Individual Documents",
-  "description": "Schema of POST Individual document request",
+  "description": "Schema of POST single Individual document request",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "nino": {
-      "$ref": "NinoWithoutSuffix.json"
+      "$ref": "NinoWithSuffix.json"
     },
     "individualDetails" : {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "ninoSuffix": {
-          "type": "string"
-        },
-        "sex": {
-          "type": "string"
-        },
-        "adultRegSerialNumber": {
-          "type": "string"
-        },
-        "dateOfBirth": {
-          "$ref": "IsoDate.json"
-        },
-        "dateOfDeath": {
-          "$ref": "IsoDate.json"
-        },
-        "dateOfEntry": {
-          "$ref": "IsoDate.json"
-        },
-        "dateOfRegistration": {
-          "$ref": "IsoDate.json"
-        },
-        "mergeStatus": {
-          "type": "integer"
-        },
-        "marriageStatusType": {
-          "type": "integer"
-        },
-        "ntTaxCodeInd": {
-          "type": "integer"
-        },
-        "liveCapacitorInd": {
-          "type": "integer"
-        },
-        "accountStatusType": {
-          "type": "integer"
-        },
-        "dateOfDeathStatus": {
-          "type": "integer"
-        },
-        "permanentTSuffixCaseIndicator": {
-          "type": "integer"
-        },
-        "crnIndicator": {
-          "type": "integer"
-        },
-        "dateOfBirthStatus": {
-          "type": "integer"
-        },
-        "registrationType": {
-          "type": "integer"
-        }
-      }
+      "$ref": "IndividualDetails.json"
     }
   },
   "required": ["nino"]

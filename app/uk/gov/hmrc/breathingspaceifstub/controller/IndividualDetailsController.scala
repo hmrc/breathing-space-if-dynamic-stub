@@ -44,11 +44,8 @@ class IndividualDetailsController @Inject()(
         .map(
           _.fold(
             logAndGenErrorResult,
-            individualDetails => {
-              val res = (Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject]).toString
-              print(res)
+            individualDetails =>
               Ok(Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject])
-            }
           )
         )
     } {
