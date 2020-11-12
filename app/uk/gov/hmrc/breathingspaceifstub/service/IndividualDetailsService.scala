@@ -24,7 +24,6 @@ import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_FOUND
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
-import uk.gov.hmrc.breathingspaceifstub.schema.IndividualDetail1
 
 @Singleton
 class IndividualDetailsService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
@@ -37,16 +36,6 @@ class IndividualDetailsService @Inject()(individualRepository: IndividualReposit
         .findIndividual(_)
         .map(_.fold[Response[IndividualDetail0]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
           Right(IndividualDetail0(individual))
-        })
-    )
-
-  def getIndividualDetail1(nino: String): AsyncResponse[IndividualDetail1] =
-    stripNinoSuffixAndExecOp(
-      nino,
-      individualRepository
-        .findIndividual(_)
-        .map(_.fold[Response[IndividualDetail1]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
-          Right(IndividualDetail1(individual))
         })
     )
 

@@ -25,7 +25,6 @@ import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.model.{Failure, IndividualDetail0, RequestId}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
-import uk.gov.hmrc.breathingspaceifstub.schema.IndividualDetail1
 import uk.gov.hmrc.breathingspaceifstub.service.IndividualDetailsService
 
 @Singleton()
@@ -55,12 +54,6 @@ class IndividualDetailsController @Inject()(
           individualDetailsService
             .getIndividualDetail0(nino)
             .map(_.fold(logAndGenFailureResult, individualDetail0 => Ok(Json.toJson(individualDetail0))))
-
-        case IndividualDetail1.fields =>
-          implicit val requestId = RequestId(BS_Detail1_GET)
-          individualDetailsService
-            .getIndividualDetail1(nino)
-            .map(_.fold(logAndGenFailureResult, individualDetail1 => Ok(Json.toJson(individualDetail1))))
 
         case _ =>
           implicit val requestId = RequestId(BS_Detail_GET)

@@ -7,24 +7,11 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
-import uk.gov.hmrc.breathingspaceifstub.schema.IndividualDetail1
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class IndividualDetailsControllerISpec extends BaseISpec {
 
   test("\"get\" with query parameter \"fields\" equal to detail #0)") {
-    val dateOfBirth = LocalDate.now
-    val individual = genIndividualInRequest(IndividualDetails.empty.copy(dateOfBirth = dateOfBirth.some).some)
-    status(postIndividual(individual)) shouldBe CREATED
-
-    val response = getIndividualDetails(individual.nino, IndividualDetail0.fields.some)
-    status(response) shouldBe OK
-
-    val expectedBody = Json.parse(s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"}""")
-    assert(contentAsJson(response) == expectedBody)
-  }
-
-  test("\"get\" with query parameter \"fields\" equal to detail #1)") {
     val dateOfBirth = LocalDate.now
     val firstForename = "Joe"
     val surname = "Zawinul"
@@ -35,12 +22,11 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest(individualDetails.some)
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(individual.nino, IndividualDetail1.fields.some)
+    val response = getIndividualDetails(individual.nino, IndividualDetail0.fields.some)
     status(response) shouldBe OK
 
     val expectedBody = Json.parse(
-      s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth",
-         |"nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]}}"""
+      s"""{"nino":"${individual.nino}","firstForename":"$firstForename","surname":"$surname","dateOfBirth":"$dateOfBirth"}"""
         .stripMargin
         .filterNot(_ == '\n')
     )
