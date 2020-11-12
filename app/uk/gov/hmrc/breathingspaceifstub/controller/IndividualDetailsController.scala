@@ -43,7 +43,7 @@ class IndividualDetailsController @Inject()(
         .getIndividualDetails(nino)
         .map(
           _.fold(
-            logAndGenErrorResult,
+            logAndGenFailureResult,
             individualDetails =>
               Ok(Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject])
           )
@@ -54,17 +54,17 @@ class IndividualDetailsController @Inject()(
           implicit val requestId = RequestId(BS_Detail0_GET)
           individualDetailsService
             .getIndividualDetail0(nino)
-            .map(_.fold(logAndGenErrorResult, individualDetail0 => Ok(Json.toJson(individualDetail0))))
+            .map(_.fold(logAndGenFailureResult, individualDetail0 => Ok(Json.toJson(individualDetail0))))
 
         case IndividualDetail1.fields =>
           implicit val requestId = RequestId(BS_Detail1_GET)
           individualDetailsService
             .getIndividualDetail1(nino)
-            .map(_.fold(logAndGenErrorResult, individualDetail1 => Ok(Json.toJson(individualDetail1))))
+            .map(_.fold(logAndGenFailureResult, individualDetail1 => Ok(Json.toJson(individualDetail1))))
 
         case _ =>
           implicit val requestId = RequestId(BS_Detail_GET)
-          logAndGenHttpError(Failure(UNKNOWN_DATA_ITEM)).send
+          logAndSendFailureResult(Failure(UNKNOWN_DATA_ITEM))
       }
     }
   }

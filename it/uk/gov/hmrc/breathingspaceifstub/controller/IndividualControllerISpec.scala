@@ -96,7 +96,7 @@ class IndividualControllerISpec extends BaseISpec {
 
     val response = postIndividual(individual)
     status(response) shouldBe CONFLICT
-    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${CONFLICTING_REQUEST.entryName}"""))
+    assert(contentAsString(response).startsWith(s"""{"errors":[{"code":"${CONFLICTING_REQUEST.entryName}"""))
   }
 
   test("\"postIndividuals\" should successfully add all given new documents to the \"individual\" collection") {
@@ -124,7 +124,7 @@ class IndividualControllerISpec extends BaseISpec {
     val individual2 = IndividualInRequest(genNinoWithSuffix, none)
     val response = postIndividuals(IndividualsInRequest(List(individual1, individual2, individual1)))
     status(response) shouldBe BAD_REQUEST
-    (contentAsJson(response) \ "failures" \\ "code").head.as[String] shouldBe "INVALID_NINO"
+    (contentAsJson(response) \ "errors" \\ "code").head.as[String] shouldBe "INVALID_NINO"
   }
 
   test("\"replaceIndividualDetails\" should successfully replace the individual details for the given Nino") {

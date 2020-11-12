@@ -61,7 +61,7 @@ class ErrorHandler @Inject()(
     Json.arr(
       Json.obj(
         "code" -> httpErrorCodes.getOrElse[String](statusCode, "SERVER_ERROR"),
-        "message" -> message
+        "reason" -> message
       )
     )
 

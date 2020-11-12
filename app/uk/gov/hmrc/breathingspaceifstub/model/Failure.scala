@@ -70,4 +70,12 @@ object Failure {
         "reason" -> failure.baseError.message
       )
   }
+
+  val asErrorItem = new Writes[Failure] {
+    def writes(failure: Failure): JsObject =
+      Json.obj(
+        "code" -> failure.baseError.entryName,
+        "message" -> failure.baseError.message
+      )
+  }
 }
