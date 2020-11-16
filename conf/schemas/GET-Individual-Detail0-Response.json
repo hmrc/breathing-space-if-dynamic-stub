@@ -5,15 +5,42 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "addressLine1": {
+      "type": "string"
+    },
     "nino": {
+      "type": "string"
+    },
+    "addressPostcode": {
+      "type": "string"
+    },
+    "addressLine4": {
+      "type": "string"
+    },
+    "surname": {
       "type": "string"
     },
     "dateOfBirth": {
       "type": "string",
       "format": "date"
     },
-    "crnIndicator": {
+    "secondForename": {
+      "type": "string"
+    },
+    "addressLine3": {
+      "type": "string"
+    },
+    "countryCode": {
       "type": "integer"
+    },
+    "addressLine2": {
+      "type": "string"
+    },
+    "firstForename": {
+      "type": "string"
+    },
+    "addressLine5": {
+      "type": "string"
     }
   },
   "required": [

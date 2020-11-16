@@ -18,6 +18,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "liveAgentInd": {
+                "type": "integer"
+              },
               "ninoSuffix": {
                 "type": "string"
               },
@@ -34,6 +37,9 @@
                 "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.NameList"
               },
               "ntTaxCodeInd": {
+                "type": "integer"
+              },
+              "currOptimisticLock": {
                 "type": "integer"
               },
               "dateOfDeath": {
@@ -73,11 +79,17 @@
               "adultRegSerialNumber": {
                 "type": "string"
               },
+              "cesaAgentIdentifier": {
+                "type": "string"
+              },
               "indicators": {
                 "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.Indicators"
               },
               "dateOfBirthStatus": {
                 "type": "integer"
+              },
+              "cesaAgentClientReference": {
+                "type": "string"
               },
               "addressList": {
                 "$ref": "#/definitions/uk.gov.hmrc.breathingspaceifstub.model.AddressList"
