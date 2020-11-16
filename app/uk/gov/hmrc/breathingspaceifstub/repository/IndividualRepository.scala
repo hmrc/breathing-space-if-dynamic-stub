@@ -31,7 +31,7 @@ import reactivemongo.core.errors.DatabaseException
 import reactivemongo.play.json.collection.Helpers.idWrites
 import uk.gov.hmrc.breathingspaceifstub._
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{CONFLICTING_REQUEST, IDENTIFIER_NOT_FOUND, SERVER_ERROR}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
@@ -70,7 +70,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
               Json.obj("$each" -> periods.periods)
           )
       )
-    findAndUpdate(query, update).map(handleUpdateResult(_, periods))
+    findAndUpdate(query, update).map(handleUpdateResult(_, periods, IDENTIFIER_NOT_FOUND))
   }
 
   def delete(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
@@ -90,7 +90,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] = {
     val query = Json.obj("nino" -> nino)
     val update = Json.obj("$set" -> Json.obj("individualDetails" -> individualDetails))
-    findAndUpdate(query, update).map(handleUpdateResult(_, unit))
+    findAndUpdate(query, update).map(handleUpdateResult(_, unit, RESOURCE_NOT_FOUND))
   }
 
   val duplicateKey = 11000
@@ -105,19 +105,19 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       Left(Failure(CONFLICTING_REQUEST))
   }
 
-  private def handleUpdateResult[T](updateResult: Result[_], result: T): Response[T] =
+  private def handleUpdateResult[T](updateResult: Result[_], result: T, notFound: BaseError): Response[T] =
     updateResult.lastError.fold[Response[T]] {
       Left(Failure(SERVER_ERROR, "updateResult.lastError missing?".some))
     } { lastError =>
-      if (lastError.updatedExisting) Right(result) else resolveUpdateLastError(lastError)
+      if (lastError.updatedExisting) Right(result) else resolveUpdateLastError(lastError, notFound)
     }
 
   private def handleWriteResult[T](writeResult: WriteResult, f: WriteResult => T): Response[T] =
     if (writeResult.ok) Right(f(writeResult))
     else Left(Failure(SERVER_ERROR, resolveWriteResultError(writeResult)))
 
-  private def resolveUpdateLastError[T](updateLastError: UpdateLastError): Response[T] =
-    Left(updateLastError.err.fold(Failure(IDENTIFIER_NOT_FOUND))(err => Failure(SERVER_ERROR, err.some)))
+  private def resolveUpdateLastError[T](updateLastError: UpdateLastError, notFound: BaseError): Response[T] =
+    Left(updateLastError.err.fold(Failure(notFound))(err => Failure(SERVER_ERROR, err.some)))
 
   private def resolveWriteResultError(writeResult: WriteResult): Option[String] =
     WriteResult

@@ -230,16 +230,6 @@ uses:
                   value:
                     code: INVALID_NINO
 
-        404:
-          body:
-            application/json:
-              type: types.errorResponse
-              examples:
-                resourceNotFound:
-                  description: The provided Nino was not found
-                  value:
-                    code: RESOURCE_NOT_FOUND
-
     put:
       displayName: Replace the Individual details for the given Nino
       description: Replace the Individual details for the given Nino.
