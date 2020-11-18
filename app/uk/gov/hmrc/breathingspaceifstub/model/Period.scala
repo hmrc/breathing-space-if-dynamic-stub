@@ -44,4 +44,9 @@ object Periods {
     Periods(periodsInRequest.periods.map { periodInRequest =>
       Period(UUID.randomUUID, periodInRequest.startDate, periodInRequest.endDate)
     })
+
+  def apply(periodsInRequest: List[PeriodInRequest]): List[Period] =
+    periodsInRequest.map { periodInRequest =>
+      Period(UUID.randomUUID, periodInRequest.startDate, periodInRequest.endDate)
+    }
 }

@@ -20,7 +20,8 @@ import play.api.libs.json.Json
 
 final case class IndividualInRequest(
   nino: String,
-  individualDetails: Option[IndividualDetails]
+  individualDetails: Option[IndividualDetails],
+  periods: Option[List[PostPeriodInRequest]]
 )
 object IndividualInRequest { implicit val format = Json.format[IndividualInRequest] }
 

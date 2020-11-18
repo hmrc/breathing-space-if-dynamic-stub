@@ -44,7 +44,7 @@ trait BreathingSpaceTestSupport extends NinoValidation {
   )
 
   def genIndividualInRequest(individualDetails: Option[IndividualDetails] = None): IndividualInRequest =
-    IndividualInRequest(genNino, individualDetails)
+    IndividualInRequest(genNino, individualDetails, none)
 
   def genPostPeriodInRequest(withEndDate: Boolean): PostPeriodInRequest =
     PostPeriodInRequest(

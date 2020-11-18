@@ -95,6 +95,40 @@
       "required": [
 
       ]
+    },
+    "periods": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "periods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "startDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "endDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "pegaRequestTimestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "startDate",
+              "pegaRequestTimestamp"
+            ]
+          }
+        }
+      },
+      "required": [
+        "periods"
+      ]
     }
   },
   "required": [

@@ -1,0 +1,16 @@
+{
+  "nino": "AS000015",
+  "individualDetails": {
+    "dateOfBirth": "1932-07-07",
+    "crnIndicator": 0,
+    "nameList": {
+      "name": [
+        {
+          "firstForename": "Joe",
+          "secondForename": "The Keyboard",
+          "surname": "Zawinul"
+        }
+      ]
+    }
+  }
+}

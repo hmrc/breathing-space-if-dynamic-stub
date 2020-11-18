@@ -18,26 +18,24 @@ package uk.gov.hmrc.breathingspaceifstub.repository
 
 import play.api.libs.json.Json
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.breathingspaceifstub.model.{
-  IndividualDetails,
-  IndividualInRequest,
-  Individuals,
-  IndividualsInRequest,
-  Period
-}
+import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats._
 
 final case class Individual(
   nino: String,
   individualDetails: Option[IndividualDetails],
-  periods: List[Period] = List.empty,
+  periods: List[Period],
   id: BSONObjectID = BSONObjectID.generate
 )
 
 object Individual {
 
   def apply(individualInRequest: IndividualInRequest): Individual =
-    Individual(individualInRequest.nino, individualInRequest.individualDetails)
+    Individual(
+      nino = individualInRequest.nino,
+      individualDetails = individualInRequest.individualDetails,
+      periods = individualInRequest.periods.fold(List.empty[Period])(Periods(_))
+    )
 
   def fromIndividualsInRequest(individualsInRequest: IndividualsInRequest): Individuals =
     individualsInRequest.individuals.map(Individual(_))

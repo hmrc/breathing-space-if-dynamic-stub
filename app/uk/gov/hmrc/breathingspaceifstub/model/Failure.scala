@@ -20,6 +20,7 @@ import enumeratum._
 import play.api.http.Status
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json, Writes}
+import uk.gov.hmrc.breathingspaceifstub.httpErrorMap
 
 sealed abstract class BaseError(val httpCode: Int, val message: String) extends EnumEntry
 
@@ -52,10 +53,6 @@ object BaseError extends Enum[BaseError] {
   case object UNKNOWN_DATA_ITEM
       extends BaseError(UNPROCESSABLE_ENTITY, "1 or more data items in the 'fields' query parameter are incorrect")
 
-  // Must only be used by the ErrorCodeController.
-  // The NOT_IMPLEMENTED Http status code was chosen because it's not used by any other BaseError instance.
-  case object UNKNOWN_ERROR_CODE extends BaseError(NOT_IMPLEMENTED, "The error code identifier requested is unknown")
-
   override val values = findValues
 }
 
@@ -63,12 +60,20 @@ final case class Failure(baseError: BaseError, detailsToNotShareUpstream: Option
 
 object Failure {
 
+  class HttpErrorCode(httpCode: Int, message: String) extends BaseError(httpCode = httpCode, message = message)
+
+  def apply(httpCode: Int): Failure =
+    Failure(new HttpErrorCode(httpCode, "Nino suffixed with Http error code"))
+
   implicit val writes = new Writes[Failure] {
-    def writes(failure: Failure): JsObject =
-      Json.obj(
-        "code" -> failure.baseError.entryName,
-        "reason" -> failure.baseError.message
-      )
+    def writes(failure: Failure): JsObject = {
+      val bE = failure.baseError
+      val code =
+        if (bE.isInstanceOf[HttpErrorCode]) httpErrorMap.getOrElse(bE.httpCode, bE.httpCode.toString)
+        else bE.entryName
+
+      Json.obj("code" -> code, "reason" -> bE.message)
+    }
   }
 
   val asErrorItem = new Writes[Failure] {

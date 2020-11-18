@@ -19,7 +19,7 @@ package uk.gov.hmrc.breathingspaceifstub.model
 import scala.concurrent.Future
 import scala.util.Random
 
-import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
+import uk.gov.hmrc.breathingspaceifstub.{httpErrorSet, AsyncResponse}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_NINO
 
 trait NinoValidation {
@@ -29,13 +29,19 @@ trait NinoValidation {
   def isValid(nino: String): Boolean = nino.matches(validNinoFormat)
 
   def stripNinoSuffixAndExecOp[T](nino: String, f: String => AsyncResponse[T]): AsyncResponse[T] =
-    if (isValid(nino)) {
-      nino.length match {
-        case 8 => f(nino)
-        case 9 => f(nino.substring(0, 8))
-        case _ => Future.successful(Left(Failure(INVALID_NINO)))
-      }
-    } else Future.successful(Left(Failure(INVALID_NINO)))
+    if (!isValid(nino)) failed(Failure(INVALID_NINO))
+    else if (nino.length == 9) f(nino.substring(0, 8))
+    else f(nino)
+
+  def stripNinoSuffixAndExecOp[T](
+    nino: String,
+    onDevEnvironment: Boolean,
+    f: String => AsyncResponse[T]
+  ): AsyncResponse[T] =
+    if (!isValid(nino)) failed(Failure(INVALID_NINO))
+    else if (onDevEnvironment && httpErrorSet.contains(nino.take(8))) httpErrorCode(nino)
+    else if (nino.length == 9) f(nino.take(8))
+    else f(nino)
 
   lazy val valid1stChars = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'Q', 'U', 'V').contains).map(_.toString)
   lazy val valid2ndChars = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'O', 'Q', 'U', 'V').contains).map(_.toString)
@@ -59,4 +65,16 @@ trait NinoValidation {
     val suffix = validSuffixes(random.nextInt(validSuffixes.length))
     f"$prefix$number%06d$suffix"
   }
+
+  private def httpErrorCode[T](nino: String): AsyncResponse[T] = {
+    val httpCode = nino.substring(5, 8).toInt
+    val failure =
+      BaseError.values
+        .find(_.httpCode == httpCode)
+        .fold(Failure(httpCode))(Failure(_))
+
+    failed(failure)
+  }
+
+  private def failed[T](f: Failure): AsyncResponse[T] = Future.successful(Left(f))
 }
