@@ -25,6 +25,9 @@ final case class HeaderMapping(nameToMap: String, nameMapped: String)
 @Singleton
 class AppConfig @Inject()(config: Configuration) {
 
+  lazy val onDevEnvironment: Boolean =
+    config.getOptional[String]("environment.id").fold(false)(_.toLowerCase == "development")
+
   // Must be 'lazy'
   lazy val v1WhitelistedApplicationIds =
     config.get[Seq[String]]("api.access.version-1.0.whitelistedApplicationIds")

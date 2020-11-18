@@ -86,8 +86,6 @@ trait BaseISpec
 
   // ==========================================================================================================
 
-  def baseError(baseError: String): Future[Result] = call(Helpers.GET, ErrorCodeController.get(baseError).url)
-
   def call(method: String, url: String): Future[Result] = route(app, fakeRequest(method, url)).get
   def call(method: String, url: String, body: JsValue): Future[Result] =
     route(app, fakeRequest(method, url).withBody(body)).get

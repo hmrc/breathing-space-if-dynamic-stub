@@ -9,6 +9,33 @@
         "ninoSuffix": "C",
         "dateOfBirth": "1980-01-01"
       }
+    },
+    {
+      "nino": "AS000003",
+      "periods" : [
+        {
+          "startDate" : "2020-01-01",
+          "endDate" : "2020-02-29",
+          "pegaRequestTimestamp" : "2020-11-13T20:20:39.000Z"
+        },
+        {
+          "startDate" : "2020-04-01",
+          "pegaRequestTimestamp" : "2020-11-13T20:20:39.000Z"
+        }
+      ]
+    },
+    {
+      "nino": "AS000004",
+      "individualDetails": {
+        "ninoSuffix": "C"
+      },
+      "periods" : [
+        {
+          "startDate" : "2020-01-01",
+          "endDate" : "2020-02-29",
+          "pegaRequestTimestamp" : "2020-11-13T20:20:39.000Z"
+        }
+      ]
     }
   ]
 }

@@ -22,17 +22,20 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.syntax.option._
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_JSON}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
-class PeriodsService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
-    extends NinoValidation {
+class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
+  implicit ec: ExecutionContext
+) extends NinoValidation {
 
   def get(nino: String): AsyncResponse[Periods] =
     stripNinoSuffixAndExecOp(
       nino,
+      appConfig.onDevEnvironment,
       individualRepository
         .findIndividual(_)
         .map {
@@ -45,6 +48,7 @@ class PeriodsService @Inject()(individualRepository: IndividualRepository)(impli
   def post(maybeNino: String, postPeriods: PostPeriodsInRequest): AsyncResponse[Periods] =
     stripNinoSuffixAndExecOp(
       maybeNino,
+      appConfig.onDevEnvironment,
       nino =>
         if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods(postPeriods))
         else Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))

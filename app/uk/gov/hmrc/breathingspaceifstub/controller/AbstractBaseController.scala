@@ -27,6 +27,7 @@ import play.api.mvc._
 import uk.gov.hmrc.breathingspaceifstub._
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
+import uk.gov.hmrc.breathingspaceifstub.model.Failure.HttpErrorCode
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 abstract class AbstractBaseController(cc: ControllerComponents) extends BackendController(cc) with Logging {
@@ -59,8 +60,14 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
     logAndGenFailure(failure).send
 
   private def logAndGenFailure(failure: Failure)(implicit requestId: RequestId): HttpError = {
+    val bE = failure.baseError
+    val code =
+      if (bE.isInstanceOf[HttpErrorCode]) httpErrorMap.getOrElse(bE.httpCode, bE.httpCode.toString)
+      else bE.entryName
+
     val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
-    logger.error(s"$requestId has error code(${failure.baseError.entryName}).$details")
+
+    logger.error(s"$requestId has error code(${code}).$details")
     HttpError(requestId.correlationId, failure)
   }
 

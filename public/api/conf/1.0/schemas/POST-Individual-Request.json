@@ -10,6 +10,9 @@
     },
     "individualDetails" : {
       "$ref": "IndividualDetails.json"
+    },
+    "periods" : {
+      "$ref": "Periods.json"
     }
   },
   "required": ["nino"]

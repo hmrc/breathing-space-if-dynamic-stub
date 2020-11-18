@@ -16,8 +16,6 @@ GET   /api/raml                 uk.gov.hmrc.breathingspaceifstub.controller.Docu
 
 # Test support routes
 # ===================
-GET     /error/:code   uk.gov.hmrc.breathingspaceifstub.controller.ErrorCodeController.get(code)
-
 DELETE  /wipe-all      uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.deleteAll
 DELETE  /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.delete(nino)
 GET     /count         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.count
