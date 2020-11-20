@@ -33,7 +33,7 @@ class PeriodsController @Inject()(periodsService: PeriodsService, cc: Controller
 ) extends AbstractBaseController(cc) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    Thread.sleep(1200000)
+    Thread.sleep(10000)
     implicit val requestId = RequestId(BS_Detail0_GET)
     periodsService
       .get(nino)
