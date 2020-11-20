@@ -1,13 +1,12 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.model.Periods
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class PeriodsControllerISpec extends BaseISpec {
 
   val noEndDate = false
   val withEndDate = true
+/*
 
   test("\"get\" Periods should return all periods for an existing Nino, if any") {
     val individual = genIndividualInRequest()
@@ -86,4 +85,5 @@ class PeriodsControllerISpec extends BaseISpec {
     val postPeriodsInRequest = List(genPostPeriodInRequest(withEndDate))
     status(postPeriods(genNino, postPeriodsInRequest)) shouldBe NOT_FOUND
   }
+*/
 }
