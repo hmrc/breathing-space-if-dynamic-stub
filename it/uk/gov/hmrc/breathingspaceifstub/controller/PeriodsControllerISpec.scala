@@ -136,6 +136,10 @@ class PeriodsControllerISpec extends BaseISpec {
 
     assertPeriodFromPut(periodsFromPut, putPeriod1InRequest)
     assertPeriodFromPut(periodsFromPut, putPeriod2InRequest)
+
+    val getResponseAfterPut = getPeriods(individual.nino)
+    status(getResponseAfterPut) shouldBe OK
+    contentAsJson(getResponseAfterPut).as[Periods].periods.size shouldBe periodsFromGet.size
   }
 
   test("\"put\" Periods should report if the provided Nino is unknown") {
