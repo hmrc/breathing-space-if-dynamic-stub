@@ -107,7 +107,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
     if (periodsToNotUpdate.size == individual.periods.size) {
       Future.successful(Right(Periods(periods = periodsToNotUpdate)))
     } else {
-      val newPeriods = Periods(periods = periods ++ periodsToNotUpdate)
+      val newPeriods = periods ++ periodsToNotUpdate
       collection
         .update(ordered = false)
         .one(
@@ -115,7 +115,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
           Json.obj("$set" -> Json.obj("periods" -> Json.toJson(newPeriods)))
         )
         .map { uwr =>
-          if (uwr.ok && uwr.nModified == 1) Right(newPeriods)
+          if (uwr.ok && uwr.nModified == 1) Right(Periods(periods = newPeriods))
           else {
             Left(Failure(SERVER_ERROR, s"Nino($nino)'s periods were not updated. UpdateWriteResult($uwr)".some))
           }
