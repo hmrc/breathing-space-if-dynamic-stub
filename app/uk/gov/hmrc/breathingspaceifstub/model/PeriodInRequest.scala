@@ -17,22 +17,9 @@
 package uk.gov.hmrc.breathingspaceifstub.model
 
 import java.time.{LocalDate, ZonedDateTime}
+import java.util.UUID
 
 import play.api.libs.json.Json
-
-// --------------------------------------------------------------------------------
-
-trait PeriodInRequest {
-  val startDate: LocalDate
-  val endDate: Option[LocalDate]
-  val pegaRequestTimestamp: ZonedDateTime
-}
-
-// --------------------------------------------------------------------------------
-
-trait PeriodsInRequest {
-  val periods: List[PeriodInRequest]
-}
 
 // --------------------------------------------------------------------------------
 
@@ -40,9 +27,23 @@ final case class PostPeriodInRequest(
   startDate: LocalDate,
   endDate: Option[LocalDate],
   pegaRequestTimestamp: ZonedDateTime
-) extends PeriodInRequest
+)
 
 object PostPeriodInRequest { implicit val format = Json.format[PostPeriodInRequest] }
 
-final case class PostPeriodsInRequest(periods: List[PostPeriodInRequest]) extends PeriodsInRequest
+final case class PostPeriodsInRequest(periods: List[PostPeriodInRequest])
 object PostPeriodsInRequest { implicit val format = Json.format[PostPeriodsInRequest] }
+
+// --------------------------------------------------------------------------------
+
+final case class PutPeriodInRequest(
+  periodID: UUID,
+  startDate: LocalDate,
+  endDate: Option[LocalDate],
+  pegaRequestTimestamp: ZonedDateTime
+)
+
+object PutPeriodInRequest { implicit val format = Json.format[PutPeriodInRequest] }
+
+final case class PutPeriodsInRequest(periods: List[PutPeriodInRequest])
+object PutPeriodsInRequest { implicit val format = Json.format[PutPeriodsInRequest] }

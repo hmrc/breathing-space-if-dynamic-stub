@@ -34,7 +34,7 @@ object Individual {
     Individual(
       nino = individualInRequest.nino,
       individualDetails = individualInRequest.individualDetails,
-      periods = individualInRequest.periods.fold(List.empty[Period])(Periods(_))
+      periods = individualInRequest.periods.fold(List.empty[Period])(Periods.fromPost(_))
     )
 
   def fromIndividualsInRequest(individualsInRequest: IndividualsInRequest): Individuals =

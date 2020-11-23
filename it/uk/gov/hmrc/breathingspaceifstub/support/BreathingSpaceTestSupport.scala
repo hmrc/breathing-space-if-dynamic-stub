@@ -34,6 +34,8 @@ trait BreathingSpaceTestSupport extends NinoValidation {
 
   val attendedUserId = "1234567"
 
+  val withEndDate = true
+
   val genericErrorResponsePayload = """{"failures":[{"code":"AN_ERROR","reason":"An error message"}]}"""
 
   lazy val requestHeaders = List(
@@ -43,10 +45,40 @@ trait BreathingSpaceTestSupport extends NinoValidation {
     Header.UserId -> attendedUserId
   )
 
-  def genIndividualInRequest(individualDetails: Option[IndividualDetails] = None): IndividualInRequest =
-    IndividualInRequest(genNino, individualDetails, none)
+  val individualDetail =
+    IndividualDetails.empty.copy(
+      dateOfBirth = LocalDate.now.some,
+      nameList = NameList(List(NameData.empty.copy(
+        firstForename = "Joe".some,
+        surname = "Zawinul".some
+      ))).some,
+      addressList = AddressList(List(AddressData.empty.copy(
+        addressLine1 = "Somewhere St.".some,
+        addressLine2 = "Flat 1 Lodge".some,
+        addressLine3 = "London".some,
+        addressPostcode = "CC12 4UE".some
+      ))).some
+    )
 
-  def genPostPeriodInRequest(withEndDate: Boolean): PostPeriodInRequest =
+  def genIndividualInRequest(
+    individualDetails: Option[IndividualDetails] = None,
+    withPeriods: Boolean = false
+  ): IndividualInRequest =
+    IndividualInRequest(
+      genNino,
+      individualDetails,
+      if (withPeriods) List(genPostPeriodInRequest(), genPostPeriodInRequest(withEndDate)).some else none
+    )
+
+  def genPutPeriodInRequest(withEndDate: Boolean = false): PutPeriodInRequest =
+    PutPeriodInRequest(
+      UUID.randomUUID,
+      LocalDate.now.minusMonths(2),
+      if (withEndDate) LocalDate.now.some else none,
+      ZonedDateTime.now
+    )
+
+  def genPostPeriodInRequest(withEndDate: Boolean = false): PostPeriodInRequest =
     PostPeriodInRequest(
       LocalDate.now.minusMonths(2),
       if (withEndDate) LocalDate.now.some else none,

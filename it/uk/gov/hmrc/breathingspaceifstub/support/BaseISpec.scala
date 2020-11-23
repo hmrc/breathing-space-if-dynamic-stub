@@ -66,6 +66,9 @@ trait BaseISpec
   def postPeriods(nino: String, postPeriods: List[PostPeriodInRequest]): Future[Result] =
     call(Helpers.POST, PeriodsController.post(nino).url, Json.toJson(PostPeriodsInRequest(postPeriods)))
 
+  def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest]): Future[Result] =
+    call(Helpers.PUT, PeriodsController.put(nino).url, Json.toJson(PutPeriodsInRequest(putPeriods)))
+
   // Support endpoints
   // =================
 

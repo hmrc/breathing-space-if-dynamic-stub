@@ -40,13 +40,13 @@ final case class Periods(periods: List[Period])
 object Periods {
   implicit val format = Json.format[Periods]
 
-  def apply(periodsInRequest: PeriodsInRequest): Periods =
-    Periods(periodsInRequest.periods.map { periodInRequest =>
-      Period(UUID.randomUUID, periodInRequest.startDate, periodInRequest.endDate)
-    })
+  def fromPost(postPeriodsInRequest: List[PostPeriodInRequest]): List[Period] =
+    postPeriodsInRequest.map { postPeriodInRequest =>
+      Period(UUID.randomUUID, postPeriodInRequest.startDate, postPeriodInRequest.endDate)
+    }
 
-  def apply(periodsInRequest: List[PeriodInRequest]): List[Period] =
-    periodsInRequest.map { periodInRequest =>
-      Period(UUID.randomUUID, periodInRequest.startDate, periodInRequest.endDate)
+  def fromPut(putPeriodsInRequest: List[PutPeriodInRequest]): List[Period] =
+    putPeriodsInRequest.map { putPeriodInRequest =>
+      Period(putPeriodInRequest.periodID, putPeriodInRequest.startDate, putPeriodInRequest.endDate)
     }
 }

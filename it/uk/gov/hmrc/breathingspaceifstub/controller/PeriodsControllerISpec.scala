@@ -1,19 +1,22 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import java.time.LocalDate
+
+import cats.syntax.option._
+import org.scalatest.Assertion
+import play.api.test.Helpers._
+import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class PeriodsControllerISpec extends BaseISpec {
-
-  val noEndDate = false
-  val withEndDate = true
-/*
 
   test("\"get\" Periods should return all periods for an existing Nino, if any") {
     val individual = genIndividualInRequest()
     status(postIndividual(individual)) shouldBe CREATED
 
     val postPeriod1 = genPostPeriodInRequest(withEndDate)
-    val postPeriod2 = genPostPeriodInRequest(noEndDate)
+    val postPeriod2 = genPostPeriodInRequest()
     status(postPeriods(individual.nino, List(postPeriod1, postPeriod2))) shouldBe CREATED
 
     val response = getPeriods(individual.nino)
@@ -56,7 +59,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val postPeriodsInRequest = List(
       genPostPeriodInRequest(withEndDate),
-      genPostPeriodInRequest(noEndDate)
+      genPostPeriodInRequest()
     )
     status(postPeriods(individual.nino, postPeriodsInRequest)) shouldBe CREATED
   }
@@ -65,10 +68,10 @@ class PeriodsControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest()
     status(postIndividual(individual)) shouldBe CREATED
 
-    val postPeriodsInRequest1 = List(genPostPeriodInRequest(noEndDate))
+    val postPeriodsInRequest1 = List(genPostPeriodInRequest())
     status(postPeriods(individual.nino, postPeriodsInRequest1)) shouldBe CREATED
 
-    val postPeriodsInRequest2 = List(genPostPeriodInRequest(withEndDate), genPostPeriodInRequest(noEndDate))
+    val postPeriodsInRequest2 = List(genPostPeriodInRequest(withEndDate), genPostPeriodInRequest())
     status(postPeriods(individual.nino, postPeriodsInRequest2)) shouldBe CREATED
 
     val response = getPeriods(individual.nino)
@@ -85,5 +88,84 @@ class PeriodsControllerISpec extends BaseISpec {
     val postPeriodsInRequest = List(genPostPeriodInRequest(withEndDate))
     status(postPeriods(genNino, postPeriodsInRequest)) shouldBe NOT_FOUND
   }
-*/
+
+  test("\"post\" should return 404(INVALID_JSON) when the list of periods to add is empty") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val postPeriodsInRequest = List.empty
+    val response = postPeriods(genNino, postPeriodsInRequest)
+    status(response) shouldBe BAD_REQUEST
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.entryName}"""))
+  }
+
+  test("\"put\" Periods should successfully update a single period for the provided Nino") {
+    val individual = genIndividualInRequest(withPeriods = true)
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val getResponse = getPeriods(individual.nino)
+    status(getResponse) shouldBe OK
+    val periodsFromGet = contentAsJson(getResponse).as[Periods].periods
+
+    val putPeriodInRequest = copyPutPeriodInRequest(periodsFromGet.head)
+    val putResponse = putPeriods(individual.nino, List(putPeriodInRequest))
+    status(putResponse) shouldBe OK
+    val periodsFromPut = contentAsJson(putResponse).as[Periods].periods
+    periodsFromPut.size shouldBe periodsFromGet.size
+
+    assertPeriodFromPut(periodsFromPut, putPeriodInRequest)
+  }
+
+  test("\"put\" Periods should successfully update multiple periods for the provided Nino") {
+    val individual = genIndividualInRequest(individualDetail.some, withPeriods = true)
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val postPeriodsInRequest = List(genPostPeriodInRequest())
+    status(postPeriods(individual.nino, postPeriodsInRequest)) shouldBe CREATED
+
+    val getResponse = getPeriods(individual.nino)
+    status(getResponse) shouldBe OK
+    val periodsFromGet = contentAsJson(getResponse).as[Periods].periods
+
+    val putPeriod1InRequest = copyPutPeriodInRequest(periodsFromGet.head)
+    val putPeriod2InRequest = copyPutPeriodInRequest(periodsFromGet.tail.head)
+    val putResponse = putPeriods(individual.nino, List(putPeriod1InRequest, putPeriod2InRequest))
+    status(putResponse) shouldBe OK
+    val periodsFromPut = contentAsJson(putResponse).as[Periods].periods
+    periodsFromPut.size shouldBe periodsFromGet.size
+
+    assertPeriodFromPut(periodsFromPut, putPeriod1InRequest)
+    assertPeriodFromPut(periodsFromPut, putPeriod2InRequest)
+  }
+
+  test("\"put\" Periods should report if the provided Nino is unknown") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val putPeriodsInRequest = List(genPutPeriodInRequest())
+    status(putPeriods(genNino, putPeriodsInRequest)) shouldBe NOT_FOUND
+  }
+
+  test("\"put\" should return 404(INVALID_JSON) when the list of periods to update is empty") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val putPeriodsInRequest = List.empty
+    val response = putPeriods(genNino, putPeriodsInRequest)
+    status(response) shouldBe BAD_REQUEST
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.entryName}"""))
+  }
+
+  private def copyPutPeriodInRequest(period: Period): PutPeriodInRequest =
+    genPutPeriodInRequest().copy(
+      periodID = period.periodID,
+      startDate = period.startDate.plusMonths(1L),
+      endDate = LocalDate.now.plusYears(1).some
+    )
+
+  private def assertPeriodFromPut(periodsFromPut: List[Period], period: PutPeriodInRequest): Assertion = {
+    val periodFromPut = periodsFromPut.filter(_.periodID == period.periodID).head
+    periodFromPut.startDate shouldBe period.startDate
+    periodFromPut.endDate shouldBe period.endDate
+  }
 }

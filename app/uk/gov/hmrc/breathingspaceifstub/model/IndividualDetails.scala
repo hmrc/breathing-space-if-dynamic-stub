@@ -80,7 +80,29 @@ final case class AddressData(
   addressLine5: Option[String],
   addressPostcode: Option[String]
 )
-object AddressData { implicit val format = Json.format[AddressData] }
+object AddressData {
+  implicit val format = Json.format[AddressData]
+
+  val empty = AddressData(
+    addressSequenceNumber = none,
+    addressSource = none,
+    countryCode = none,
+    addressType = none,
+    addressStatus = none,
+    addressStartDate = none,
+    addressEndDate = none,
+    addressLastConfirmedDate = none,
+    vpaMail = none,
+    deliveryInfo = none,
+    pafReference = none,
+    addressLine1 = none,
+    addressLine2 = none,
+    addressLine3 = none,
+    addressLine4 = none,
+    addressLine5 = none,
+    addressPostcode = none
+  )
+}
 
 final case class AddressList(address: List[AddressData])
 object AddressList { implicit val format = Json.format[AddressList] }
