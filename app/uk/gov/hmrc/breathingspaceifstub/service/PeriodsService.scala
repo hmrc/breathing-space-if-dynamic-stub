@@ -50,7 +50,16 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
       maybeNino,
       appConfig.onDevEnvironment,
       nino =>
-        if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods(postPeriods))
+        if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods.fromPost(postPeriods.periods))
         else Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
+    )
+
+  def put(maybeNino: String, putPeriods: PutPeriodsInRequest): AsyncResponse[Periods] =
+    stripNinoSuffixAndExecOp(
+      maybeNino,
+      appConfig.onDevEnvironment,
+      nino =>
+        if (putPeriods.periods.isEmpty) Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
+        else individualRepository.updatePeriods(nino, Periods.fromPut(putPeriods.periods))
     )
 }

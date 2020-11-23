@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.syntax.flatMap._
 import cats.syntax.option._
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
@@ -47,7 +48,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
   override def indexes: Seq[Index] =
     Seq(
       Index(Seq("nino" -> IndexType.Ascending), name = Some("Nino"), unique = true),
-      Index(Seq("periods.periodID" -> IndexType.Ascending), name = Some("PeriodId"))
+      Index(Seq("periods.periodID" -> IndexType.Ascending), name = Some("PeriodId"), sparse = true)
     )
 
   def addIndividuals(individuals: Individuals): AsyncResponse[BulkWriteResult] =
@@ -60,17 +61,17 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       .map(handleWriteResult(_, _ => unit))
       .recover(handleDuplicateKeyError[Unit])
 
-  def addPeriods(nino: String, periods: Periods): AsyncResponse[Periods] = {
+  def addPeriods(nino: String, periods: List[Period]): AsyncResponse[Periods] = {
     val query = Json.obj("nino" -> nino)
     val update =
       Json.obj(
         "$push" ->
           Json.obj(
             "periods" ->
-              Json.obj("$each" -> periods.periods)
+              Json.obj("$each" -> periods)
           )
       )
-    findAndUpdate(query, update).map(handleUpdateResult(_, periods, IDENTIFIER_NOT_FOUND))
+    findAndUpdate(query, update).map(handleUpdateResult(_, Periods(periods), IDENTIFIER_NOT_FOUND))
   }
 
   def delete(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
@@ -91,6 +92,35 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
     val query = Json.obj("nino" -> nino)
     val update = Json.obj("$set" -> Json.obj("individualDetails" -> individualDetails))
     findAndUpdate(query, update).map(handleUpdateResult(_, unit, RESOURCE_NOT_FOUND))
+  }
+
+  def updatePeriods(nino: String, periods: List[Period]): AsyncResponse[Periods] =
+    findIndividual(nino) >>= {
+      _.fold[AsyncResponse[Periods]](Future.successful(Left(Failure(IDENTIFIER_NOT_FOUND)))) { individual =>
+        if (individual.periods.isEmpty) Future.successful(Right(Periods(periods = List.empty)))
+        else updatePeriods(nino, periods, individual)
+      }
+    }
+
+  private def updatePeriods(nino: String, periods: List[Period], individual: Individual): AsyncResponse[Periods] = {
+    val periodsToNotUpdate = individual.periods.filterNot(p => periods.find(_.periodID == p.periodID).isDefined)
+    if (periodsToNotUpdate.size == individual.periods.size) {
+      Future.successful(Right(Periods(periods = periodsToNotUpdate)))
+    } else {
+      val newPeriods = Periods(periods = periods ++ periodsToNotUpdate)
+      collection
+        .update(ordered = false)
+        .one(
+          Json.obj("nino" -> nino),
+          Json.obj("$set" -> Json.obj("periods" -> Json.toJson(newPeriods)))
+        )
+        .map { uwr =>
+          if (uwr.ok && uwr.nModified == 1) Right(newPeriods)
+          else {
+            Left(Failure(SERVER_ERROR, s"Nino($nino)'s periods were not updated. UpdateWriteResult($uwr)".some))
+          }
+        }
+    }
   }
 
   val duplicateKey = 11000

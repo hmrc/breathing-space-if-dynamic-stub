@@ -23,7 +23,6 @@ import uk.gov.hmrc.breathingspaceifstub.repository.Individual
 package object model {
 
   type Individuals = List[Individual]
-  type PeriodsRequest = List[PeriodInRequest]
 
   lazy val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
 }
