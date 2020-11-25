@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
+import cats.syntax.option._
 import play.api.libs.json.Json
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.breathingspaceifstub.model._
@@ -23,19 +24,27 @@ import uk.gov.hmrc.mongo.json.ReactiveMongoFormats._
 
 final case class Individual(
   nino: String,
-  individualDetails: Option[IndividualDetails],
+  individualDetails: IndividualDetails,
   periods: List[Period],
   id: BSONObjectID = BSONObjectID.generate
 )
 
 object Individual {
 
-  def apply(individualInRequest: IndividualInRequest): Individual =
+  def apply(individualInRequest: IndividualInRequest): Individual = {
+    val individualDetails =
+      individualInRequest.individualDetails.fold {
+        IndividualDetails(details = Details.empty.copy(nino = individualInRequest.nino.some), none, none, none, none)
+      } { iD =>
+        iD.copy(details = iD.details.copy(nino = individualInRequest.nino.some))
+      }
+
     Individual(
       nino = individualInRequest.nino,
-      individualDetails = individualInRequest.individualDetails,
+      individualDetails = individualDetails,
       periods = individualInRequest.periods.fold(List.empty[Period])(Periods.fromPost(_))
     )
+  }
 
   def fromIndividualsInRequest(individualsInRequest: IndividualsInRequest): Individuals =
     individualsInRequest.individuals.map(Individual(_))

@@ -40,12 +40,16 @@ object GenIndividualDetailsSchema extends App {
 
   // Full population ------------------------------------------------------------------------
 
-  implicit val nameDataSchema: Schema[NameData] = Json.schema[NameData]
-  implicit val addressDataSchema: Schema[AddressData] = Json.schema[AddressData]
+  implicit val detailsSchema: Schema[Details] = Json.schema[Details]
   implicit val indicatorsSchema: Schema[Indicators] = Json.schema[Indicators]
-  implicit val residencyDataSchema: Schema[ResidencyData] = Json.schema[ResidencyData]
+
+  implicit val nameDataSchema: Schema[NameData] = Json.schema[NameData]
   implicit val nameListSchema: Schema[NameList] = Json.schema[NameList]
+
+  implicit val addressDataSchema: Schema[AddressData] = Json.schema[AddressData]
   implicit val addressListSchema: Schema[AddressList] = Json.schema[AddressList]
+
+  implicit val residencyDataSchema: Schema[ResidencyData] = Json.schema[ResidencyData]
   implicit val residencyListSchema: Schema[ResidencyList] = Json.schema[ResidencyList]
 
   final case class ListOfNinos(ninos: List[String])

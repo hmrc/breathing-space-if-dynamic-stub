@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.ExecutionContext
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.model.{Failure, IndividualDetail0, RequestId}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
@@ -40,13 +40,7 @@ class IndividualDetailsController @Inject()(
       implicit val requestId = RequestId(BS_Details_GET)
       individualDetailsService
         .getIndividualDetails(nino)
-        .map(
-          _.fold(
-            logAndGenFailureResult,
-            individualDetails =>
-              Ok(Json.obj("nino" -> Json.toJson(nino)) ++ Json.toJson(individualDetails).as[JsObject])
-          )
-        )
+        .map(_.fold(logAndGenFailureResult, details => Ok(Json.toJson(details))))
     } {
       _.replaceAll("\\s+", "") match {
         case IndividualDetail0.fields =>

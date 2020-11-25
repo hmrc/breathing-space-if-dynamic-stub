@@ -1,5 +1,7 @@
 {
-  "ninoSuffix": "D",
+  "details": {
+    "ninoSuffix": "D"
+  },
   "nameList": {
     "name": [
       {

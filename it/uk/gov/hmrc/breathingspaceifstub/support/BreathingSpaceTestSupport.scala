@@ -46,8 +46,8 @@ trait BreathingSpaceTestSupport extends NinoValidation {
   )
 
   val individualDetail =
-    IndividualDetails.empty.copy(
-      dateOfBirth = LocalDate.now.some,
+    IndividualDetails(
+      details = Details.empty.copy(dateOfBirth = LocalDate.now.some),
       nameList = NameList(List(NameData.empty.copy(
         firstForename = "Joe".some,
         surname = "Zawinul".some
@@ -57,7 +57,9 @@ trait BreathingSpaceTestSupport extends NinoValidation {
         addressLine2 = "Flat 1 Lodge".some,
         addressLine3 = "London".some,
         addressPostcode = "CC12 4UE".some
-      ))).some
+      ))).some,
+      indicators = none,
+      residencyList = none
     )
 
   def genIndividualInRequest(

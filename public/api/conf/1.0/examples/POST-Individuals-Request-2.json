@@ -3,7 +3,9 @@
     {
       "nino": "AS000006",
       "individualDetails": {
-        "dateOfBirth": "1954-06-05",
+        "details": {
+          "dateOfBirth": "1954-06-05"
+        },
         "nameList": {
           "name": [
             {
@@ -17,7 +19,9 @@
     {
       "nino": "AS000007",
       "individualDetails": {
-        "dateOfBirth": "1951-12-01",
+        "details": {
+          "dateOfBirth": "1951-12-01"
+        },
         "nameList": {
           "name": [
             {

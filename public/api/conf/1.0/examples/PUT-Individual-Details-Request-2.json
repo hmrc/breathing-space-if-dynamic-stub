@@ -1,6 +1,8 @@
 {
-  "dateOfBirth": "1976-12-11",
-  "crnIndicator": 0,
+  "details": {
+    "dateOfBirth": "1976-12-11",
+    "crnIndicator": 0
+  },
   "nameList": {
     "name": [
       {

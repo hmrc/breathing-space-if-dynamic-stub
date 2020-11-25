@@ -1,8 +1,10 @@
 {
   "nino": "AS000015",
   "individualDetails": {
-    "dateOfBirth": "1932-07-07",
-    "crnIndicator": 0,
+    "details": {
+      "dateOfBirth": "1932-07-07",
+      "crnIndicator": 0
+    },
     "nameList": {
       "name": [
         {

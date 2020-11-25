@@ -49,7 +49,7 @@ class IndividualDetailsService @Inject()(appConfig: AppConfig, individualReposit
       individualRepository
         .findIndividual(_)
         .map(_.fold[Response[IndividualDetails]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
-          Right(IndividualDetails(individual))
+          Right(individual.individualDetails)
         })
     )
 }

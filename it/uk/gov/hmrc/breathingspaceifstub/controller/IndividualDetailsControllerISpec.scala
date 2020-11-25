@@ -17,7 +17,9 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val surname = "Zawinul"
     val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some)))
 
-    val individualDetails = IndividualDetails.empty.copy(dateOfBirth = dateOfBirth.some, nameList = nameList.some)
+    val individualDetails = IndividualDetails.empty.copy(
+      details = Details.empty.copy(dateOfBirth = dateOfBirth.some), nameList = nameList.some
+    )
 
     val individual = genIndividualInRequest(individualDetails.some)
     status(postIndividual(individual)) shouldBe CREATED
@@ -40,7 +42,9 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val surname = "Zawinul"
     val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some)))
 
-    val individualDetails = IndividualDetails.empty.copy(dateOfBirth = dateOfBirth.some, nameList = nameList.some)
+    val individualDetails = IndividualDetails.empty.copy(
+      details = Details.empty.copy(dateOfBirth = dateOfBirth.some), nameList = nameList.some
+    )
 
     val individual = genIndividualInRequest(individualDetails.some)
     status(postIndividual(individual)) shouldBe CREATED
@@ -49,7 +53,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     status(response) shouldBe OK
 
     val expectedBody =
-      Json.parse(s"""{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth",
+      Json.parse(s"""{"details":{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"},
           |"nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]}}"""
         .stripMargin
         .filterNot(_ == '\n')
@@ -64,7 +68,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val dateOfBirth = LocalDate.now
     val individual = IndividualInRequest(
       ninoWithoutSuffix,
-      IndividualDetails.empty.copy(dateOfBirth = dateOfBirth.some).some,
+      IndividualDetails.empty.copy(details = Details.empty.copy(dateOfBirth = dateOfBirth.some)).some,
       none
     )
     status(postIndividual(individual)) shouldBe CREATED
