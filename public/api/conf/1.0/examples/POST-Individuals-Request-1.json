@@ -6,8 +6,10 @@
     {
       "nino": "AS000002",
       "individualDetails": {
-        "ninoSuffix": "C",
-        "dateOfBirth": "1980-01-01"
+        "details": {
+          "ninoSuffix": "C",
+          "dateOfBirth": "1980-01-01"
+        }
       }
     },
     {
@@ -27,7 +29,9 @@
     {
       "nino": "AS000004",
       "individualDetails": {
-        "ninoSuffix": "C"
+        "details": {
+          "ninoSuffix": "C"
+        }
       },
       "periods" : [
         {

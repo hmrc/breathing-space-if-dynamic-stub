@@ -133,7 +133,7 @@ class IndividualControllerISpec extends BaseISpec {
     status(postIndividuals(IndividualsInRequest(List(individual1, individual2)))) shouldBe OK
 
     val individualDetails = IndividualDetails.empty.copy(
-      dateOfBirth = LocalDate.now.some,
+      details = Details.empty.copy(dateOfBirth = LocalDate.now.some),
       nameList = NameList(List(NameData.empty.copy(firstForename = "Joe".some, surname = "Zawinul".some))).some
     )
     val response = replaceIndividualDetails(individual2.nino, individualDetails)
@@ -145,7 +145,7 @@ class IndividualControllerISpec extends BaseISpec {
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
 
-    val individualDetails = IndividualDetails.empty.copy(dateOfBirth = LocalDate.now.some)
+    val individualDetails = IndividualDetails.empty.copy(details = Details.empty.copy(dateOfBirth = LocalDate.now.some))
     val response = replaceIndividualDetails(genNino, individualDetails)
     status(response) shouldBe NOT_FOUND
   }

@@ -43,58 +43,49 @@ object IndividualDetail0 {
 
   implicit val writes = Json.writes[IndividualDetail0]
 
-  def empty(nino: String): IndividualDetail0 =
-    IndividualDetail0(nino, none, none, none, none, none, none, none, none, none, none, none)
+  val empty = IndividualDetail0("", none, none, none, none, none, none, none, none, none, none, none)
 
-  def apply(individual: Individual): IndividualDetail0 =
-    individual.individualDetails.fold(empty(individual.nino)) { details =>
-      val name = details.nameList.fold(empty("")) { nameList =>
+  def apply(individual: Individual): IndividualDetail0 = {
+    val individualDetails = individual.individualDetails
+    val name = individualDetails.nameList.fold(empty) { nameList =>
+      if (nameList.name.isEmpty) empty
+      else {
         val data = nameList.name.head
-        IndividualDetail0(
-          "",
-          data.firstForename,
-          data.secondForename,
-          data.surname,
-          none,
-          none,
-          none,
-          none,
-          none,
-          none,
-          none,
-          none
+        empty.copy(
+          firstForename = data.firstForename,
+          secondForename = data.secondForename,
+          surname = data.surname
         )
       }
-      val address = details.addressList.fold(empty("")) { addressList =>
-        val data = addressList.address.head
-        IndividualDetail0(
-          "",
-          none,
-          none,
-          none,
-          none,
-          data.addressLine1,
-          data.addressLine2,
-          data.addressLine3,
-          data.addressLine4,
-          data.addressLine5,
-          data.addressPostcode,
-          data.countryCode
-        )
-      }
-      IndividualDetail0(
-        nino = individual.nino,
-        firstForename = name.firstForename,
-        secondForename = name.secondForename,
-        surname = name.surname,
-        dateOfBirth = details.dateOfBirth,
-        addressLine1 = address.addressLine1,
-        addressLine2 = address.addressLine2,
-        addressLine3 = address.addressLine3,
-        addressLine4 = address.addressLine4,
-        addressLine5 = address.addressLine5,
-        addressPostcode = address.addressPostcode,
-        countryCode = address.countryCode
-      )
     }
+    val address = individualDetails.addressList.fold(empty) { addressList =>
+      if (addressList.address.isEmpty) empty
+      else {
+        val data = addressList.address.head
+        empty.copy(
+          addressLine1 = data.addressLine1,
+          addressLine2 = data.addressLine2,
+          addressLine3 = data.addressLine3,
+          addressLine4 = data.addressLine4,
+          addressLine5 = data.addressLine5,
+          addressPostcode = data.addressPostcode,
+          countryCode = data.countryCode
+        )
+      }
+    }
+    IndividualDetail0(
+      nino = individual.nino,
+      dateOfBirth = individualDetails.details.dateOfBirth,
+      firstForename = name.firstForename,
+      secondForename = name.secondForename,
+      surname = name.surname,
+      addressLine1 = address.addressLine1,
+      addressLine2 = address.addressLine2,
+      addressLine3 = address.addressLine3,
+      addressLine4 = address.addressLine4,
+      addressLine5 = address.addressLine5,
+      addressPostcode = address.addressPostcode,
+      countryCode = address.countryCode
+    )
+  }
 }

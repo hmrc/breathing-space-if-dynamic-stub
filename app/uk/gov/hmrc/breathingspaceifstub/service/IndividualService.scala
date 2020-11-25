@@ -58,6 +58,8 @@ class IndividualService @Inject()(individualRepository: IndividualRepository)(im
 
   def listOfNinos: Future[List[String]] = individualRepository.listOfNinos
 
-  def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] =
-    stripNinoSuffixAndExecOp(nino, individualRepository.replaceIndividualDetails(_, individualDetails))
+  def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] = {
+    val detailsWithNino = individualDetails.copy(details = individualDetails.details.copy(nino = nino.some))
+    stripNinoSuffixAndExecOp(nino, individualRepository.replaceIndividualDetails(_, detailsWithNino))
+  }
 }

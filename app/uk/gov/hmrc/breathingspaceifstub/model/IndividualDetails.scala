@@ -20,8 +20,7 @@ import java.time.LocalDate
 
 import ai.x.play.json.{BaseNameEncoder, Jsonx}
 import cats.syntax.option.none
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.breathingspaceifstub.repository.Individual
+import play.api.libs.json.Json
 
 // Full population ----------------------------------------------------------------
 
@@ -158,7 +157,8 @@ object ResidencyList { implicit val format = Json.format[ResidencyList] }
 
 // --------------------------------------------------------------------------------
 
-final case class IndividualDetails(
+final case class Details(
+  nino: Option[String],
   ninoSuffix: Option[String],
   accountStatusType: Option[Int],
   sex: Option[String],
@@ -179,21 +179,13 @@ final case class IndividualDetails(
   ntTaxCodeInd: Option[Int],
   mergeStatus: Option[Int],
   marriageStatusType: Option[Int],
-  crnIndicator: Option[Int],
-  nameList: Option[NameList],
-  addressList: Option[AddressList],
-  indicators: Option[Indicators],
-  residencyList: Option[ResidencyList]
+  crnIndicator: Option[Int]
 )
+object Details {
+  implicit val format = Json.format[Details]
 
-object IndividualDetails {
-  implicit val encoder = BaseNameEncoder()
-  implicit val format: OFormat[IndividualDetails] = Jsonx.formatCaseClass[IndividualDetails]
-
-  def apply(individual: Individual): IndividualDetails =
-    individual.individualDetails.fold(empty)(identity)
-
-  val empty = IndividualDetails(
+  val empty = Details(
+    nino = none,
     ninoSuffix = none,
     accountStatusType = none,
     sex = none,
@@ -214,7 +206,24 @@ object IndividualDetails {
     ntTaxCodeInd = none,
     mergeStatus = none,
     marriageStatusType = none,
-    crnIndicator = none,
+    crnIndicator = none
+  )
+}
+
+// --------------------------------------------------------------------------------
+
+final case class IndividualDetails(
+  details: Details,
+  nameList: Option[NameList],
+  addressList: Option[AddressList],
+  indicators: Option[Indicators],
+  residencyList: Option[ResidencyList]
+)
+object IndividualDetails {
+  implicit val format = Json.format[IndividualDetails]
+
+  val empty = IndividualDetails(
+    details = Details.empty,
     nameList = none,
     addressList = none,
     indicators = none,
