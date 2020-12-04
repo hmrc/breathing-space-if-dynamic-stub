@@ -77,13 +77,13 @@ trait BreathingSpaceTestSupport extends NinoValidation {
       UUID.randomUUID,
       LocalDate.now.minusMonths(2),
       if (withEndDate) LocalDate.now.some else none,
-      ZonedDateTime.now
+      ZonedDateTime.now.format(timestampFormatter)
     )
 
   def genPostPeriodInRequest(withEndDate: Boolean = false): PostPeriodInRequest =
     PostPeriodInRequest(
       LocalDate.now.minusMonths(2),
       if (withEndDate) LocalDate.now.some else none,
-      ZonedDateTime.now
+      ZonedDateTime.now.format(timestampFormatter)
     )
 }

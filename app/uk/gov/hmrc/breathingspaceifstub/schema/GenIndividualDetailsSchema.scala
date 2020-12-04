@@ -18,14 +18,10 @@ package uk.gov.hmrc.breathingspaceifstub.schema
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
-import java.time.ZonedDateTime
 
 import com.github.andyglow.json.JsonFormatter.format
 import com.github.andyglow.jsonschema.AsValue
 import json.{Json, Schema}
-import json.Schema.string
-import json.Schema.string.Format
-import json.schema.Predef
 import json.schema.Version.Draft04
 import uk.gov.hmrc.breathingspaceifstub.model._
 
@@ -35,8 +31,6 @@ object GenIndividualDetailsSchema extends App {
   val titleForIndividual = "Breathing Space Individual Documents"
 
   val destinationFolder = "conf/schemas"
-
-  implicit val zonedDateTime: Predef[ZonedDateTime] = Predef(`string`[ZonedDateTime](Format.`date-time`))
 
   // Full population ------------------------------------------------------------------------
 
