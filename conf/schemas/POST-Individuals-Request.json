@@ -53,8 +53,7 @@
                   "format": "date"
                 },
                 "pegaRequestTimestamp": {
-                  "type": "string",
-                  "format": "date-time"
+                  "type": "string"
                 }
               },
               "required": [
