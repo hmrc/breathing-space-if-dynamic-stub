@@ -15,10 +15,21 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val dateOfBirth = LocalDate.now
     val firstForename = "Joe"
     val surname = "Zawinul"
+    val addressLine1 = "Some Street"
+    val addressPostcode = "E20"
+    val addressLine2 = "Another Street"
+    val countryCode = 20
+
     val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some)))
+    val addressList = AddressList(List(
+      AddressData.empty.copy(addressLine1 = addressLine1.some, addressPostcode = addressPostcode.some),
+      AddressData.empty.copy(addressLine2 = addressLine2.some, countryCode = countryCode.some)
+    ))
 
     val individualDetails = IndividualDetails.empty.copy(
-      details = Details.empty.copy(dateOfBirth = dateOfBirth.some), nameList = nameList.some
+      details = Details.empty.copy(dateOfBirth = dateOfBirth.some, sex = "M".some),
+      nameList = nameList.some,
+      addressList = addressList.some
     )
 
     val individual = genIndividualInRequest(individualDetails.some)
@@ -28,9 +39,18 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     status(response) shouldBe OK
 
     val expectedBody = Json.parse(
-      s"""{"nino":"${individual.nino}","firstForename":"$firstForename","surname":"$surname","dateOfBirth":"$dateOfBirth"}"""
+      s"""{
+         |  "details":{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"},
+         |  "nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]},
+         |  "addressList":{
+         |    "address":[
+         |      {"addressLine1":"$addressLine1","addressPostcode":"$addressPostcode"},
+         |      {"addressLine2":"$addressLine2","countryCode":$countryCode}
+         |    ]
+         |  }
+         |}"""
         .stripMargin
-        .filterNot(_ == '\n')
+        .filter(ch => ch >= 32 && ch < 127)
     )
 
     assert(contentAsJson(response) == expectedBody)
@@ -76,7 +96,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val response = getIndividualDetails(ninoWithSuffix, IndividualDetail0.fields.some)
     status(response) shouldBe OK
 
-    val expectedBody = Json.parse(s"""{"nino":"${ninoWithoutSuffix}","dateOfBirth":"$dateOfBirth"}""")
+    val expectedBody = Json.parse(s"""{"details":{"nino":"${ninoWithoutSuffix}","dateOfBirth":"$dateOfBirth"}}""")
     assert(contentAsJson(response) == expectedBody)
   }
 

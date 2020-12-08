@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.ExecutionContext
 
+import play.api.libs.json.JsObject
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
@@ -31,13 +32,13 @@ class IndividualDetailsService @Inject()(appConfig: AppConfig, individualReposit
   implicit ec: ExecutionContext
 ) extends NinoValidation {
 
-  def getIndividualDetail0(nino: String): AsyncResponse[IndividualDetail0] =
+  def getIndividualDetail0(nino: String): AsyncResponse[JsObject] =
     stripNinoSuffixAndExecOp(
       nino,
       appConfig.onDevEnvironment,
       individualRepository
         .findIndividual(_)
-        .map(_.fold[Response[IndividualDetail0]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+        .map(_.fold[Response[JsObject]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
           Right(IndividualDetail0(individual))
         })
     )
