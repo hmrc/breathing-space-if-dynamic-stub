@@ -88,14 +88,6 @@ object GenIndividualDetailsSchema extends App {
     )
   }
 
-  private def genGetIndividualDetail0ResponseSchema(): Unit = {
-    val description = "Schema of GET Individual's Details Response (filter #0)"
-    genSchemaFile(
-      Json.schema[IndividualDetail0].withTitle(titleForDetails).withDescription(description),
-      destinationFile = "GET-Individual-Detail0-Response.json"
-    )
-  }
-
   private def genGetIndividualDetailsSchema(): Unit = {
     val description = "Schema of GET Individual's Details (full population)"
     genSchemaFile(
@@ -119,7 +111,6 @@ object GenIndividualDetailsSchema extends App {
   genPostIndividualsResponseSchema()
   genPutIndividualRequestSchema()
   genGetListOfNinosResponseSchema()
-  genGetIndividualDetail0ResponseSchema()
   genGetIndividualDetailsSchema()
 
   print(s"\n\nAll Json schema were generated Generated in $destinationFolder\n\n")

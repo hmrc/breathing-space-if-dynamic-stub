@@ -47,7 +47,7 @@ class IndividualDetailsController @Inject()(
           implicit val requestId = RequestId(BS_Detail0_GET)
           individualDetailsService
             .getIndividualDetail0(nino)
-            .map(_.fold(logAndGenFailureResult, individualDetail0 => Ok(Json.toJson(individualDetail0))))
+            .map(_.fold(logAndGenFailureResult, Ok(_)))
 
         case _ =>
           implicit val requestId = RequestId(BS_Detail_GET)
