@@ -62,14 +62,34 @@ trait BreathingSpaceTestSupport extends NinoValidation {
       residencyList = none
     )
 
+  val debt1 = Debt(
+    chargeReference = "ETMP ref01",
+    chargeType = "100 chars long charge description as exist in ETMP",
+    chargeAmount = 199999999.11,
+    chargeCreationDate = LocalDate.now,
+    chargeDueDate = LocalDate.now.plusMonths(1),
+    none
+  )
+
+  val debt2 = Debt(
+    chargeReference = "ETMP ref02",
+    chargeType = "long charge 02 description as exist in ETMP",
+    chargeAmount = 299999999.22,
+    chargeCreationDate = LocalDate.now.plusDays(2),
+    chargeDueDate = LocalDate.now.plusMonths(2),
+    utrAssociatedWithCharge = "1234567890".some
+  )
+
   def genIndividualInRequest(
     individualDetails: Option[IndividualDetails] = None,
-    withPeriods: Boolean = false
+    withPeriods: Boolean = false,
+    withDebts: Boolean = false
   ): IndividualInRequest =
     IndividualInRequest(
       genNino,
       individualDetails,
-      if (withPeriods) List(genPostPeriodInRequest(), genPostPeriodInRequest(withEndDate)).some else none
+      if (withPeriods) List(genPostPeriodInRequest(), genPostPeriodInRequest(withEndDate)).some else none,
+      if (withDebts) List(debt1, debt2).some else none
     )
 
   def genPutPeriodInRequest(withEndDate: Boolean = false): PutPeriodInRequest =

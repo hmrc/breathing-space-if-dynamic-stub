@@ -21,7 +21,8 @@ import play.api.libs.json.Json
 final case class IndividualInRequest(
   nino: String,
   individualDetails: Option[IndividualDetails],
-  periods: Option[List[PostPeriodInRequest]]
+  periods: Option[List[PostPeriodInRequest]],
+  debts: Option[Debts]
 )
 object IndividualInRequest { implicit val format = Json.format[IndividualInRequest] }
 

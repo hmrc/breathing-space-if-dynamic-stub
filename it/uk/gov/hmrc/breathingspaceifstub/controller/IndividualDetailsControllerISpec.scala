@@ -89,7 +89,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = IndividualInRequest(
       ninoWithoutSuffix,
       IndividualDetails.empty.copy(details = Details.empty.copy(dateOfBirth = dateOfBirth.some)).some,
-      none
+      none, none
     )
     status(postIndividual(individual)) shouldBe CREATED
 

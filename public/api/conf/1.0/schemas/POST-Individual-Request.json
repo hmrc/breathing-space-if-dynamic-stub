@@ -13,6 +13,9 @@
     },
     "periods" : {
       "$ref": "Periods.json"
+    },
+    "debts" : {
+      "$ref": "Debts.json"
     }
   },
   "required": ["nino"]

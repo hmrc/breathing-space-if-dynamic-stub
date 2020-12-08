@@ -61,6 +61,8 @@ trait BaseISpec
   def getIndividualDetails(nino: String, fields: Option[String] = none): Future[Result] =
     call(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
 
+  def getDebts(nino: String): Future[Result] = call(Helpers.GET, DebtsController.get(nino).url)
+
   def getPeriods(nino: String): Future[Result] = call(Helpers.GET, PeriodsController.get(nino).url)
 
   def postPeriods(nino: String, postPeriods: List[PostPeriodInRequest]): Future[Result] =

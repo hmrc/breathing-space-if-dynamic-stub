@@ -14,5 +14,22 @@
         }
       ]
     }
-  }
+  },
+  "debts": [
+    {
+      "chargeReference": "ETMP ref01",
+      "chargeType": "100 chars long charge description as exist in ETMP",
+      "chargeAmount": 199999999.11,
+      "chargeCreationDate": "2001-09-12",
+      "chargeDueDate": "2001-12-30"
+    },
+    {
+      "chargeReference": "ETMP ref02",
+      "chargeType": "long charge 02 description as exist in ETMP",
+      "chargeAmount": 299999999.22,
+      "chargeCreationDate": "2002-09-12",
+      "chargeDueDate": "2002-12-30",
+      "utrAssociatedWithCharge": "1234567890"
+    }
+  ]
 }
