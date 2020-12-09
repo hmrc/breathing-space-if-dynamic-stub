@@ -29,9 +29,7 @@ final case class Period(
   endDate: Option[LocalDate]
 )
 
-object Period {
-  implicit val format = Json.format[Period]
-}
+object Period { implicit val format = Json.format[Period] }
 
 // --------------------------------------------------------------------------------
 

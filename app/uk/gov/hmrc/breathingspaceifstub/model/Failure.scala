@@ -27,9 +27,12 @@ sealed abstract class BaseError(val httpCode: Int, val message: String) extends 
 object BaseError extends Enum[BaseError] {
 
   case object BAD_GATEWAY extends BaseError(Status.BAD_GATEWAY, "Downstream systems are not responding")
+  case object BREATHINGSPACE_EXPIRED
+      extends BaseError(Status.FORBIDDEN, "Breathing Space has expired for the given Nino")
   case object CONFLICTING_REQUEST extends BaseError(CONFLICT, "The request is conflicting. Maybe a duplicate POST?")
   case object HEADERS_PRECONDITION_NOT_MET extends BaseError(PRECONDITION_REQUIRED, "Invalid header combination")
   case object IDENTIFIER_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
+  case object IDENTIFIER_NOT_IN_BREATHINGSPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")
   case object INVALID_BODY extends BaseError(BAD_REQUEST, "Not expected a body to this endpoint")
   case object INVALID_ENDPOINT extends BaseError(BAD_REQUEST, "Not a valid endpoint")
   case object INVALID_FIELDS extends BaseError(BAD_REQUEST, "Invalid query parameter(fields)")
@@ -38,6 +41,7 @@ object BaseError extends Enum[BaseError] {
   case object INVALID_NINO extends BaseError(BAD_REQUEST, "Invalid Nino")
   case object MISSING_BODY extends BaseError(BAD_REQUEST, "The request must have a body")
   case object MISSING_JSON_HEADER extends BaseError(UNSUPPORTED_MEDIA_TYPE, "'Content-Type' header missing or invalid")
+  case object NO_DATA_FOUND extends BaseError(NOT_FOUND, "No records found for the given Nino")
 
   // Only used by test-only endpoints. IDENTIFIER_NOT_FOUND is returned by EIS.
   case object RESOURCE_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")

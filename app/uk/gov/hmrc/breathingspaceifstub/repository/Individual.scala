@@ -26,6 +26,7 @@ final case class Individual(
   nino: String,
   individualDetails: IndividualDetails,
   periods: List[Period],
+  debts: Debts,
   id: BSONObjectID = BSONObjectID.generate
 )
 
@@ -42,7 +43,8 @@ object Individual {
     Individual(
       nino = individualInRequest.nino,
       individualDetails = individualDetails,
-      periods = individualInRequest.periods.fold(List.empty[Period])(Periods.fromPost(_))
+      periods = individualInRequest.periods.fold(List.empty[Period])(Periods.fromPost(_)),
+      debts = individualInRequest.debts.fold(List.empty[Debt])(identity)
     )
   }
 

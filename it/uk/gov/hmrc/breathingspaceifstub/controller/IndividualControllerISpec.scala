@@ -56,13 +56,13 @@ class IndividualControllerISpec extends BaseISpec {
   }
 
   test("\"exists(nino)\" should work even when the provided Nino includes the suffix") {
-    val individual = IndividualInRequest(genNinoWithSuffix, none, none)
+    val individual = IndividualInRequest(genNinoWithSuffix, none, none, none)
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
   }
 
   test("\"exists(nino)\" should work when the provided Nino does not includes the suffix used for at creation") {
-    val individual = IndividualInRequest(genNinoWithSuffix, none, none)
+    val individual = IndividualInRequest(genNinoWithSuffix, none, none, none)
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino.substring(0, 8))) shouldBe """{"exists":true}"""
   }
@@ -84,7 +84,7 @@ class IndividualControllerISpec extends BaseISpec {
   }
 
   test("\"postIndividual\" should successfully add a new document even for Nino with Suffix") {
-    val individual = IndividualInRequest(genNinoWithSuffix, none, none)
+    val individual = IndividualInRequest(genNinoWithSuffix, none, none, none)
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
   }
@@ -121,7 +121,7 @@ class IndividualControllerISpec extends BaseISpec {
 
   test("\"postIndividuals\" should return 400(BAD_REQUEST) and INVALID_NINO if Ninos with suffix were given") {
     val individual1 = genIndividualInRequest()
-    val individual2 = IndividualInRequest(genNinoWithSuffix, none, none)
+    val individual2 = IndividualInRequest(genNinoWithSuffix, none, none, none)
     val response = postIndividuals(IndividualsInRequest(List(individual1, individual2, individual1)))
     status(response) shouldBe BAD_REQUEST
     (contentAsJson(response) \ "errors" \\ "code").head.as[String] shouldBe "INVALID_NINO"
