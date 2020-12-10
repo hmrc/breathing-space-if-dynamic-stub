@@ -64,7 +64,7 @@ trait BreathingSpaceTestSupport extends NinoValidation {
 
   val debt1 = Debt(
     chargeReference = "ETMP ref01",
-    chargeType = "100 chars long charge description as exist in ETMP",
+    chargeDescription = "100 chars long charge description as exist in ETMP",
     chargeAmount = 199999999.11,
     chargeCreationDate = LocalDate.now,
     chargeDueDate = LocalDate.now.plusMonths(1),
@@ -73,7 +73,7 @@ trait BreathingSpaceTestSupport extends NinoValidation {
 
   val debt2 = Debt(
     chargeReference = "ETMP ref02",
-    chargeType = "long charge 02 description as exist in ETMP",
+    chargeDescription = "long charge 02 description as exist in ETMP",
     chargeAmount = 299999999.22,
     chargeCreationDate = LocalDate.now.plusDays(2),
     chargeDueDate = LocalDate.now.plusMonths(2),
