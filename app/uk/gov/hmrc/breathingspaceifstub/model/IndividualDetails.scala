@@ -140,6 +140,36 @@ final case class Indicators(
 object Indicators {
   implicit val encoder = BaseNameEncoder()
   implicit val format = Jsonx.formatCaseClass[Indicators]
+
+  val empty = Indicators(
+    manualCodingInd = none,
+    manualCodingReason = none,
+    manualCodingOther = none,
+    manualCorrInd = none,
+    manualCorrReason = none,
+    additionalNotes = none,
+    deceasedInd = none,
+    s128Ind = none,
+    noAllowInd = none,
+    eeaCmnwthInd = none,
+    noRepaymentInd = none,
+    saLinkInd = none,
+    noATSInd = none,
+    taxEqualBenInd = none,
+    p2ToAgentInd = none,
+    digitallyExcludedInd = none,
+    bankruptcyInd = none,
+    bankruptcyFiledDate = none,
+    utr = none,
+    audioOutputInd = none,
+    welshOutputInd = none,
+    largePrintOutputInd = none,
+    brailleOutputInd = none,
+    specialistBusinessArea = none,
+    saStartYear = none,
+    saFinalYear = none,
+    digitalP2Ind = none
+  )
 }
 
 // --------------------------------------------------------------------------------

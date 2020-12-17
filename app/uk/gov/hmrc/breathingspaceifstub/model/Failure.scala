@@ -35,7 +35,6 @@ object BaseError extends Enum[BaseError] {
   case object IDENTIFIER_NOT_IN_BREATHINGSPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")
   case object INVALID_BODY extends BaseError(BAD_REQUEST, "Not expected a body to this endpoint")
   case object INVALID_ENDPOINT extends BaseError(BAD_REQUEST, "Not a valid endpoint")
-  case object INVALID_FIELDS extends BaseError(BAD_REQUEST, "Invalid query parameter(fields)")
   case object INVALID_IDENTIFIERS extends BaseError(PRECONDITION_REQUIRED, "Invalid path parameter combination")
   case object INVALID_JSON extends BaseError(BAD_REQUEST, "Payload not in the expected Json format")
   case object INVALID_NINO extends BaseError(BAD_REQUEST, "Invalid Nino")
