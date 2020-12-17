@@ -18,41 +18,47 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import javax.inject.{Inject, Singleton}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.Json
-import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model.{Failure, IndividualDetail0, RequestId}
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
+import play.api.mvc.{Action, ControllerComponents, Request, Result}
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_ENDPOINT, UNKNOWN_DATA_ITEM}
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.IndividualDetailsService
 
 @Singleton()
 class IndividualDetailsController @Inject()(
+  appConfig: AppConfig,
   individualDetailsService: IndividualDetailsService,
   cc: ControllerComponents
-)(
-  implicit val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
+)(implicit val ec: ExecutionContext)
+    extends AbstractBaseController(cc) {
 
   def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    fields.fold {
-      implicit val requestId = RequestId(BS_Details_GET)
+    fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
+  }
+
+  private def breathingSpacePopulation(nino: String, fields: String)(implicit request: Request[_]): Future[Result] =
+    fields.replaceAll("\\s+", "") match {
+      case IndividualDetailsForBS.fields =>
+        implicit val requestId = RequestId(BS_Details_GET)
+        individualDetailsService
+          .getIndividualDetailsForBS(nino)
+          .map(_.fold(logAndGenFailureResult, Ok(_)))
+
+      case _ =>
+        implicit val requestId = RequestId(BS_Details_GET)
+        logAndSendFailureResult(Failure(UNKNOWN_DATA_ITEM))
+    }
+
+  private def fullPopulation(nino: String)(implicit request: Request[_]): Future[Result] = {
+    implicit val requestId = RequestId(BS_FullDetails_GET)
+    if (appConfig.fullPopulationDetailsEnabled) {
       individualDetailsService
         .getIndividualDetails(nino)
         .map(_.fold(logAndGenFailureResult, details => Ok(Json.toJson(details))))
-    } {
-      _.replaceAll("\\s+", "") match {
-        case IndividualDetail0.fields =>
-          implicit val requestId = RequestId(BS_Detail0_GET)
-          individualDetailsService
-            .getIndividualDetail0(nino)
-            .map(_.fold(logAndGenFailureResult, Ok(_)))
-
-        case _ =>
-          implicit val requestId = RequestId(BS_Detail_GET)
-          logAndSendFailureResult(Failure(UNKNOWN_DATA_ITEM))
-      }
-    }
+    } else logAndSendFailureResult(Failure(INVALID_ENDPOINT))
   }
 }

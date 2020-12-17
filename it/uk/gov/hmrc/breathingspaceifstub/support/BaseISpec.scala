@@ -46,6 +46,7 @@ trait BaseISpec
     with OptionValues {
 
   val configProperties: Map[String, Any] = Map(
+    "full-population-details-enabled" -> true,
     "mongodb.uri" -> "mongodb://localhost:27017/breathing-space-it"
   )
 

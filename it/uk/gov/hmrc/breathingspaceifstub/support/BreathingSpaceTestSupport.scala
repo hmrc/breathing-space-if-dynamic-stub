@@ -45,7 +45,7 @@ trait BreathingSpaceTestSupport extends NinoValidation {
     Header.UserId -> attendedUserId
   )
 
-  val individualDetail =
+  val individualDetails =
     IndividualDetails(
       details = Details.empty.copy(dateOfBirth = LocalDate.now.some),
       nameList = NameList(List(NameData.empty.copy(

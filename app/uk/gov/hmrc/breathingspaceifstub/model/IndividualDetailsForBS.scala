@@ -20,7 +20,7 @@ import cats.syntax.option._
 import play.api.libs.json._
 import uk.gov.hmrc.breathingspaceifstub.repository.Individual
 
-object IndividualDetail0 {
+object IndividualDetailsForBS {
 
   val Details = "details(nino,dateOfBirth)"
   val NameList = "nameList(name(firstForename,secondForename,surname))"
