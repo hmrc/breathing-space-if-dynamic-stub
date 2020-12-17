@@ -11,7 +11,7 @@ import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class IndividualDetailsControllerISpec extends BaseISpec {
 
-  test("\"get\" with query parameter \"fields\" equal to detail #0)") {
+  test("\"get\" with query parameter \"fields\" filter for Breathing Space") {
     val dateOfBirth = LocalDate.now
     val firstForename = "Joe"
     val surname = "Zawinul"
@@ -19,6 +19,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val addressPostcode = "E20"
     val addressLine2 = "Another Street"
     val countryCode = 20
+    val welshOutputInd = 1
 
     val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some)))
     val addressList = AddressList(List(
@@ -26,10 +27,13 @@ class IndividualDetailsControllerISpec extends BaseISpec {
       AddressData.empty.copy(addressLine2 = addressLine2.some, countryCode = countryCode.some)
     ))
 
+    val indicators = Indicators.empty.copy(welshOutputInd = welshOutputInd.some)
+
     val individualDetails = IndividualDetails.empty.copy(
       details = Details.empty.copy(dateOfBirth = dateOfBirth.some, sex = "M".some),
       nameList = nameList.some,
-      addressList = addressList.some
+      addressList = addressList.some,
+      indicators = indicators.some
     )
 
     val individual = genIndividualInRequest(individualDetails.some)
@@ -47,6 +51,9 @@ class IndividualDetailsControllerISpec extends BaseISpec {
          |      {"addressLine1":"$addressLine1","addressPostcode":"$addressPostcode"},
          |      {"addressLine2":"$addressLine2","countryCode":$countryCode}
          |    ]
+         |  },
+         |  "indicators":{
+         |    "welshOutputInd": 1
          |  }
          |}"""
         .stripMargin

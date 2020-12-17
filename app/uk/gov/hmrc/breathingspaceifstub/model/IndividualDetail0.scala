@@ -26,8 +26,9 @@ object IndividualDetail0 {
   val NameList = "nameList(name(firstForename,secondForename,surname))"
   val AddressList =
     "addressList(address(addressLine1,addressLine2,addressLine3,addressLine4,addressLine5,addressPostcode,countryCode))"
+  val Indicators = "indicators(welshOutputInd)"
 
-  val fields = s"$Details,$NameList,$AddressList"
+  val fields = s"$Details,$NameList,$AddressList,$Indicators"
 
   def apply(individual: Individual): JsObject = {
     val individualDetails = individual.individualDetails
@@ -39,10 +40,10 @@ object IndividualDetail0 {
       ).flatten
     )
 
-    val nameList: Option[JsObject] = individualDetails.nameList.flatMap { nL =>
+    val nameList = individualDetails.nameList.flatMap { nameList =>
       asOptArr(
         "name",
-        Option(nL.name.flatMap { nameData =>
+        Option(nameList.name.flatMap { nameData =>
           asOptObj(
             List(
               asOptVal("firstForename", nameData.firstForename),
@@ -54,10 +55,10 @@ object IndividualDetail0 {
       )
     }
 
-    val addressList: Option[JsObject] = individualDetails.addressList.flatMap { aL =>
+    val addressList = individualDetails.addressList.flatMap { addressList =>
       asOptArr(
         "address",
-        Option(aL.address.flatMap { addressData =>
+        Option(addressList.address.flatMap { addressData =>
           asOptObj(
             List(
               asOptVal("addressLine1", addressData.addressLine1),
@@ -73,11 +74,17 @@ object IndividualDetail0 {
       )
     }
 
+    val indicators = for {
+      indicators <- individualDetails.indicators
+      welshOutputInd <- indicators.welshOutputInd
+    } yield Json.obj("welshOutputInd" -> welshOutputInd)
+
     JsObject(
       List(
         ("details" -> details).some,
         asOptVal("nameList", nameList),
-        asOptVal("addressList", addressList)
+        asOptVal("addressList", addressList),
+        asOptVal("indicators", indicators)
       ).flatten
     )
   }
