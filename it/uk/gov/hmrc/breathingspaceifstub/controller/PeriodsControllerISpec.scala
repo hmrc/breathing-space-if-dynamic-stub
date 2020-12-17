@@ -117,7 +117,7 @@ class PeriodsControllerISpec extends BaseISpec {
   }
 
   test("\"put\" Periods should successfully update multiple periods for the provided Nino") {
-    val individual = genIndividualInRequest(individualDetail.some, withPeriods = true)
+    val individual = genIndividualInRequest(individualDetails.some, withPeriods = true)
     status(postIndividual(individual)) shouldBe CREATED
 
     val postPeriodsInRequest = List(genPostPeriodInRequest())

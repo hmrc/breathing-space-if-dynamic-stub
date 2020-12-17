@@ -39,7 +39,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest(individualDetails.some)
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(individual.nino, IndividualDetail0.fields.some)
+    val response = getIndividualDetails(individual.nino, IndividualDetailsForBS.fields.some)
     status(response) shouldBe OK
 
     val expectedBody = Json.parse(
@@ -100,7 +100,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     )
     status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getIndividualDetails(ninoWithSuffix, IndividualDetail0.fields.some)
+    val response = getIndividualDetails(ninoWithSuffix, IndividualDetailsForBS.fields.some)
     status(response) shouldBe OK
 
     val expectedBody = Json.parse(s"""{"details":{"nino":"${ninoWithoutSuffix}","dateOfBirth":"$dateOfBirth"}}""")

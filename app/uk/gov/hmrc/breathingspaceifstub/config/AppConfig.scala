@@ -25,6 +25,9 @@ final case class HeaderMapping(nameToMap: String, nameMapped: String)
 @Singleton
 class AppConfig @Inject()(config: Configuration) {
 
+  lazy val fullPopulationDetailsEnabled: Boolean =
+    config.getOptional[Boolean]("full-population-details-enabled").getOrElse(false)
+
   lazy val onDevEnvironment: Boolean =
     config.getOptional[String]("environment.id").fold(false)(_.toLowerCase == "development")
 

@@ -32,17 +32,6 @@ class IndividualDetailsService @Inject()(appConfig: AppConfig, individualReposit
   implicit ec: ExecutionContext
 ) extends NinoValidation {
 
-  def getIndividualDetail0(nino: String): AsyncResponse[JsObject] =
-    stripNinoSuffixAndExecOp(
-      nino,
-      appConfig.onDevEnvironment,
-      individualRepository
-        .findIndividual(_)
-        .map(_.fold[Response[JsObject]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
-          Right(IndividualDetail0(individual))
-        })
-    )
-
   def getIndividualDetails(nino: String): AsyncResponse[IndividualDetails] =
     stripNinoSuffixAndExecOp(
       nino,
@@ -51,6 +40,17 @@ class IndividualDetailsService @Inject()(appConfig: AppConfig, individualReposit
         .findIndividual(_)
         .map(_.fold[Response[IndividualDetails]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
           Right(individual.individualDetails)
+        })
+    )
+
+  def getIndividualDetailsForBS(nino: String): AsyncResponse[JsObject] =
+    stripNinoSuffixAndExecOp(
+      nino,
+      appConfig.onDevEnvironment,
+      individualRepository
+        .findIndividual(_)
+        .map(_.fold[Response[JsObject]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+          Right(IndividualDetailsForBS(individual))
         })
     )
 }

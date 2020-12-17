@@ -33,7 +33,7 @@ class PeriodsController @Inject()(periodsService: PeriodsService, cc: Controller
 ) extends AbstractBaseController(cc) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_Detail0_GET)
+    implicit val requestId = RequestId(BS_Details_GET)
     periodsService
       .get(nino)
       .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
