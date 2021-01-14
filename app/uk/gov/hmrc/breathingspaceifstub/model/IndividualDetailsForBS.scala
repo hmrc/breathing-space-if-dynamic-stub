@@ -48,7 +48,8 @@ object IndividualDetailsForBS {
             List(
               asOptVal("firstForename", nameData.firstForename),
               asOptVal("secondForename", nameData.secondForename),
-              asOptVal("surname", nameData.surname)
+              asOptVal("surname", nameData.surname),
+              asOptVal("nameType", nameData.nameType)
             )
           )
         })
@@ -67,7 +68,8 @@ object IndividualDetailsForBS {
               asOptVal("addressLine4", addressData.addressLine4),
               asOptVal("addressLine5", addressData.addressLine5),
               asOptVal("addressPostcode", addressData.addressPostcode),
-              asOptVal("countryCode", addressData.countryCode)
+              asOptVal("countryCode", addressData.countryCode),
+              asOptVal("addressType", addressData.addressType)
             )
           )
         })
