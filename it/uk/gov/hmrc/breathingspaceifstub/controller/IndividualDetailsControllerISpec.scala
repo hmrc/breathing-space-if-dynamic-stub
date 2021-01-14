@@ -15,16 +15,18 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val dateOfBirth = LocalDate.now
     val firstForename = "Joe"
     val surname = "Zawinul"
+    val nameType = 1
     val addressLine1 = "Some Street"
     val addressPostcode = "E20"
     val addressLine2 = "Another Street"
     val countryCode = 20
+    val addressType = 1
     val welshOutputInd = 1
 
-    val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some)))
+    val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some,nameType = nameType.some)))
     val addressList = AddressList(List(
       AddressData.empty.copy(addressLine1 = addressLine1.some, addressPostcode = addressPostcode.some),
-      AddressData.empty.copy(addressLine2 = addressLine2.some, countryCode = countryCode.some)
+      AddressData.empty.copy(addressLine2 = addressLine2.some, countryCode = countryCode.some, addressType = addressType.some)
     ))
 
     val indicators = Indicators.empty.copy(welshOutputInd = welshOutputInd.some)
@@ -45,11 +47,11 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val expectedBody = Json.parse(
       s"""{
          |  "details":{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"},
-         |  "nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]},
+         |  "nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname","nameType":"$nameType"}]},
          |  "addressList":{
          |    "address":[
          |      {"addressLine1":"$addressLine1","addressPostcode":"$addressPostcode"},
-         |      {"addressLine2":"$addressLine2","countryCode":$countryCode}
+         |      {"addressLine2":"$addressLine2","countryCode":$countryCode","addressType":"$addressType"}
          |    ]
          |  },
          |  "indicators":{

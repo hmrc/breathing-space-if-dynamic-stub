@@ -23,9 +23,8 @@ import uk.gov.hmrc.breathingspaceifstub.repository.Individual
 object IndividualDetailsForBS {
 
   val Details = "details(nino,dateOfBirth)"
-  val NameList = "nameList(name(firstForename,secondForename,surname))"
-  val AddressList =
-    "addressList(address(addressLine1,addressLine2,addressLine3,addressLine4,addressLine5,addressPostcode,countryCode))"
+  val NameList = "nameList(name(firstForename,secondForename,surname,nameType))"
+  val AddressList = "addressList(address(addressLine1,addressLine2,addressLine3,addressLine4,addressLine5,addressPostcode,countryCode,addressType))"
   val Indicators = "indicators(welshOutputInd)"
 
   val fields = s"$Details,$NameList,$AddressList,$Indicators"
@@ -48,7 +47,8 @@ object IndividualDetailsForBS {
             List(
               asOptVal("firstForename", nameData.firstForename),
               asOptVal("secondForename", nameData.secondForename),
-              asOptVal("surname", nameData.surname)
+              asOptVal("surname", nameData.surname),
+              asOptVal("nameType", nameData.nameType)
             )
           )
         })
@@ -67,7 +67,8 @@ object IndividualDetailsForBS {
               asOptVal("addressLine4", addressData.addressLine4),
               asOptVal("addressLine5", addressData.addressLine5),
               asOptVal("addressPostcode", addressData.addressPostcode),
-              asOptVal("countryCode", addressData.countryCode)
+              asOptVal("countryCode", addressData.countryCode),
+              asOptVal("addressType", addressData.addressType)
             )
           )
         })
