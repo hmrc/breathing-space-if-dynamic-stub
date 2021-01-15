@@ -47,11 +47,11 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val expectedBody = Json.parse(
       s"""{
          |  "details":{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"},
-         |  "nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname","nameType":"$nameType"}]},
+         |  "nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname","nameType": 1}]},
          |  "addressList":{
          |    "address":[
          |      {"addressLine1":"$addressLine1","addressPostcode":"$addressPostcode"},
-         |      {"addressLine2":"$addressLine2","countryCode":$countryCode","addressType":"$addressType"}
+         |      {"addressLine2":"$addressLine2","countryCode":$countryCode","addressType": 1}
          |    ]
          |  },
          |  "indicators":{
