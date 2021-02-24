@@ -30,6 +30,8 @@ object BaseError extends Enum[BaseError] {
   case object BREATHINGSPACE_EXPIRED
       extends BaseError(Status.FORBIDDEN, "Breathing Space has expired for the given Nino")
   case object CONFLICTING_REQUEST extends BaseError(CONFLICT, "The request is conflicting. Maybe a duplicate POST?")
+  case object DUPLICATE_SUBMISSION
+      extends BaseError(CONFLICT, "The Breathing Space Period(s) being created already exists")
   case object HEADERS_PRECONDITION_NOT_MET extends BaseError(PRECONDITION_REQUIRED, "Invalid header combination")
   case object IDENTIFIER_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
   case object IDENTIFIER_NOT_IN_BREATHINGSPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")

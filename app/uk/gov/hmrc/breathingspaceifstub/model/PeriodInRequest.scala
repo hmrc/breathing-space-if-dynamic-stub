@@ -31,7 +31,7 @@ final case class PostPeriodInRequest(
 
 object PostPeriodInRequest { implicit val format = Json.format[PostPeriodInRequest] }
 
-final case class PostPeriodsInRequest(utr: Option[String], periods: List[PostPeriodInRequest])
+final case class PostPeriodsInRequest(consumerRequestId: UUID, utr: Option[String], periods: List[PostPeriodInRequest])
 object PostPeriodsInRequest { implicit val format = Json.format[PostPeriodsInRequest] }
 
 // --------------------------------------------------------------------------------

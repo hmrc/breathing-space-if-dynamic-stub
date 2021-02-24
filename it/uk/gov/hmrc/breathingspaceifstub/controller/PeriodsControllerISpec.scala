@@ -1,6 +1,7 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import java.time.LocalDate
+import java.util.UUID
 
 import cats.syntax.option._
 import org.scalatest.Assertion
@@ -79,6 +80,19 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val periods = contentAsJson(response).as[Periods].periods
     periods.size shouldBe 3
+  }
+
+  test("\"post\" Periods should report duplicated submission") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val consumerRequestId = UUID.randomUUID
+
+    val postPeriodsInRequest1 = List(genPostPeriodInRequest(withEndDate))
+    status(postPeriods(individual.nino, consumerRequestId, postPeriodsInRequest1)) shouldBe CREATED
+
+    val postPeriodsInRequest2 = List(genPostPeriodInRequest(withEndDate))
+    status(postPeriods(individual.nino, consumerRequestId, postPeriodsInRequest2)) shouldBe CONFLICT
   }
 
   test("\"post\" Periods should report if the provided Nino is unknown") {

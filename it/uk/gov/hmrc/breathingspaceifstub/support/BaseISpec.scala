@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.breathingspaceifstub.support
 
+import java.util.UUID
+
 import scala.concurrent.Future
 
 import akka.stream.Materializer
@@ -66,8 +68,15 @@ trait BaseISpec
 
   def getPeriods(nino: String): Future[Result] = call(Helpers.GET, PeriodsController.get(nino).url)
 
-  def postPeriods(nino: String, postPeriods: List[PostPeriodInRequest]): Future[Result] =
-    call(Helpers.POST, PeriodsController.post(nino).url, Json.toJson(PostPeriodsInRequest("1234567890".some, postPeriods)))
+  def postPeriods(nino: String, periods: List[PostPeriodInRequest]): Future[Result] =
+    postPeriods(nino, UUID.randomUUID, periods)
+
+  def postPeriods(nino: String, consumerRequestId: UUID, postPeriods: List[PostPeriodInRequest]): Future[Result] =
+    call(
+      Helpers.POST,
+      PeriodsController.post(nino).url,
+      Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods))
+    )
 
   def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest]): Future[Result] =
     call(Helpers.PUT, PeriodsController.put(nino).url, Json.toJson(PutPeriodsInRequest(putPeriods)))
