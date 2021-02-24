@@ -50,7 +50,12 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
       maybeNino,
       appConfig.onDevEnvironment,
       nino =>
-        if (!postPeriods.periods.isEmpty) individualRepository.addPeriods(nino, Periods.fromPost(postPeriods.periods))
+        if (!postPeriods.periods.isEmpty)
+          individualRepository.addPeriods(
+            nino,
+            postPeriods.consumerRequestId,
+            Periods.fromPost(postPeriods.periods)
+          )
         else Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
     )
 

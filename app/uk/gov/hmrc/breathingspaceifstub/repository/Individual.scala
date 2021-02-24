@@ -25,6 +25,7 @@ import uk.gov.hmrc.mongo.json.ReactiveMongoFormats._
 final case class Individual(
   nino: String,
   individualDetails: IndividualDetails,
+  consumerRequestIds: List[String],
   periods: List[Period],
   debts: Debts,
   id: BSONObjectID = BSONObjectID.generate
@@ -43,6 +44,7 @@ object Individual {
     Individual(
       nino = individualInRequest.nino,
       individualDetails = individualDetails,
+      consumerRequestIds = List.empty,
       periods = individualInRequest.periods.fold(List.empty[Period])(Periods.fromPost(_)),
       debts = individualInRequest.debts.fold(List.empty[Debt])(identity)
     )

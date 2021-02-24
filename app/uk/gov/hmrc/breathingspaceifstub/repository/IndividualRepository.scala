@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.syntax.flatMap._
 import cats.syntax.option._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsString, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.{MultiBulkWriteResult, WriteResult}
+import reactivemongo.api.commands.{MultiBulkWriteResult, UpdateWriteResult, WriteResult}
 import reactivemongo.api.commands.FindAndModifyCommand.{Result, UpdateLastError}
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
@@ -61,8 +62,18 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       .map(handleWriteResult(_, _ => unit))
       .recover(handleDuplicateKeyError[Unit])
 
-  def addPeriods(nino: String, periods: List[Period]): AsyncResponse[Periods] = {
+  def addPeriods(nino: String, consumerRequestId: UUID, periods: List[Period]): AsyncResponse[Periods] = {
     val query = Json.obj("nino" -> nino)
+    val add2Set = Json.obj("$addToSet" -> Json.obj("consumerRequestIds" -> JsString(consumerRequestId.toString)))
+
+    // Not atomic, but this is a stub then we can accept it.
+    collection.update(false).one(query, add2Set).flatMap { result: UpdateWriteResult =>
+      if (result.nModified == 1) addPeriods(query, periods)
+      else Future.successful(Left(Failure(if (result.n == 0) IDENTIFIER_NOT_FOUND else DUPLICATE_SUBMISSION)))
+    }
+  }
+
+  private def addPeriods(query: JsObject, periods: List[Period]): AsyncResponse[Periods] = {
     val update =
       Json.obj(
         "$push" ->
@@ -71,6 +82,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
               Json.obj("$each" -> periods)
           )
       )
+
     findAndUpdate(query, update).map(handleUpdateResult(_, Periods(periods), IDENTIFIER_NOT_FOUND))
   }
 
@@ -102,6 +114,7 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       }
     }
 
+  // Not atomic, but this is a stub then we can accept it.
   private def updatePeriods(nino: String, periods: List[Period], individual: Individual): AsyncResponse[Periods] = {
     val periodsToNotUpdate = individual.periods.filterNot(p => periods.find(_.periodID == p.periodID).isDefined)
     if (periodsToNotUpdate.size == individual.periods.size) {
