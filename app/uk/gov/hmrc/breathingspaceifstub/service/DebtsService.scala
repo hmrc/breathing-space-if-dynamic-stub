@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.service
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.ExecutionContext
@@ -23,7 +24,7 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_FOUND
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{BREATHINGSPACE_ID_NOT_FOUND, IDENTIFIER_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
@@ -31,16 +32,17 @@ class DebtsService @Inject()(appConfig: AppConfig, individualRepository: Individ
   implicit ec: ExecutionContext
 ) extends NinoValidation {
 
-  def get(nino: String): AsyncResponse[Debts] =
-    stripNinoSuffixAndExecOp(
-      nino,
-      appConfig.onDevEnvironment,
-      individualRepository
-        .findIndividual(_)
-        .map {
-          _.fold[Response[Debts]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
-            individual => Right(individual.debts)
-          )
-        }
-    )
+  def get(nino: String, periodId: UUID): AsyncResponse[Debts] =
+    stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveDetbs(periodId))
+
+  private def retrieveDetbs(periodId: UUID): String => AsyncResponse[Debts] =
+    individualRepository
+      .findIndividual(_)
+      .map {
+        _.fold[Response[Debts]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
+          individual =>
+            if (individual.periods.exists(_.periodID == periodId)) Right(individual.debts)
+            else Left(Failure(BREATHINGSPACE_ID_NOT_FOUND))
+        )
+      }
 }

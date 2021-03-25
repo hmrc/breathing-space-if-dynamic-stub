@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.ExecutionContext
@@ -32,10 +33,10 @@ class DebtsController @Inject()(debtsService: DebtsService, cc: ControllerCompon
   implicit val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
-  def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
+  def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
     implicit val requestId = RequestId(BS_Debts_GET)
     debtsService
-      .get(nino)
+      .get(nino, periodId)
       .map(
         _.fold(
           logAndGenFailureResult,
