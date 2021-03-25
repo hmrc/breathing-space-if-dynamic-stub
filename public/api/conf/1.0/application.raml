@@ -160,6 +160,31 @@ uses:
               schema: !include schemas/GET-List-Individual-Ninos-Response.json
               example: !include examples/GET-List-Individual-Ninos-Response.json
 
+  /utr:
+    /{nino}:
+      uriParameters:
+        nino:
+          description: |
+            National Insurance Number.
+
+            Must conform to the regular expression. Note that the suffix can optionally be included.
+
+            <code>^((?:[ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]?$</code>
+          type: string
+          example: "MZ006526C, MZ006526"
+    get:
+      displayName: Retrieve, if present, the Individual's UTR
+      description: Retrieve, if present, the Individual's UTR.
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/GET-Utr-Individual-Response.json
+              example: !include examples/GET-Utr-Individual-Response.json
+        204:
+
   /wipe-all:
     delete:
       displayName: Remove all Breathing Space Individual documents

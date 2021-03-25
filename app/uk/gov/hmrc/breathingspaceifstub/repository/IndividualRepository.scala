@@ -24,6 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.syntax.flatMap._
 import cats.syntax.option._
 import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.libs.json.Json.JsValueWrapper
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.{MultiBulkWriteResult, UpdateWriteResult, WriteResult}
 import reactivemongo.api.commands.FindAndModifyCommand.{Result, UpdateLastError}
@@ -62,26 +63,28 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       .map(handleWriteResult(_, _ => unit))
       .recover(handleDuplicateKeyError[Unit])
 
-  def addPeriods(nino: String, consumerRequestId: UUID, periods: List[Period]): AsyncResponse[Periods] = {
+  def addPeriods(
+    nino: String,
+    consumerRequestId: UUID,
+    maybeUtr: Option[String],
+    periods: List[Period]
+  ): AsyncResponse[Periods] = {
     val query = Json.obj("nino" -> nino)
     val add2Set = Json.obj("$addToSet" -> Json.obj("consumerRequestIds" -> JsString(consumerRequestId.toString)))
 
     // Not atomic, but this is a stub then we can accept it.
     collection.update(false).one(query, add2Set).flatMap { result: UpdateWriteResult =>
-      if (result.nModified == 1) addPeriods(query, periods)
+      if (result.nModified == 1) addPeriods(query, maybeUtr, periods)
       else Future.successful(Left(Failure(if (result.n == 0) IDENTIFIER_NOT_FOUND else DUPLICATE_SUBMISSION)))
     }
   }
 
-  private def addPeriods(query: JsObject, periods: List[Period]): AsyncResponse[Periods] = {
-    val update =
-      Json.obj(
-        "$push" ->
-          Json.obj(
-            "periods" ->
-              Json.obj("$each" -> periods)
-          )
-      )
+  private def addPeriods(query: JsObject, maybeUtr: Option[String], periods: List[Period]): AsyncResponse[Periods] = {
+    val opOnPeriods: (String, JsValueWrapper) = "$push" -> Json.obj("periods" -> Json.obj("$each" -> periods))
+
+    val update = maybeUtr.fold(Json.obj(opOnPeriods)) { utr =>
+      Json.obj("$set" -> Json.obj(s"individualDetails.indicators.utr" -> utr), opOnPeriods)
+    }
 
     findAndUpdate(query, update).map(handleUpdateResult(_, Periods(periods), IDENTIFIER_NOT_FOUND))
   }

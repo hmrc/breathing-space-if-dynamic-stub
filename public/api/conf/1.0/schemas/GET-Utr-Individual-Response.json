@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Retrieve, if present, the Individual's UTR",
+  "description": "Schema of Retrieve of Individual's UTR response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "utr": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "utr"
+  ]
+}

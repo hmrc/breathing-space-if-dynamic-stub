@@ -28,6 +28,7 @@ object EndpointId extends Enum[EndpointId] {
   case object BS_Individual_POST extends EndpointId
   case object BS_Individuals_POST extends EndpointId
   case object BS_Individual_PUT extends EndpointId
+  case object BS_IndividualUtr_GET extends EndpointId
 
   case object BS_Debts_GET extends EndpointId
   case object BS_Details_GET extends EndpointId
