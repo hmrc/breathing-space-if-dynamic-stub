@@ -83,4 +83,16 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
         individualService.replaceIndividualDetails(nino, _).map(_.fold(logAndGenErrorResult, _ => NoContent))
       )
     }
+
+  def retrieveUtr(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
+    implicit val requestId = RequestId(BS_IndividualUtr_GET)
+    individualService
+      .retrieveUtr(nino)
+      .map(
+        _.fold(
+          logAndGenErrorResult,
+          _.fold(NoContent)(utr => Ok(Json.obj("utr" -> utr)))
+        )
+      )
+  }
 }

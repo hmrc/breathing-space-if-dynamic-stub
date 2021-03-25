@@ -21,15 +21,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.syntax.option._
-import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
+import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_NINO, RESOURCE_NOT_FOUND}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_NINO, RESOURCE_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.repository.{Individual, IndividualRepository}
 import uk.gov.hmrc.breathingspaceifstub.unit
 
 @Singleton
-class IndividualService @Inject()(individualRepository: IndividualRepository)(implicit ec: ExecutionContext)
-    extends NinoValidation {
+class IndividualService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
+  implicit ec: ExecutionContext
+) extends NinoValidation {
 
   def addIndividual(individualInRequest: IndividualInRequest): AsyncResponse[Unit] =
     stripNinoSuffixAndExecOp(
@@ -62,4 +64,17 @@ class IndividualService @Inject()(individualRepository: IndividualRepository)(im
     val detailsWithNino = individualDetails.copy(details = individualDetails.details.copy(nino = nino.some))
     stripNinoSuffixAndExecOp(nino, individualRepository.replaceIndividualDetails(_, detailsWithNino))
   }
+
+  def retrieveUtr(nino: String): AsyncResponse[Option[String]] =
+    stripNinoSuffixAndExecOp(
+      nino,
+      appConfig.onDevEnvironment,
+      individualRepository
+        .findIndividual(_)
+        .map {
+          _.fold[Response[Option[String]]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
+            Right(individual.individualDetails.indicators.map(_.utr).flatten)
+          }
+        }
+    )
 }

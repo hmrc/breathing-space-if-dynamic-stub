@@ -23,6 +23,7 @@ DELETE  /wipe-all      uk.gov.hmrc.breathingspaceifstub.controller.IndividualCon
 DELETE  /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.delete(nino)
 GET     /count         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.count
 GET     /ninos         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.listOfNinos
+GET     /utr/:nino     uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.retrieveUtr(nino)
 GET     /:nino         uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.exists(nino)
 POST    /bulk          uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.postIndividuals
 POST    /single        uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.postIndividual
