@@ -160,18 +160,17 @@ uses:
               schema: !include schemas/GET-List-Individual-Ninos-Response.json
               example: !include examples/GET-List-Individual-Ninos-Response.json
 
-  /utr:
-    /{nino}:
-      uriParameters:
-        nino:
-          description: |
-            National Insurance Number.
+  /utr/{nino}:
+    uriParameters:
+      nino:
+        description: |
+          National Insurance Number.
 
-            Must conform to the regular expression. Note that the suffix can optionally be included.
+          Must conform to the regular expression. Note that the suffix can optionally be included.
 
-            <code>^((?:[ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]?$</code>
-          type: string
-          example: "MZ006526C, MZ006526"
+          <code>^((?:[ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]?$</code>
+        type: string
+        example: "MZ006526C, MZ006526"
     get:
       displayName: Retrieve, if present, the Individual's UTR
       description: Retrieve, if present, the Individual's UTR.
