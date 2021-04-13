@@ -20,7 +20,7 @@ import scala.concurrent.Future
 import scala.util.Random
 
 import uk.gov.hmrc.breathingspaceifstub.{httpErrorSet, AsyncResponse}
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_NINO
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_NINO, RESOURCE_NOT_FOUND}
 
 trait NinoValidation {
 
@@ -68,10 +68,13 @@ trait NinoValidation {
 
   private def httpErrorCode[T](nino: String): AsyncResponse[T] = {
     val httpCode = nino.substring(5, 8).toInt
-    val failure =
-      BaseError.values
-        .find(_.httpCode == httpCode)
-        .fold(Failure(httpCode))(Failure(_))
+    val failure = httpCode match {
+      case 404 => Failure(RESOURCE_NOT_FOUND)
+      case _ =>
+        BaseError.values
+          .find(_.httpCode == httpCode)
+          .fold(Failure(httpCode))(Failure(_))
+    }
 
     failed(failure)
   }
