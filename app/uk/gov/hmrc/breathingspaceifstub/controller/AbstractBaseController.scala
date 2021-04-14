@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import cats.syntax.either._
+import cats.syntax.option._
 import play.api.Logging
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.json._
@@ -27,6 +28,7 @@ import play.api.mvc._
 import uk.gov.hmrc.breathingspaceifstub._
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Periods_POST, BS_Periods_PUT}
 import uk.gov.hmrc.breathingspaceifstub.model.Failure.HttpErrorCode
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -58,6 +60,17 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
 
   def logAndSendFailureResult(failure: Failure)(implicit requestId: RequestId): Future[Result] =
     logAndGenFailure(failure).send
+
+  def withHeaderValidation(
+    endpointId: EndpointId
+  )(f: RequestId => Future[Result])(implicit request: Request[_]): Future[Result] = {
+    val headers: Headers = request.headers
+    (for {
+      correlationId <- validateCorrelation(headers)
+      isUserIdRequired <- validateOriginatorId(headers, endpointId)(correlationId)
+      _ <- validateUserId(headers, isUserIdRequired)(correlationId)
+    } yield f(RequestId(endpointId))).fold(_.send, identity)
+  }
 
   private def logAndGenFailure(failure: Failure)(implicit requestId: RequestId): HttpError = {
     val bE = failure.baseError
@@ -98,4 +111,46 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
           }
         )
     }
+
+  private def validateCorrelation(headers: Headers): Either[HttpError, String] =
+    headers
+      .get(Header.CorrelationId)
+      .fold[Either[HttpError, String]](
+        Left(HttpError(none, Failure(MISSING_HEADER)))
+      )(Right(_))
+
+  private def validateOriginatorId(headers: Headers, endpointId: EndpointId)(
+    implicit correlationId: String
+  ): Either[HttpError, Boolean] =
+    headers
+      .get(Header.OriginatorId)
+      .fold[Either[HttpError, Boolean]](
+        Left(HttpError(correlationId.some, Failure(MISSING_HEADER)))
+      ) { originatorId =>
+        Attended.withNameOption(originatorId.toUpperCase) match {
+          case Some(Attended.DA2_BS_ATTENDED) =>
+            if (endpointId == BS_Periods_POST || endpointId == BS_Periods_PUT) {
+              Left(
+                HttpError(correlationId.some, Failure(INVALID_HEADER))
+              )
+            } else Right(true) // UserId is required
+
+          case Some(Attended.DA2_BS_UNATTENDED) => Right(false) // UserId is not required
+
+          case _ => Left(HttpError(correlationId.some, Failure(INVALID_HEADER)))
+        }
+      }
+
+  private def validateUserId(headers: Headers, isUserIdRequired: Boolean)(
+    implicit correlationId: String
+  ): Either[HttpError, Unit] =
+    headers
+      .get(Header.UserId)
+      .fold[Either[HttpError, Unit]] {
+        if (isUserIdRequired) Left(HttpError(correlationId.some, Failure(MISSING_HEADER)))
+        else Right(unit)
+      } { _ =>
+        if (isUserIdRequired) Right(unit)
+        else Left(HttpError(correlationId.some, Failure(INVALID_HEADER)))
+      }
 }

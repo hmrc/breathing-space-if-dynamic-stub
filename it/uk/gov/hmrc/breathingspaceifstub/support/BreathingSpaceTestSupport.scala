@@ -38,11 +38,17 @@ trait BreathingSpaceTestSupport extends NinoValidation {
 
   val genericErrorResponsePayload = """{"failures":[{"code":"AN_ERROR","reason":"An error message"}]}"""
 
-  lazy val requestHeaders = List(
+  lazy val attendedRequestHeaders = List(
     CONTENT_TYPE -> MimeTypes.JSON,
     Header.CorrelationId -> correlationIdAsString,
     Header.OriginatorId -> Attended.DA2_BS_ATTENDED.toString,
     Header.UserId -> attendedUserId
+  )
+
+  lazy val unattendedRequestHeaders = List(
+    CONTENT_TYPE -> MimeTypes.JSON,
+    Header.CorrelationId -> correlationIdAsString,
+    Header.OriginatorId -> Attended.DA2_BS_UNATTENDED.toString
   )
 
   val individualDetails =
