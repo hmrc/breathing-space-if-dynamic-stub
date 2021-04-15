@@ -62,49 +62,56 @@ trait BaseISpec
   // ====================
 
   def getIndividualDetails(nino: String, fields: Option[String] = none): Future[Result] =
-    call(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
+    attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
 
-  def getDebts(nino: String, periodId: UUID = UUID.randomUUID): Future[Result] = call(Helpers.GET, DebtsController.get(nino, periodId).url)
+  def getDebts(nino: String, periodId: UUID = UUID.randomUUID): Future[Result] =
+    attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
 
-  def getPeriods(nino: String): Future[Result] = call(Helpers.GET, PeriodsController.get(nino).url)
+  def getPeriods(nino: String): Future[Result] = attendedCall(Helpers.GET, PeriodsController.get(nino).url)
 
   def postPeriods(nino: String, periods: List[PostPeriodInRequest]): Future[Result] =
     postPeriods(nino, UUID.randomUUID, periods)
 
   def postPeriods(nino: String, consumerRequestId: UUID, postPeriods: List[PostPeriodInRequest]): Future[Result] =
-    call(
+    unattendedCall(
       Helpers.POST,
       PeriodsController.post(nino).url,
       Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods))
     )
 
   def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest]): Future[Result] =
-    call(Helpers.PUT, PeriodsController.put(nino).url, Json.toJson(PutPeriodsInRequest(putPeriods)))
+    unattendedCall(Helpers.PUT, PeriodsController.put(nino).url, Json.toJson(PutPeriodsInRequest(putPeriods)))
 
   // Support endpoints
   // =================
 
-  def count: Future[Result] = call(Helpers.GET, IndividualController.count.url)
-  def delete(nino: String): Future[Result] = call(Helpers.DELETE, IndividualController.delete(nino).url)
-  def deleteAll: Future[Result] = call(Helpers.DELETE, IndividualController.deleteAll.url)
-  def exists(nino: String): Future[Result] = call(Helpers.GET, IndividualController.exists(nino).url)
-  def listOfNinos: Future[Result] = call(Helpers.GET, IndividualController.listOfNinos.url)
+  def count: Future[Result] = attendedCall(Helpers.GET, IndividualController.count.url)
+  def delete(nino: String): Future[Result] = attendedCall(Helpers.DELETE, IndividualController.delete(nino).url)
+  def deleteAll: Future[Result] = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
+  def exists(nino: String): Future[Result] = attendedCall(Helpers.GET, IndividualController.exists(nino).url)
+  def listOfNinos: Future[Result] = attendedCall(Helpers.GET, IndividualController.listOfNinos.url)
 
   def postIndividual(individualInRequest: IndividualInRequest): Future[Result] =
-    call(Helpers.POST, IndividualController.postIndividual.url, Json.toJson(individualInRequest))
+    attendedCall(Helpers.POST, IndividualController.postIndividual.url, Json.toJson(individualInRequest))
 
   def postIndividuals(individualsInRequest: IndividualsInRequest): Future[Result] =
-    call(Helpers.POST, IndividualController.postIndividuals.url, Json.toJson(individualsInRequest))
+    attendedCall(Helpers.POST, IndividualController.postIndividuals.url, Json.toJson(individualsInRequest))
 
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): Future[Result] =
-    call(Helpers.PUT, IndividualController.replaceIndividualDetails(nino).url, Json.toJson(individualDetails))
+    attendedCall(Helpers.PUT, IndividualController.replaceIndividualDetails(nino).url, Json.toJson(individualDetails))
 
   // ==========================================================================================================
 
-  def call(method: String, url: String): Future[Result] = route(app, fakeRequest(method, url)).get
-  def call(method: String, url: String, body: JsValue): Future[Result] =
-    route(app, fakeRequest(method, url).withBody(body)).get
+  def attendedCall(method: String, url: String): Future[Result] = route(app, attendedFakeRequest(method, url)).get
+  def attendedCall(method: String, url: String, body: JsValue): Future[Result] =
+    route(app, attendedFakeRequest(method, url).withBody(body)).get
 
-  def fakeRequest(method: String, url: String): FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest(method, url).withHeaders(requestHeaders: _*)
+  def unattendedCall(method: String, url: String, body: JsValue): Future[Result] =
+    route(app, unattendedFakeRequest(method, url).withBody(body)).get
+
+  def attendedFakeRequest(method: String, url: String): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(method, url).withHeaders(attendedRequestHeaders: _*)
+
+  def unattendedFakeRequest(method: String, url: String): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(method, url).withHeaders(unattendedRequestHeaders: _*)
 }

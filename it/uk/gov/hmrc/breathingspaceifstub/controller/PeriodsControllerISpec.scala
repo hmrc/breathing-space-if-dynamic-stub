@@ -5,9 +5,12 @@ import java.util.UUID
 
 import cats.syntax.option._
 import org.scalatest.Assertion
+import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
+import uk.gov.hmrc.breathingspaceifstub.controller.routes.PeriodsController
+import uk.gov.hmrc.breathingspaceifstub.Header
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_HEADER, INVALID_JSON, MISSING_HEADER}
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class PeriodsControllerISpec extends BaseISpec {
@@ -40,6 +43,31 @@ class PeriodsControllerISpec extends BaseISpec {
     val response = getPeriods(individual.nino)
     status(response) shouldBe OK
     contentAsString(response) shouldBe """{"periods":[]}"""
+  }
+
+  test("\"get\" Periods should report if the CorrelationId header is missing") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val request = FakeRequest(Helpers.GET, PeriodsController.get(individual.nino).url)
+      .withHeaders(Header.OriginatorId -> Attended.DA2_BS_UNATTENDED.toString)
+
+    val response = route(app, request).get
+    status(response) shouldBe BAD_REQUEST
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${MISSING_HEADER.entryName}"""))
+  }
+
+  test("An unattended \"get\" Periods should report if it includes a 'UserId' header") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val headers = unattendedRequestHeaders :+ ((Header.UserId, "0000000"))
+    val request = FakeRequest(Helpers.GET, PeriodsController.get(individual.nino).url)
+      .withHeaders(headers: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe BAD_REQUEST
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.entryName}"""))
   }
 
   test("\"get\" Periods should report if the provided Nino is unknown") {
@@ -80,6 +108,18 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val periods = contentAsJson(response).as[Periods].periods
     periods.size shouldBe 3
+  }
+
+  test("An attended \"post\" Periods should return 400(INVALID_HEADER)") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val request = FakeRequest(Helpers.POST, PeriodsController.post(individual.nino).url)
+      .withHeaders(attendedRequestHeaders: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe BAD_REQUEST
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.entryName}"""))
   }
 
   test("\"post\" Periods should report duplicated submission") {
@@ -162,6 +202,18 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val putPeriodsInRequest = List(genPutPeriodInRequest())
     status(putPeriods(genNino, putPeriodsInRequest)) shouldBe NOT_FOUND
+  }
+
+  test("An attended \"put\" Periods should return 400(INVALID_HEADER)") {
+    val individual = genIndividualInRequest()
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val request = FakeRequest(Helpers.PUT, PeriodsController.put(individual.nino).url)
+      .withHeaders(attendedRequestHeaders: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe BAD_REQUEST
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.entryName}"""))
   }
 
   test("\"put\" should return 404(INVALID_JSON) when the list of periods to update is empty") {

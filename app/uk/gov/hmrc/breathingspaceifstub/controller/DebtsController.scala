@@ -34,16 +34,17 @@ class DebtsController @Inject()(debtsService: DebtsService, cc: ControllerCompon
 ) extends AbstractBaseController(cc) {
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_Debts_GET)
-    debtsService
-      .get(nino, periodId)
-      .map(
-        _.fold(
-          logAndGenFailureResult,
-          debts =>
-            if (debts.isEmpty) logAndGenFailureResult(Failure(NO_DATA_FOUND))
-            else Ok(Json.toJson(debts))
+    withHeaderValidation(BS_Debts_GET) { implicit requestId =>
+      debtsService
+        .get(nino, periodId)
+        .map(
+          _.fold(
+            logAndGenFailureResult,
+            debts =>
+              if (debts.isEmpty) logAndGenFailureResult(Failure(NO_DATA_FOUND))
+              else Ok(Json.toJson(debts))
+          )
         )
-      )
+    }
   }
 }

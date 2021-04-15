@@ -41,24 +41,21 @@ class IndividualDetailsController @Inject()(
   }
 
   private def breathingSpacePopulation(nino: String, fields: String)(implicit request: Request[_]): Future[Result] =
-    fields.replaceAll("\\s+", "") match {
-      case IndividualDetailsForBS.fields =>
-        implicit val requestId = RequestId(BS_Details_GET)
-        individualDetailsService
-          .getIndividualDetailsForBS(nino)
-          .map(_.fold(logAndGenFailureResult, Ok(_)))
+    withHeaderValidation(BS_Details_GET) { implicit requestId =>
+      fields.replaceAll("\\s+", "") match {
+        case IndividualDetailsForBS.fields =>
+          individualDetailsService.getIndividualDetailsForBS(nino).map(_.fold(logAndGenFailureResult, Ok(_)))
 
-      case _ =>
-        implicit val requestId = RequestId(BS_Details_GET)
-        logAndSendFailureResult(Failure(UNKNOWN_DATA_ITEM))
+        case _ => logAndSendFailureResult(Failure(UNKNOWN_DATA_ITEM))
+      }
     }
 
-  private def fullPopulation(nino: String)(implicit request: Request[_]): Future[Result] = {
-    implicit val requestId = RequestId(BS_FullDetails_GET)
-    if (appConfig.fullPopulationDetailsEnabled) {
-      individualDetailsService
-        .getIndividualDetails(nino)
-        .map(_.fold(logAndGenFailureResult, details => Ok(Json.toJson(details))))
-    } else logAndSendFailureResult(Failure(INVALID_ENDPOINT))
-  }
+  private def fullPopulation(nino: String)(implicit request: Request[_]): Future[Result] =
+    withHeaderValidation(BS_FullDetails_GET) { implicit requestId =>
+      if (appConfig.fullPopulationDetailsEnabled) {
+        individualDetailsService
+          .getIndividualDetails(nino)
+          .map(_.fold(logAndGenFailureResult, details => Ok(Json.toJson(details))))
+      } else logAndSendFailureResult(Failure(INVALID_ENDPOINT))
+    }
 }
