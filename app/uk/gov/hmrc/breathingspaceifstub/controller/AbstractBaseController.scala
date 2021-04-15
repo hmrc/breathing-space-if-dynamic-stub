@@ -128,13 +128,11 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
         Left(HttpError(correlationId.some, Failure(MISSING_HEADER)))
       ) { originatorId =>
         Attended.withNameOption(originatorId.toUpperCase) match {
-          case Some(Attended.DA2_BS_ATTENDED) =>
-            if (endpointId == BS_Periods_POST || endpointId == BS_Periods_PUT) {
-              Left(
-                HttpError(correlationId.some, Failure(INVALID_HEADER))
-              )
-            } else Right(true) // UserId is required
 
+          case Some(Attended.DA2_BS_ATTENDED) if endpointId == BS_Periods_POST || endpointId == BS_Periods_PUT =>
+            Left(HttpError(correlationId.some, Failure(INVALID_HEADER)))
+
+          case Some(Attended.DA2_BS_ATTENDED) => Right(true) // UserId is required
           case Some(Attended.DA2_BS_UNATTENDED) => Right(false) // UserId is not required
 
           case _ => Left(HttpError(correlationId.some, Failure(INVALID_HEADER)))
@@ -144,13 +142,10 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
   private def validateUserId(headers: Headers, isUserIdRequired: Boolean)(
     implicit correlationId: String
   ): Either[HttpError, Unit] =
-    headers
-      .get(Header.UserId)
-      .fold[Either[HttpError, Unit]] {
-        if (isUserIdRequired) Left(HttpError(correlationId.some, Failure(MISSING_HEADER)))
-        else Right(unit)
-      } { _ =>
-        if (isUserIdRequired) Right(unit)
-        else Left(HttpError(correlationId.some, Failure(INVALID_HEADER)))
-      }
+    headers.get(Header.UserId) match {
+      case Some(_) if isUserIdRequired => Right(unit)
+      case Some(_) => Left(HttpError(correlationId.some, Failure(INVALID_HEADER)))
+      case None if isUserIdRequired => Left(HttpError(correlationId.some, Failure(MISSING_HEADER)))
+      case None => Right(unit)
+    }
 }
