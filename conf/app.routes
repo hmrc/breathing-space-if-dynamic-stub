@@ -15,8 +15,6 @@ PUT   /individuals/breathing-space/NINO/:nino/periods          uk.gov.hmrc.breat
 GET   /api/definition           uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.definition
 GET   /api/conf/:version/*file  uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.raml(version, file)
 
-GET   /api/raml                 uk.gov.hmrc.breathingspaceifstub.controller.DocumentationController.verify(ramlUrl)
-
 # Test support routes
 # ===================
 DELETE  /wipe-all      uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.deleteAll
