@@ -1,6 +1,5 @@
 import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
-import uk.gov.hmrc.SbtArtifactory
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "breathing-space-if-dynamic-stub"
@@ -8,7 +7,7 @@ val appName = "breathing-space-if-dynamic-stub"
 val silencerVersion = "1.7.1"
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
     majorVersion             := 0,
     scalaVersion             := "2.12.12",
@@ -49,7 +48,7 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
     "uk\\.gov\\.hmrc\\.breathingspaceifproxy\\.views\\..*",
     ".*(Reverse|AuthService|BuildInfo|Routes).*"
   ).mkString(";"),
-  coverageMinimum := 90,
+  coverageMinimumStmtTotal := 90,
   coverageFailOnMinimum := false,
   coverageHighlighting := true
 )

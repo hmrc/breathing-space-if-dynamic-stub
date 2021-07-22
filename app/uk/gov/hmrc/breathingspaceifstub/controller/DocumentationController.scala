@@ -18,8 +18,6 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import javax.inject.{Inject, Singleton}
 
-import scala.util.{Failure, Success}
-
 import controllers.Assets
 import play.api.Logging
 import play.api.http.MimeTypes
@@ -27,12 +25,10 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.views.txt
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.ramltools.loaders.UrlRamlLoader
 
 @Singleton
 class DocumentationController @Inject()(
   appConfig: AppConfig,
-  ramlLoader: UrlRamlLoader,
   cc: ControllerComponents,
   assets: Assets
 ) extends BackendController(cc)
@@ -45,11 +41,4 @@ class DocumentationController @Inject()(
 
   def raml(version: String, file: String): Action[AnyContent] =
     assets.at(s"/api/conf/$version", file)
-
-  def verify(ramlUrl: String): Action[AnyContent] = Action {
-    ramlLoader.load(ramlUrl) match {
-      case Success(_) => Ok
-      case Failure(error) => UnprocessableEntity(error.getMessage)
-    }
-  }
 }
