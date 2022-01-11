@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ object BaseError extends Enum[BaseError] {
   case object MISSING_HEADER extends BaseError(BAD_REQUEST, "Missing required header")
   case object MISSING_JSON_HEADER extends BaseError(UNSUPPORTED_MEDIA_TYPE, "'Content-Type' header missing or invalid")
   case object NO_DATA_FOUND extends BaseError(NOT_FOUND, "No records found for the given Nino")
+  case object INVALID_UNDERPAYMENT extends BaseError(BAD_REQUEST, "Invalid underpayment")
 
   // Only used by test-only endpoints. IDENTIFIER_NOT_FOUND is returned by EIS.
   case object RESOURCE_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
