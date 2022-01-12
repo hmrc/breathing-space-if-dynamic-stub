@@ -307,3 +307,58 @@ uses:
                   description: The provided Nino was not found
                   value:
                     code: RESOURCE_NOT_FOUND
+
+  /{nino}/{periodId}/codingout/bulk:
+    post:
+      displayName: Add one or more new Breathing Space coded-out underpayments
+      description: |
+        Add one or more new Breathing Space coded-out underpayments
+      is: [headers.contentHeader]
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
+      body:
+        application/json:
+          type: !include schemas/POST-CodedOutDebts-Request.json
+          examples:
+            examples-1:
+              description: 1
+              value: !include examples/POST-CodedOutDebts-Request.json
+      responses:
+        200:
+          body:
+            application/json:
+              type: !include schemas/POST-CodedOutDebts-Response.json
+              examples:
+                examples-1:
+                  value: !include examples/POST-CodedOutDebts-Response.json
+
+        400:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                invalidJson:
+                  description: Invalid Json
+                  value:
+                    code: INVALID_JSON
+                invalidNino:
+                  description: Invalid Nino
+                  value:
+                    code: INVALID_NINO
+                missingBody:
+                  description: Missing Body
+                  value:
+                    code: MISSING_BODY
+
+  /codingout:
+    delete:
+      displayName: Remove all Breathing Space coded out underpayments
+      description: Remove all Breathing Space coded out underpayments
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/DELETE-CodedOutDebts-Response.json
+              example: !include examples/DELETE-CodedOutDebts-Response.json

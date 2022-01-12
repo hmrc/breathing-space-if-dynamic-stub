@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Breathing Space coded out underpayments response",
+  "description": "Schema of POST for coded out underpayments response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "success": {
+      "type": "string"
+    },
+    "fails": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "success",
+    "fails"
+  ]
+}
