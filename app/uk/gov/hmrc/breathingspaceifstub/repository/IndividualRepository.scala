@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,26 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import java.util.UUID
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import cats.syntax.flatMap._
 import cats.syntax.option._
-import play.api.libs.json.{JsObject, JsString, Json}
 import play.api.libs.json.Json.JsValueWrapper
+import play.api.libs.json.{JsObject, JsString, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.{MultiBulkWriteResult, UpdateWriteResult, WriteResult}
 import reactivemongo.api.commands.FindAndModifyCommand.{Result, UpdateLastError}
+import reactivemongo.api.commands.UpdateWriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import reactivemongo.core.errors.DatabaseException
 import reactivemongo.play.json.collection.Helpers.idWrites
 import uk.gov.hmrc.breathingspaceifstub._
-import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
+import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
 class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit executionContext: ExecutionContext)
@@ -139,18 +138,6 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
     }
   }
 
-  val duplicateKey = 11000
-
-  private def handleBulkWriteResult(writeResult: MultiBulkWriteResult): Response[BulkWriteResult] = {
-    val duplicates = writeResult.writeErrors.count(_.code == duplicateKey)
-    Right(BulkWriteResult(writeResult.n, duplicates, writeResult.totalN - writeResult.n - duplicates))
-  }
-
-  private def handleDuplicateKeyError[T]: PartialFunction[Throwable, Response[T]] = {
-    case exc: DatabaseException if exc.code.contains(duplicateKey) =>
-      Left(Failure(CONFLICTING_REQUEST))
-  }
-
   private def handleUpdateResult[T](updateResult: Result[_], result: T, notFound: BaseError): Response[T] =
     updateResult.lastError.fold[Response[T]] {
       Left(Failure(SERVER_ERROR, "updateResult.lastError missing?".some))
@@ -158,17 +145,6 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       if (lastError.updatedExisting) Right(result) else resolveUpdateLastError(lastError, notFound)
     }
 
-  private def handleWriteResult[T](writeResult: WriteResult, f: WriteResult => T): Response[T] =
-    if (writeResult.ok) Right(f(writeResult))
-    else Left(Failure(SERVER_ERROR, resolveWriteResultError(writeResult)))
-
   private def resolveUpdateLastError[T](updateLastError: UpdateLastError, notFound: BaseError): Response[T] =
     Left(updateLastError.err.fold(Failure(notFound))(err => Failure(SERVER_ERROR, err.some)))
-
-  private def resolveWriteResultError(writeResult: WriteResult): Option[String] =
-    WriteResult
-      .lastError(writeResult)
-      .flatMap(_.errmsg.map(identity))
-      .getOrElse("Unexpected error while inserting a document.")
-      .some
 }
