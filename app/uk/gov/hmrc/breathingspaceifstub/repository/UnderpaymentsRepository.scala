@@ -50,6 +50,8 @@ class UnderpaymentsRepository @Inject()(mongo: ReactiveMongoComponent)(implicit 
 
   def removeUnderpayments(): AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
 
+  def removeByNino(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
+
   def findUnderpayments(nino: String, periodId: String): Future[Option[List[UnderpaymentRecord]]] = {
     val fHits: Future[List[UnderpaymentRecord]] = find("nino" -> nino, "periodId" -> periodId)
 

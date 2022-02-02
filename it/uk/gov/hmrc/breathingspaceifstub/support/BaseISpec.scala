@@ -100,6 +100,9 @@ trait BaseISpec
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): Future[Result] =
     attendedCall(Helpers.PUT, IndividualController.replaceIndividualDetails(nino).url, Json.toJson(individualDetails))
 
+  def postUnderpayments(nino: String, periodId: String, underpayments: Underpayments): Future[Result] =
+    attendedCall(Helpers.POST, UnderpaymentsController.saveUnderpayments(nino, periodId).url, Json.toJson(underpayments))
+
   // ==========================================================================================================
 
   def attendedCall(method: String, url: String): Future[Result] = route(app, attendedFakeRequest(method, url)).get

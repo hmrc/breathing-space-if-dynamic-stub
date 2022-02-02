@@ -18,7 +18,7 @@ package uk.gov.hmrc.breathingspaceifstub.service
 
 import play.api.{Logger, Logging}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_UNDERPAYMENT}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_UNDERPAYMENT, RESOURCE_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.model.Validators.validateUnderpayment
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToListOfUnderpaymentsDTOs
@@ -35,7 +35,8 @@ class UnderpaymentsService @Inject()(
   underpaymentsRepository: UnderpaymentsRepository,
   appConfig: AppConfig
 )(implicit ec: ExecutionContext)
-    extends NinoValidation with Logging {
+    extends NinoValidation
+    with Logging {
 
   def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] =
     stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveUnderpayments(nino, periodId))
@@ -58,6 +59,11 @@ class UnderpaymentsService @Inject()(
   }
 
   def removeUnderpayments: AsyncResponse[Int] = underpaymentsRepository.removeUnderpayments()
+
+  def removeUnderpaymentFor(nino: String): AsyncResponse[Int] =
+    stripNinoSuffixAndExecOp(nino, underpaymentsRepository.removeByNino(_).collect {
+      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
+    })
 
   def createUnderpayments(ls: List[UnderpaymentRecord]): Underpayments =
     if (ls.exists(upr => upr.underpayment == None)) Underpayments(List.empty[Underpayment])

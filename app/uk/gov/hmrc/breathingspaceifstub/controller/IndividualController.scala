@@ -17,20 +17,21 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.ExecutionContext
-
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.Response
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
-import uk.gov.hmrc.breathingspaceifstub.service.IndividualService
+import uk.gov.hmrc.breathingspaceifstub.service.{IndividualService, UnderpaymentsService}
 
 @Singleton()
-class IndividualController @Inject()(individualService: IndividualService, cc: ControllerComponents)(
-  implicit val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
+class IndividualController @Inject()(
+  individualService: IndividualService,
+  cc: ControllerComponents,
+  underpaymentsService: UnderpaymentsService
+)(implicit val ec: ExecutionContext)
+    extends AbstractBaseController(cc) {
 
   val count: Action[Unit] = Action.async(withoutBody) { _ =>
     individualService.count.map(count => Ok(Json.obj("count" -> count)))
@@ -39,6 +40,10 @@ class IndividualController @Inject()(individualService: IndividualService, cc: C
   def delete(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
     implicit val requestId = RequestId(BS_Individual_DELETE)
     individualService.delete(nino).map(_.fold(logAndGenErrorResult, _ => NoContent))
+
+    underpaymentsService
+      .removeUnderpaymentFor(nino)
+      .map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("underpaymentsDeleted" -> count))))
   }
 
   val deleteAll: Action[Unit] = Action.async(withoutBody) { implicit request =>

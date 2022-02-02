@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Breathing Space coded out debts",
+  "description": "Schema of DELETE all coded out debts and individual details response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "underpaymentsDeleted": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "underpaymentsDeleted"
+  ]
+}
