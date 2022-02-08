@@ -35,7 +35,8 @@ class UnderpaymentsService @Inject()(
   underpaymentsRepository: UnderpaymentsRepository,
   appConfig: AppConfig
 )(implicit ec: ExecutionContext)
-    extends NinoValidation with Logging {
+    extends NinoValidation
+    with Logging {
 
   def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] =
     stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveUnderpayments(nino, periodId))
@@ -58,6 +59,8 @@ class UnderpaymentsService @Inject()(
   }
 
   def removeUnderpayments: AsyncResponse[Int] = underpaymentsRepository.removeUnderpayments()
+
+  def removeUnderpaymentFor(nino: String): AsyncResponse[Int] = underpaymentsRepository.removeByNino(nino)
 
   def createUnderpayments(ls: List[UnderpaymentRecord]): Underpayments =
     if (ls.exists(upr => upr.underpayment == None)) Underpayments(List.empty[Underpayment])
