@@ -43,7 +43,7 @@ class IndividualController @Inject()(
 
     underpaymentsService
       .removeUnderpaymentFor(nino)
-      .map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("deleted" -> count))))
+      .map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("underpaymentsDeleted" -> count))))
   }
 
   val deleteAll: Action[Unit] = Action.async(withoutBody) { implicit request =>
