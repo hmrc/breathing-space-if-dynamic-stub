@@ -41,8 +41,12 @@ class IndividualControllerISpec extends BaseISpec {
     val individual = genIndividualInRequest()
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
-    status(delete(individual.nino)) shouldBe NO_CONTENT
 
+    status(postUnderpayments(individual.nino,
+      periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93" ,
+      Underpayments(List(underpayment1)))) shouldBe OK
+
+    status(delete(individual.nino)) shouldBe OK
     val response = count
     status(response) shouldBe OK
     contentAsString(response) shouldBe """{"count":0}"""

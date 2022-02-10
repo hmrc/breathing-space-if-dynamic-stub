@@ -88,6 +88,8 @@ trait BreathingSpaceTestSupport extends NinoValidation {
     utrAssociatedWithCharge = "1234567890".some
   )
 
+  val underpayment1 = Underpayment("2011", 1010.23, "PAYE UP")
+
   def genIndividualInRequest(
     individualDetails: Option[IndividualDetails] = None,
     withPeriods: Boolean = false,
