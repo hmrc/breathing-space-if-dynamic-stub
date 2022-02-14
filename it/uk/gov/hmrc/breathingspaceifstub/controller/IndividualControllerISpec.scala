@@ -52,8 +52,21 @@ class IndividualControllerISpec extends BaseISpec {
     contentAsString(response) shouldBe """{"count":0}"""
   }
 
-  test("\"delete(nino)\" should return 404(NOT_FOUND) if the provided Nino is unknown") {
-    status(delete(genNino)) shouldBe NOT_FOUND
+  test("\"delete(nino)\" should wipe out the \"Underpayments\" for the given Nino") {
+    val nino = "AS000001A"
+    status(postUnderpayments(nino,
+      periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93" ,
+      Underpayments(List(underpayment1)))) shouldBe OK
+
+    status(delete(nino)) shouldBe OK
+
+    val response = count
+    status(response) shouldBe OK
+    contentAsString(response) shouldBe """{"count":0}"""
+  }
+
+  test("\"delete(nino)\" should return 200(OK) if the provided Nino is unknown") {
+    status(delete(genNino)) shouldBe OK
   }
 
   test("\"deleteAll\" should wipe out all documents in the \"individual\" collection") {

@@ -26,7 +26,6 @@ import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_NINO, RESOURCE_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.repository.{Individual, IndividualRepository}
-import uk.gov.hmrc.breathingspaceifstub.unit
 
 @Singleton
 class IndividualService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
@@ -48,9 +47,9 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
 
   def count: Future[Int] = individualRepository.count
 
-  def delete(nino: String): AsyncResponse[Unit] =
+  def delete(nino: String): AsyncResponse[Int] =
     stripNinoSuffixAndExecOp(nino, individualRepository.delete(_).collect {
-      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(unit)
+      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     })
 
   def deleteAll: AsyncResponse[Int] = individualRepository.deleteAll
