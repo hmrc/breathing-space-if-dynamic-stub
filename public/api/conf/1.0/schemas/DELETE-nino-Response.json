@@ -5,11 +5,15 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "individualsDeleted": {
+      "type": "integer"
+    },
     "underpaymentsDeleted": {
       "type": "integer"
     }
   },
   "required": [
+    "individualsDeleted",
     "underpaymentsDeleted"
   ]
 }

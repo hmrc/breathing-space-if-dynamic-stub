@@ -37,13 +37,29 @@ class IndividualController @Inject()(
     individualService.count.map(count => Ok(Json.obj("count" -> count)))
   }
 
-  def delete(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_Individual_DELETE)
-    individualService.delete(nino).map(_.fold(logAndGenErrorResult, _ => NoContent))
+  def delete(nino: String): Action[Unit] = Action.async(withoutBody) { _ =>
+    val fIndividualDel = individualService.delete(nino)
+    val fUnderpaymentsDel = underpaymentsService.removeUnderpaymentFor(nino)
 
-    underpaymentsService
-      .removeUnderpaymentFor(nino)
-      .map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("underpaymentsDeleted" -> count))))
+    def normalise[A](either: Either[Failure, A]): Int = either match {
+      case Right(value) => Integer.parseInt(value.toString)
+      case _ => 0
+    }
+
+    val fRes = for {
+      e1 <- fIndividualDel
+      e2 <- fUnderpaymentsDel
+    } yield (e1, e2)
+
+    fRes.map {
+      case (e1, e2) =>
+        Ok(
+          Json.obj(
+            "individualsDeleted" -> normalise(e1),
+            "underpaymentsDeleted" -> normalise(e2)
+          )
+        )
+    }
   }
 
   val deleteAll: Action[Unit] = Action.async(withoutBody) { implicit request =>

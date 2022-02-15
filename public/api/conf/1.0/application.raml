@@ -221,26 +221,6 @@ uses:
               schema: !include schemas/DELETE-nino-Response.json
               example: !include examples/DELETE-nino-Response.json
 
-        400:
-          body:
-            application/json:
-              type: types.errorResponse
-              examples:
-                invalidNino:
-                  description: Invalid Nino
-                  value:
-                    code: INVALID_NINO
-
-        404:
-          body:
-            application/json:
-              type: types.errorResponse
-              examples:
-                resourceNotFound:
-                  description: The provided Nino was not found
-                  value:
-                    code: RESOURCE_NOT_FOUND
-
     get:
       displayName: Determines if a Breathing Space Individual document exists for the given Nino
       description: Determines if a Breathing Space Individual document exists for the given Nino.
