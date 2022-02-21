@@ -38,6 +38,8 @@ class UnderpaymentsService @Inject()(
     extends NinoValidation
     with Logging {
 
+  def count(nino: String, periodId: UUID): AsyncResponse[Int] = underpaymentsRepository.count(nino, periodId)
+
   def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] =
     stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveUnderpayments(nino, periodId))
 

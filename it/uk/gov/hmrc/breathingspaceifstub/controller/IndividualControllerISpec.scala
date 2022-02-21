@@ -17,13 +17,14 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import java.time.LocalDate
-
 import cats.syntax.option._
 import play.api.http.Status.NOT_FOUND
 import play.api.test.Helpers._
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
+
+import java.util.UUID
 
 class IndividualControllerISpec extends BaseISpec {
 
@@ -54,15 +55,19 @@ class IndividualControllerISpec extends BaseISpec {
 
   test("\"delete(nino)\" should wipe out the \"Underpayments\" for the given Nino") {
     val nino = "AS000001A"
+    val periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93"
     status(postUnderpayments(nino,
-      periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93" ,
+      periodId,
       Underpayments(List(underpayment1)))) shouldBe OK
+    val response1 = countUnderpayments(nino, UUID.fromString(periodId))
+    status(response1) shouldBe OK
+    contentAsString(response1) shouldBe """{"count":1}"""
 
     status(delete(nino)) shouldBe OK
 
-    val response = count
-    status(response) shouldBe OK
-    contentAsString(response) shouldBe """{"count":0}"""
+    val response2 = countUnderpayments(nino, UUID.fromString(periodId))
+    status(response2) shouldBe OK
+    contentAsString(response2) shouldBe """{"count":0}"""
   }
 
   test("\"delete(nino)\" should return 200(OK) if the provided Nino is unknown") {

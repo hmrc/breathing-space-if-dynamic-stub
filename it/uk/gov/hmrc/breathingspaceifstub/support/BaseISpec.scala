@@ -86,6 +86,8 @@ trait BaseISpec
   // =================
 
   def count: Future[Result] = attendedCall(Helpers.GET, IndividualController.count.url)
+  def countUnderpayments(nino: String, periodId: UUID): Future[Result] =
+    attendedCall(Helpers.GET, UnderpaymentsController.count(nino, periodId.toString).url)
   def delete(nino: String): Future[Result] = attendedCall(Helpers.DELETE, IndividualController.delete(nino).url)
   def deleteAll: Future[Result] = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
   def exists(nino: String): Future[Result] = attendedCall(Helpers.GET, IndividualController.exists(nino).url)

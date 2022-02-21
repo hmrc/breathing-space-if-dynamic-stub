@@ -17,6 +17,7 @@
 package uk.gov.hmrc.breathingspaceifstub.repository
 
 import play.api.Logger
+import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
@@ -25,6 +26,7 @@ import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -59,5 +61,10 @@ class UnderpaymentsRepository @Inject()(mongo: ReactiveMongoComponent)(implicit 
       case Nil => None
       case ls => Some(ls)
     }
+  }
+
+  def count(nino: String, periodId: UUID): AsyncResponse[Int] = {
+    val query = Json.obj("nino" -> nino, "periodId" -> periodId)
+    count(query).map(n => Right(n))
   }
 }
