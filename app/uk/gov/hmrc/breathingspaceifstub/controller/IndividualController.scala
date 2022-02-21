@@ -33,7 +33,7 @@ class IndividualController @Inject()(
 )(implicit val ec: ExecutionContext)
     extends AbstractBaseController(cc) {
 
-  val count: Action[Unit] = Action.async(withoutBody) { _ =>
+  val individualCount: Action[Unit] = Action.async(withoutBody) { _ =>
     individualService.count.map(count => Ok(Json.obj("count" -> count)))
   }
 

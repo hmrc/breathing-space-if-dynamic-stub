@@ -22,7 +22,7 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, I
 import uk.gov.hmrc.breathingspaceifstub.model.Validators.validateUnderpayment
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToListOfUnderpaymentsDTOs
-import uk.gov.hmrc.breathingspaceifstub.repository.{UnderpaymentRecord, UnderpaymentsRepository}
+import uk.gov.hmrc.breathingspaceifstub.repository.{Repository, UnderpaymentRecord}
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 
 import java.util.UUID
@@ -32,13 +32,13 @@ import scala.util.Success
 
 @Singleton
 class UnderpaymentsService @Inject()(
-  underpaymentsRepository: UnderpaymentsRepository,
-  appConfig: AppConfig
-)(implicit ec: ExecutionContext)
+      repo: Repository,
+      appConfig: AppConfig)(implicit ec: ExecutionContext)
     extends NinoValidation
     with Logging {
 
-  def count(nino: String, periodId: UUID): AsyncResponse[Int] = underpaymentsRepository.count(nino, periodId)
+  def underpaymentCount(nino: String, periodId: UUID): AsyncResponse[Int] =
+    repo.underpaymentCount(nino, periodId)
 
   def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] =
     stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveUnderpayments(nino, periodId))
@@ -54,16 +54,16 @@ class UnderpaymentsService @Inject()(
 
     if (underpayments.forall(u => validateUnderpayment(u))) {
       logger.info(s"Service validated ${underpayments.size} underpayments for ${nino}/${periodId}")
-      underpaymentsRepository.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId), logger)
+      repo.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId), logger)
     } else {
       Future.successful(Left(Failure(INVALID_UNDERPAYMENT, Some("One of the underpayments was invalid"))))
     }
   }
 
-  def removeUnderpayments: AsyncResponse[Int] = underpaymentsRepository.removeUnderpayments()
+  def removeUnderpayments: AsyncResponse[Int] = repo.removeUnderpayments()
 
   def removeUnderpaymentFor(nino: String): AsyncResponse[Int] =
-    underpaymentsRepository.removeByNino(nino).collect {
+    repo.removeByNino(nino).collect {
       case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     }
 
@@ -84,7 +84,7 @@ class UnderpaymentsService @Inject()(
 
   private def retrieveUnderpayments(nino: String, periodId: UUID): String => AsyncResponse[Underpayments] = { _ =>
     val underpaymentDTOs: Future[Option[List[UnderpaymentRecord]]] =
-      underpaymentsRepository.findUnderpayments(nino, periodId.toString)
+      repo.findUnderpayments(nino, periodId.toString)
 
     val underpayments: Future[Option[Underpayments]] = underpaymentDTOs
       .map(

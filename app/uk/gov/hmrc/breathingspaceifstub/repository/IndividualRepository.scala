@@ -18,6 +18,7 @@ package uk.gov.hmrc.breathingspaceifstub.repository
 
 import cats.syntax.flatMap._
 import cats.syntax.option._
+import play.api.Logger
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsObject, JsString, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
@@ -44,7 +45,10 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
       mongo = mongo.mongoConnector.db,
       domainFormat = Individual.mongoFormat,
       idFormat = ReactiveMongoFormats.objectIdFormats
-    ) {
+    )
+    with Repository {
+
+  def individualCount(implicit executionContext: ExecutionContext): Future[Int] = count
 
   override def indexes: Seq[Index] =
     Seq(
@@ -147,4 +151,37 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
 
   private def resolveUpdateLastError[T](updateLastError: UpdateLastError, notFound: BaseError): Response[T] =
     Left(updateLastError.err.fold(Failure(notFound))(err => Failure(SERVER_ERROR, err.some)))
+
+
+  def saveUnderpayments(underpayments: List[UnderpaymentRecord], logger: Logger): AsyncResponse[BulkWriteResult] = {
+    logger.info(s"Received request to save ${underpayments.size} underpayments")
+
+    val res = bulkInsert(underpayments)
+      .map(handleBulkWriteResult)
+      .recover(handleDuplicateKeyError[BulkWriteResult])
+
+    logger.info(s"Saved ${underpayments.size} underpayments to disk")
+    res
+  }
+
+  def removeUnderpayments(): AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
+
+  def removeByNino(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
+
+  def findUnderpayments(nino: String, periodId: String): Future[Option[List[UnderpaymentRecord]]] = {
+    val fHits: Future[List[UnderpaymentRecord]] = find("nino" -> nino, "periodId" -> periodId)
+
+    fHits.map {
+      case Nil => None
+      case ls => Some(ls)
+    }
+  }
+
+  def underpaymentCount(nino: String, periodId: UUID): AsyncResponse[Int] = {
+    val query = Json.obj("nino" -> nino, "periodId" -> periodId)
+    count(query).map(n => Right(n))
+  }
+
+  override def deletePeriod(nino: String, periodId: UUID): AsyncResponse[Int] = ???
+
 }

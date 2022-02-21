@@ -27,7 +27,7 @@ class UnderpaymentsControllerISpec extends BaseISpec {
 
   test("\"POST\" Underpayments should not allow duplicates") {
 
-    pending
+//    pending
 
     // create some underpayments
     val n1 = "AS000001A"

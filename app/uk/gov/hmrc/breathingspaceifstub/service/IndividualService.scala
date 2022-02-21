@@ -17,18 +17,16 @@
 package uk.gov.hmrc.breathingspaceifstub.service
 
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.{ExecutionContext, Future}
-
 import cats.syntax.option._
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_NINO, RESOURCE_NOT_FOUND}
-import uk.gov.hmrc.breathingspaceifstub.repository.{Individual, IndividualRepository}
+import uk.gov.hmrc.breathingspaceifstub.repository.{Individual, Repository}
 
 @Singleton
-class IndividualService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
+class IndividualService @Inject()(appConfig: AppConfig, individualRepository: Repository)(
   implicit ec: ExecutionContext
 ) extends NinoValidation {
 
@@ -45,7 +43,7 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
       individualRepository.addIndividuals(Individual.fromIndividualsInRequest(individualsInRequest))
     } else Future.successful(Left(Failure(INVALID_NINO, "Maybe a Nino with Suffix? (Not valid for this action)".some)))
 
-  def count: Future[Int] = individualRepository.count
+  def count: Future[Int] = individualRepository.individualCount
 
   def delete(nino: String): AsyncResponse[Int] =
     stripNinoSuffixAndExecOp(nino, individualRepository.delete(_).collect {

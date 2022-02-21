@@ -63,7 +63,7 @@ class UnderpaymentsRepository @Inject()(mongo: ReactiveMongoComponent)(implicit 
     }
   }
 
-  def count(nino: String, periodId: UUID): AsyncResponse[Int] = {
+  def underpaymentCount(nino: String, periodId: UUID): AsyncResponse[Int] = {
     val query = Json.obj("nino" -> nino, "periodId" -> periodId)
     count(query).map(n => Right(n))
   }

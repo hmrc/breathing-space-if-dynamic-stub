@@ -18,17 +18,15 @@ package uk.gov.hmrc.breathingspaceifstub.service
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.ExecutionContext
-
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{BREATHINGSPACE_ID_NOT_FOUND, IDENTIFIER_NOT_FOUND}
-import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
+import uk.gov.hmrc.breathingspaceifstub.repository.Repository
 
 @Singleton
-class DebtsService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
+class DebtsService @Inject()(appConfig: AppConfig, individualRepository: Repository)(
   implicit ec: ExecutionContext
 ) extends NinoValidation {
 
