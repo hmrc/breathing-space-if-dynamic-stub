@@ -21,7 +21,7 @@ GET   /api/conf/:version/*file  uk.gov.hmrc.breathingspaceifstub.controller.Docu
 # Coding Out
 POST    /:nino/:periodId/codingout/bulk uk.gov.hmrc.breathingspaceifstub.controller.UnderpaymentsController.saveUnderpayments(nino, periodId)
 DELETE  /codingout      uk.gov.hmrc.breathingspaceifstub.controller.UnderpaymentsController.clearUnderpayments
-GET     /:nino/:periodId/codingout  uk.gov.hmrc.breathingspaceifstub.controller.UnderpaymentsController.count(nino, periodId)
+GET     /:nino/:periodId/codingout/count  uk.gov.hmrc.breathingspaceifstub.controller.UnderpaymentsController.count(nino, periodId)
 
 # Individual
 DELETE  /wipe-all       uk.gov.hmrc.breathingspaceifstub.controller.IndividualController.deleteAll
