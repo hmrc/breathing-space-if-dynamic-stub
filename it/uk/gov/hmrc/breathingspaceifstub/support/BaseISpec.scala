@@ -103,6 +103,15 @@ trait BaseISpec
   def postUnderpayments(nino: String, periodId: String, underpayments: Underpayments): Future[Result] =
     attendedCall(Helpers.POST, UnderpaymentsController.saveUnderpayments(nino, periodId).url, Json.toJson(underpayments))
 
+  def countUnderpayments(nino: String, periodId: UUID): Future[Result] =
+    attendedCall(Helpers.GET, UnderpaymentsController.count(nino, periodId.toString).url)
+
+  def deleteAllUnderpayments(): Future[Result] =
+    attendedCall(Helpers.DELETE, UnderpaymentsController.clearUnderpayments.url)
+
+  def getUnderpayments(nino: String, periodId: UUID): Future[Result] =
+    attendedCall(Helpers.GET, UnderpaymentsController.get(nino, periodId).url)
+
   // ==========================================================================================================
 
   def attendedCall(method: String, url: String): Future[Result] = route(app, attendedFakeRequest(method, url)).get

@@ -88,4 +88,11 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
         )
     }
   }
+
+  def count(nino: String, periodId: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
+    implicit val requestId = RequestId(BS_Underpayments_GET)
+    underpaymentsService
+      .count(nino, UUID.fromString(periodId))
+      .map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("count" -> count))))
+  }
 }
