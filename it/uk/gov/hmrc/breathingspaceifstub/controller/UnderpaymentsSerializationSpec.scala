@@ -23,11 +23,11 @@ class UnderpaymentsSerializationSpec extends BaseISpec {
 
   import play.api.libs.json._
 
-  val u1 = Underpayment("2011", 123423.222, "SA UP")
-  val u2 = Underpayment("2011", 123423.222, "SA UP")
-  val u3 = Underpayment("2011", 123423.222, "SA UP")
+  val up1 = Underpayment("2011", 123423.222, "SA UP")
+  val up2 = Underpayment("2011", 123423.222, "SA UP")
+  val up3 = Underpayment("2011", 123423.222, "SA UP")
 
-  val underpayments = List(u1, u2, u3)
+  val underpayments = List(up1, up2, up3)
 
   val json = "{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}"
   val jsonList = "[{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}" +
@@ -49,7 +49,7 @@ class UnderpaymentsSerializationSpec extends BaseISpec {
       case JsSuccess(value, _) => value
       case _ => throw new RuntimeException("parse error")
     }
-    u shouldBe u1
+    u shouldBe up1
   }
 
   test("json tests - deserialize empty underpayments array") {

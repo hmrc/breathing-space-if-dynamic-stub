@@ -45,7 +45,7 @@ class IndividualControllerISpec extends BaseISpec {
 
     status(postUnderpayments(individual.nino,
       periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93" ,
-      Underpayments(List(underpayment1)))) shouldBe OK
+      Underpayments(List(u1)))) shouldBe OK
 
     status(delete(individual.nino)) shouldBe OK
     val response = count
@@ -58,7 +58,7 @@ class IndividualControllerISpec extends BaseISpec {
     val periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93"
     status(postUnderpayments(nino,
       periodId,
-      Underpayments(List(underpayment1)))) shouldBe OK
+      Underpayments(List(u1)))) shouldBe OK
     val response1 = countUnderpayments(nino, UUID.fromString(periodId))
     status(response1) shouldBe OK
     contentAsString(response1) shouldBe """{"count":1}"""
