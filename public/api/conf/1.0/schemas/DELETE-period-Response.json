@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Breathing Space coded out debts",
+  "description": "Schema of DELETE period for individual response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "periodsDeleted": {
+      "type": "integer"
+    },
+    "underpaymentsDeleted": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "periodsDeleted",
+    "underpaymentsDeleted"
+  ]
+}

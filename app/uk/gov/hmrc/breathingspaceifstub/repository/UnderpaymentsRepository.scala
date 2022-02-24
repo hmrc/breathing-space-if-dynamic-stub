@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import play.api.Logger
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
-import uk.gov.hmrc.breathingspaceifstub.model.BulkWriteResult
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
+import uk.gov.hmrc.breathingspaceifstub.model.{BulkWriteResult, Failure}
 import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
@@ -39,9 +39,19 @@ class UnderpaymentsRepository @Inject()(mongo: ReactiveMongoComponent)(implicit 
       idFormat = ReactiveMongoFormats.objectIdFormats
     ) {
 
-  def saveUnderpayments(underpayments: List[UnderpaymentRecord], logger: Logger): AsyncResponse[BulkWriteResult] = {
+  def saveUnderpayments(underpayments: List[UnderpaymentRecord]): AsyncResponse[BulkWriteResult] = {
     logger.info(s"Received request to save ${underpayments.size} underpayments")
 
+    val fhits: Future[List[UnderpaymentRecord]] =
+      find("nino" -> underpayments.head.nino, "periodId" -> underpayments.head.periodId)
+    fhits.flatMap(
+      hits =>
+        if (hits.isEmpty) save(underpayments)
+        else Future(Left(Failure(CONFLICTING_REQUEST)))
+    )
+  }
+
+  private def save(underpayments: List[UnderpaymentRecord]): AsyncResponse[BulkWriteResult] = {
     val res = bulkInsert(underpayments)
       .map(handleBulkWriteResult)
       .recover(handleDuplicateKeyError[BulkWriteResult])
@@ -53,6 +63,9 @@ class UnderpaymentsRepository @Inject()(mongo: ReactiveMongoComponent)(implicit 
   def removeUnderpayments(): AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
 
   def removeByNino(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
+
+  def removeByNinoAndPeriodId(nino: String, periodId: UUID): AsyncResponse[Int] =
+    remove("nino" -> nino, "periodId" -> periodId).map(handleWriteResult(_, _.n))
 
   def findUnderpayments(nino: String, periodId: String): Future[Option[List[UnderpaymentRecord]]] = {
     val fHits: Future[List[UnderpaymentRecord]] = find("nino" -> nino, "periodId" -> periodId)

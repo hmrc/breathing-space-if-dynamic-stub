@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import cats.syntax.flatMap._
 import cats.syntax.option._
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsObject, JsString, Json}
@@ -109,10 +108,23 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
   }
 
   def updatePeriods(nino: String, periods: List[Period]): AsyncResponse[Periods] =
-    findIndividual(nino) >>= {
+    findIndividual(nino).flatMap {
       _.fold[AsyncResponse[Periods]](Future.successful(Left(Failure(IDENTIFIER_NOT_FOUND)))) { individual =>
         if (individual.periods.isEmpty) Future.successful(Right(Periods(periods = List.empty)))
         else updatePeriods(nino, periods, individual)
+      }
+    }
+
+  def deletePeriod(nino: String, periodId: UUID): AsyncResponse[Int] =
+    findIndividual(nino).flatMap {
+      _.fold[AsyncResponse[Int]](Future.successful(Left(Failure(IDENTIFIER_NOT_FOUND)))) { _ =>
+        collection
+          .update(ordered = false)
+          .one(
+            Json.obj("nino" -> nino),
+            Json.obj("$pull" -> Json.obj("periods" -> Json.obj("periodID" -> periodId)))
+          )
+          .map(uwr => Right(uwr.nModified))
       }
     }
 

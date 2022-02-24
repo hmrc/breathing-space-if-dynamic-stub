@@ -17,18 +17,22 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.ExecutionContext
-
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.Response
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
-import uk.gov.hmrc.breathingspaceifstub.service.PeriodsService
+import uk.gov.hmrc.breathingspaceifstub.service.{PeriodsService, UnderpaymentsService}
+
+import java.util.UUID
 
 @Singleton()
-class PeriodsController @Inject()(periodsService: PeriodsService, cc: ControllerComponents)(
+class PeriodsController @Inject()(
+  periodsService: PeriodsService,
+  cc: ControllerComponents,
+  underpaymentsService: UnderpaymentsService
+)(
   implicit val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
@@ -63,4 +67,29 @@ class PeriodsController @Inject()(periodsService: PeriodsService, cc: Controller
         )
       }
     }
+
+  def delete(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { _ =>
+    val fIndividualDel = periodsService.delete(nino, periodId)
+    val fUnderpaymentsDel = underpaymentsService.removeUnderpaymentFor(nino, periodId)
+
+    def normalise[A](either: Either[Failure, A]): Int = either match {
+      case Right(value) => Integer.parseInt(value.toString)
+      case _ => 0
+    }
+
+    val fRes = for {
+      e1 <- fIndividualDel
+      e2 <- fUnderpaymentsDel
+    } yield (e1, e2)
+
+    fRes.map {
+      case (e1, e2) =>
+        Ok(
+          Json.obj(
+            "periodsDeleted" -> normalise(e1),
+            "underpaymentsDeleted" -> normalise(e2)
+          )
+        )
+    }
+  }
 }

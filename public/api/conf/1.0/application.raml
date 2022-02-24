@@ -290,6 +290,38 @@ uses:
                   description: The provided Nino was not found
                   value:
                     code: RESOURCE_NOT_FOUND
+  /{nino}/{periodId}:
+    uriParameters:
+      nino:
+        description: |
+          National Insurance Number.
+  
+          Must conform to the regular expression. Note that the suffix can optionally be included.
+  
+          <code>^((?:[ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]?$</code>
+        type: string
+        example: "MZ006526C, MZ006526"
+
+      periodId:
+        description: |
+          Breathing Space Period Unique Reference
+
+          Must conform to the regular expression
+
+          <code>^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fAF]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$</code>
+        type: string
+        example: "7957547e-1619-4f22-82bb-f12138ec2f8b"
+    delete:
+      displayName: Remove period for a specific Nino
+      description: Remove the Breathing Space Individual period and its Underpayments for this Nino.
+      (annotations.scope): "breathing-space-test-support"
+      securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/DELETE-period-Response.json
+              example: !include examples/DELETE-period-Response.json
 
   /{nino}/{periodId}/codingout/bulk:
     post:

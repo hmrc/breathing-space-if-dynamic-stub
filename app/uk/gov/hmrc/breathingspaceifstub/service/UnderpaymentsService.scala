@@ -54,7 +54,7 @@ class UnderpaymentsService @Inject()(
 
     if (underpayments.forall(u => validateUnderpayment(u))) {
       logger.info(s"Service validated ${underpayments.size} underpayments for ${nino}/${periodId}")
-      underpaymentsRepository.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId), logger)
+      underpaymentsRepository.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId))
     } else {
       Future.successful(Left(Failure(INVALID_UNDERPAYMENT, Some("One of the underpayments was invalid"))))
     }
@@ -64,6 +64,11 @@ class UnderpaymentsService @Inject()(
 
   def removeUnderpaymentFor(nino: String): AsyncResponse[Int] =
     underpaymentsRepository.removeByNino(nino).collect {
+      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
+    }
+
+  def removeUnderpaymentFor(nino: String, periodId: UUID): AsyncResponse[Int] =
+    underpaymentsRepository.removeByNinoAndPeriodId(nino, periodId).collect {
       case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     }
 

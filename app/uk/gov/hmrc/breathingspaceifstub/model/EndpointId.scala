@@ -36,6 +36,7 @@ object EndpointId extends Enum[EndpointId] {
   case object BS_Periods_GET extends EndpointId
   case object BS_Periods_POST extends EndpointId
   case object BS_Periods_PUT extends EndpointId
+  case object BS_Periods_DELETE extends EndpointId
 
   case object BS_Underpayments_POST extends EndpointId
   case object BS_Underpayments_DELETE extends EndpointId
