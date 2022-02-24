@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.service
 
+import com.github.nscala_time.time.Imports.LocalDate
 import play.api.{Logger, Logging}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_UNDERPAYMENT, RESOURCE_NOT_FOUND}
@@ -25,16 +26,16 @@ import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToLis
 import uk.gov.hmrc.breathingspaceifstub.repository.{Repository, UnderpaymentRecord}
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 
-import java.util.UUID
+import java.util.{OptionalInt, UUID}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 @Singleton
-class UnderpaymentsService @Inject()(
-      repo: Repository,
-      appConfig: AppConfig)(implicit ec: ExecutionContext)
-    extends NinoValidation
+class UnderpaymentsService @Inject()(repo: Repository,
+                                     appConfig: AppConfig,
+                                     periodsService: PeriodsService)(implicit ec: ExecutionContext)
+  extends NinoValidation
     with Logging {
 
   def underpaymentCount(nino: String, periodId: UUID): AsyncResponse[Int] =
@@ -48,38 +49,69 @@ class UnderpaymentsService @Inject()(
     periodId: String,
     underpayments: List[Underpayment],
     logger: Logger
-  ): AsyncResponse[BulkWriteResult] = {
+  ): AsyncResponse[Periods] = {
 
     logger.info(s"Service received ${underpayments.size} underpayments for ${nino}/${periodId}")
 
-    if (underpayments.forall(u => validateUnderpayment(u))) {
-      logger.info(s"Service validated ${underpayments.size} underpayments for ${nino}/${periodId}")
-      repo.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId), logger)
-    } else {
-      Future.successful(Left(Failure(INVALID_UNDERPAYMENT, Some("One of the underpayments was invalid"))))
+//    if (underpayments.forall(u => validateUnderpayment(u))) {
+//      logger.info(s"Service validated ${underpayments.size} underpayments for ${nino}/${periodId}")
+//      repo.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId), logger)
+//    } else {
+//      Future.successful(Left(Failure(INVALID_UNDERPAYMENT, Some("One of the underpayments was invalid"))))
+//    }
+
+    val periods: AsyncResponse[Periods] = periodsService.get(nino)
+
+    def buildNewPeriod(myPeriod: Period): PutPeriodsInRequest = {
+      val newPeriod = myPeriod.copy(underpayments = Some(Underpayments(underpayments)))
+      val putPeriodsInRequest = List(
+        PutPeriodInRequest(newPeriod.periodID, newPeriod.startDate, newPeriod.endDate, LocalDate.now().toString)
+      )
+      PutPeriodsInRequest(putPeriodsInRequest)
     }
+
+    var maybeNewPeriods: Option[AsyncResponse[Periods]] = None
+
+    periods
+      .map(
+        _.map(
+          pds => {
+            val myPeriod = pds.periods.filter(p => p.periodID == periodId)(0)
+            val putPeriodsInRequest = buildNewPeriod(myPeriod)
+            maybeNewPeriods = Option(periodsService.put(nino, putPeriodsInRequest))
+          }
+        )
+      )
+
+    maybeNewPeriods.fold(periods)(p => p)
+//    repo.saveUnderpaymentsFor(nino, periodsId, underpayments)
   }
 
-  def removeUnderpayments: AsyncResponse[Int] = repo.removeUnderpayments()
+  // Future[Either[Failure, Int]]
+  def removeUnderpayments: AsyncResponse[Int] = {
+    repo.removeAllUnderpayments()
+  }
 
   def removeUnderpaymentFor(nino: String): AsyncResponse[Int] =
     repo.removeByNino(nino).collect {
       case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     }
 
-  def createUnderpayments(ls: List[UnderpaymentRecord]): Underpayments =
-    if (ls.exists(upr => upr.underpayment == None)) Underpayments(List.empty[Underpayment])
-    else {
-      Underpayments(
-        ls.map(
-          upr =>
-            upr.underpayment match {
-              case Some(up) => Underpayment(up.taxYear, up.amount, up.source)
-              case _ =>
-                throw new IllegalStateException("Illegal State: Empty Underpayments should have been processed already")
-            }
-        )
-      )
+  def createUnderpayments(ls: List[UnderpaymentRecord]): Underpayments = {
+
+    repo.putUnderpayments(ls)
+//    if (ls.exists(upr => upr.underpayment == None)) Underpayments(List.empty[Underpayment])
+//    else {
+//      Underpayments(
+//        ls.map(
+//          upr =>
+//            upr.underpayment match {
+//              case Some(up) => Underpayment(up.taxYear, up.amount, up.source)
+//              case _ =>
+//                throw new IllegalStateException("Illegal State: Empty Underpayments should have been processed already")
+//            }
+//        )
+//      )
     }
 
   private def retrieveUnderpayments(nino: String, periodId: UUID): String => AsyncResponse[Underpayments] = { _ =>

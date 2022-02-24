@@ -59,8 +59,13 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
                 failure =>
                   if (parsingError) logAndGenFailureResult(Failure(INVALID_JSON))
                   else logAndGenFailureResult(failure),
-                bulkWriteResult =>
-                  Ok(Json.obj("success" -> s"${bulkWriteResult.successful}", "fails" -> s"${bulkWriteResult.errors}"))
+                periods => {
+                  val successCount = periods.periods.map(p => p.underpayments match {
+                    case Some(x) => x
+                    case None => 0
+                  })
+                  Ok(Json.obj("success" -> s"${successCount}"))
+                }
               )
             )
         case Left(error) =>

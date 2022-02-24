@@ -57,17 +57,17 @@ trait Repository {
 
   def updatePeriods(nino: String, periods: List[Period]): AsyncResponse[Periods]
 
-  def saveUnderpayments(underpayments: List[UnderpaymentRecord], logger: Logger): AsyncResponse[BulkWriteResult]
+//  def saveUnderpayments(underpayments: List[UnderpaymentRecord], logger: Logger): AsyncResponse[BulkWriteResult]
 
-  def removeUnderpayments(): AsyncResponse[Int]
+//  def removeUnderpayments(): AsyncResponse[Int]
 
   def removeByNino(nino: String): AsyncResponse[Int]
 
-  def removeByNinoAndPeriod(nino: String, periodId: UUID): AsyncResponse[Int]
+//  def removeByNinoAndPeriod(nino: String, periodId: UUID): AsyncResponse[Int]
 
-  def findUnderpayments(nino: String, periodId: String): Future[Option[List[UnderpaymentRecord]]]
+//  def findUnderpayments(nino: String, periodId: String): Future[Option[List[UnderpaymentRecord]]]
 
-  def underpaymentCount(nino: String, periodId: UUID): AsyncResponse[Int]
+//  def underpaymentCount(nino: String, periodId: UUID): AsyncResponse[Int]
 
   def deletePeriod(nino: String, periodId: UUID): AsyncResponse[Int]
 }

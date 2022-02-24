@@ -152,7 +152,6 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
   private def resolveUpdateLastError[T](updateLastError: UpdateLastError, notFound: BaseError): Response[T] =
     Left(updateLastError.err.fold(Failure(notFound))(err => Failure(SERVER_ERROR, err.some)))
 
-
   def saveUnderpayments(underpayments: List[UnderpaymentRecord], logger: Logger): AsyncResponse[BulkWriteResult] = {
     logger.info(s"Received request to save ${underpayments.size} underpayments")
 
