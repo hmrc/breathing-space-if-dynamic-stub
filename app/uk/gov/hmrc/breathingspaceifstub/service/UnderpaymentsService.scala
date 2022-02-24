@@ -54,7 +54,7 @@ class UnderpaymentsService @Inject()(
 
     if (underpayments.forall(u => validateUnderpayment(u))) {
       logger.info(s"Service validated ${underpayments.size} underpayments for ${nino}/${periodId}")
-      underpaymentsRepository.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId), logger)
+      underpaymentsRepository.saveUnderpayments(parseToListOfUnderpaymentsDTOs(underpayments, nino, periodId))
     } else {
       Future.successful(Left(Failure(INVALID_UNDERPAYMENT, Some("One of the underpayments was invalid"))))
     }
