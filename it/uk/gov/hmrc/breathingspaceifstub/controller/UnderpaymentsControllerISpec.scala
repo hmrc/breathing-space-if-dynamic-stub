@@ -25,9 +25,11 @@ import java.util.UUID
 
 class UnderpaymentsControllerISpec extends BaseISpec {
 
-  test("\"POST\" Underpayments should not allow duplicates") {
+  override def beforeEach: Unit = {
+    status(deleteAllUnderpayments()) shouldBe OK
+  }
 
-    pending
+  test("\"POST\" Underpayments should not allow duplicates") {
 
     // create some underpayments
     val n1 = "AS000001A"
