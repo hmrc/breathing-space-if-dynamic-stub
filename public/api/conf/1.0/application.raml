@@ -210,7 +210,7 @@ uses:
         example: "MZ006526C, MZ006526"
 
     delete:
-      displayName: Removes all data for that specific Nino
+      displayName: Removes all data for that specific Nino (including Underpayments)
       description: Remove the Breathing Space Individual document and Underpayments for this Nino.
       (annotations.scope): "breathing-space-test-support"
       securedBy: [ sec.oauth_2_0: { scopes: [ "breathing-space-test-support" ] } ]
@@ -332,6 +332,16 @@ uses:
                   description: Missing Body
                   value:
                     code: MISSING_BODY
+
+        409:
+          body:
+            application/json:
+              type: types.errorResponse
+              examples:
+                duplicatedKey:
+                  description: The Underpayments already exist
+                  value:
+                    code: CONFLICTING_REQUEST
 
   /codingout:
     delete:
