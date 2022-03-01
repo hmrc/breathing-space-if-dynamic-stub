@@ -116,4 +116,9 @@ class IndividualController @Inject()(
         )
       )
   }
+
+  def getOverview(): Action[Unit] = Action.async(withoutBody) { _ =>
+    individualService.listOfPeriodsForAllNinos
+      .map(listOfPeriodsByNino => Ok(Json.toJson(listOfPeriodsByNino)))
+  }
 }

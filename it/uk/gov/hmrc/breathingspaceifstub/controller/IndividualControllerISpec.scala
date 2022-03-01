@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import java.time.LocalDate
 import cats.syntax.option._
 import play.api.http.Status.NOT_FOUND
 import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
+import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
+import java.time.LocalDate
 import java.util.UUID
 
 class IndividualControllerISpec extends BaseISpec {
@@ -186,5 +186,27 @@ class IndividualControllerISpec extends BaseISpec {
     val individualDetails = IndividualDetails.empty.copy(details = Details.empty.copy(dateOfBirth = LocalDate.now.some))
     val response = replaceIndividualDetails(genNino, individualDetails)
     status(response) shouldBe NOT_FOUND
+  }
+
+  test("Get Overview should return a list of ninos with their corresponding period IDs") {
+    val individual = genIndividualInRequest(withPeriods = true)
+    status(postIndividual(individual)) shouldBe CREATED
+    val periodsResponse = getPeriods(individual.nino)
+
+    val response = getOverview()
+
+    status(response) shouldBe OK
+    val periodIDs = getPeriodIDsFromResponse(contentAsString(periodsResponse))
+    contentAsString(response) shouldBe (s"""[{"nino":"${individual.nino}","periods":["${periodIDs(0)}","${periodIDs(1)}"]}]""")
+  }
+
+  private def getPeriodIDsFromResponse(resp: String): List[String] = {
+    val periodsRaw = resp.replaceAll(".*\"periods\":\\[\\{\"", "")
+    val tokens = periodsRaw.split("periodID")
+    val pattern = "\":\"(.*)\",\"s.*".r
+    val validTokens = tokens.filter(tok => !tok.isEmpty)
+    val pattern(a) = validTokens(0)
+    val pattern(b) = validTokens(1)
+    List(a, b)
   }
 }

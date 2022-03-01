@@ -112,6 +112,8 @@ trait BaseISpec
   def getUnderpayments(nino: String, periodId: UUID): Future[Result] =
     attendedCall(Helpers.GET, UnderpaymentsController.get(nino, periodId).url)
 
+  def getOverview(): Future[Result] = attendedCall(Helpers.GET, IndividualController.getOverview.url)
+
   // ==========================================================================================================
 
   def attendedCall(method: String, url: String): Future[Result] = route(app, attendedFakeRequest(method, url)).get
