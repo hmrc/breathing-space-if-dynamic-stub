@@ -59,6 +59,35 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
 
   def listOfNinos: Future[List[String]] = individualRepository.listOfNinos
 
+  def listOfPeriodsForAllNinos: Future[List[PeriodsByNino]] = {
+    val ninosF = listOfNinos
+    val maybeIndividualsF = for {
+      ninos <- ninosF
+      nino <- Future.traverse(ninos)(nino => individualRepository.findIndividual(nino))
+    } yield nino
+
+    getPeriodsByNino(maybeIndividualsF)
+  }
+
+  private def getPeriodsByNino(maybeIndividualsF: Future[List[Option[Individual]]]): Future[List[PeriodsByNino]] = {
+    val periodsByNinosF = for {
+      maybeIndividuals <- maybeIndividualsF
+      individuals <- Future { maybeIndividuals.collect { case Some(individual) => individual } }
+      periodsByNinos <- Future {
+        createListOfPeriodsByNino(individuals)
+      }
+    } yield periodsByNinos
+
+    periodsByNinosF
+  }
+
+  private def createListOfPeriodsByNino(individuals: List[Individual]): List[PeriodsByNino] = {
+    val periodsByNinos = for {
+      individual <- individuals
+    } yield PeriodsByNino(individual.nino, individual.periods.map(p => p.periodID.toString))
+    periodsByNinos
+  }
+
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] = {
     val detailsWithNino = individualDetails.copy(details = individualDetails.details.copy(nino = nino.some))
     stripNinoSuffixAndExecOp(nino, individualRepository.replaceIndividualDetails(_, detailsWithNino))
