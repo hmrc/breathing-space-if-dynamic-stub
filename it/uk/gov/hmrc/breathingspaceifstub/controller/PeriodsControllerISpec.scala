@@ -242,6 +242,99 @@ class PeriodsControllerISpec extends BaseISpec {
     assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.entryName}"""))
   }
 
+  test("\"delete\" should successfully remove a period and its underpayments for the provided nino") {
+    val individual = genIndividualInRequest(withPeriods = true)
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val getResponse = getPeriods(individual.nino)
+    status(getResponse) shouldBe OK
+
+    val periodsFromGet = contentAsJson(getResponse).as[Periods].periods
+
+    val nino = individual.nino
+    val period1Id = periodsFromGet.head.periodID
+    val underpayments = Underpayments(List(u1, u2, u3))
+
+    status(postUnderpayments(nino, period1Id.toString, underpayments)) shouldBe OK
+
+    val request = FakeRequest(Helpers.DELETE, PeriodsController.delete(nino, period1Id).url)
+      .withHeaders(attendedRequestHeaders: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe OK
+    contentAsString(response) shouldBe """{"periodsDeleted":1,"underpaymentsDeleted":3}""".stripMargin
+
+  }
+
+  test("\"delete\" should successfully remove a period with no underpayments") {
+    val individual = genIndividualInRequest(withPeriods = true)
+    status(postIndividual(individual)) shouldBe CREATED
+
+    val getResponse = getPeriods(individual.nino)
+    status(getResponse) shouldBe OK
+
+    val periodsFromGet = contentAsJson(getResponse).as[Periods].periods
+
+    val nino = individual.nino
+    val period1Id = periodsFromGet.head.periodID
+
+    val request = FakeRequest(Helpers.DELETE, PeriodsController.delete(nino, period1Id).url)
+      .withHeaders(attendedRequestHeaders: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe OK
+    contentAsString(response) shouldBe """{"periodsDeleted":1,"underpaymentsDeleted":0}""".stripMargin
+  }
+
+  test("\"delete\" should not remove any period if the periodId does not belong to a given nino") {
+    val individual = genIndividualInRequest(withPeriods = true)
+    status(postIndividual(individual)) shouldBe CREATED
+    val nino = individual.nino
+
+    val individual2 = genIndividualInRequest(withPeriods = true)
+    status(postIndividual(individual2)) shouldBe CREATED
+
+    val getResponse = getPeriods(individual2.nino)
+    status(getResponse) shouldBe OK
+    val periodsFromGet = contentAsJson(getResponse).as[Periods].periods
+    val periodSecondIndividual = periodsFromGet.head.periodID
+
+
+    val request = FakeRequest(Helpers.DELETE, PeriodsController.delete(nino, periodSecondIndividual).url)
+      .withHeaders(attendedRequestHeaders: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe OK
+    contentAsString(response) shouldBe """{"periodsDeleted":0,"underpaymentsDeleted":0}""".stripMargin
+  }
+
+  test("\"delete\" should not remove any period if the periodId does not exists") {
+    val individual = genIndividualInRequest(withPeriods = true)
+    status(postIndividual(individual)) shouldBe CREATED
+    val nino = individual.nino
+
+    val randomPeriod = UUID.randomUUID()
+
+    val request = FakeRequest(Helpers.DELETE, PeriodsController.delete(nino, randomPeriod).url)
+      .withHeaders(attendedRequestHeaders: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe OK
+    contentAsString(response) shouldBe """{"periodsDeleted":0,"underpaymentsDeleted":0}""".stripMargin
+  }
+
+  test("\"delete\" should not remove any period if the periodId or underpayment if the nino does not exists ") {
+    val randomNino = genNino
+    val randomPeriod = UUID.randomUUID()
+
+    val request = FakeRequest(Helpers.DELETE, PeriodsController.delete(randomNino, randomPeriod).url)
+      .withHeaders(attendedRequestHeaders: _*)
+
+    val response = route(app, request).get
+    status(response) shouldBe OK
+    contentAsString(response) shouldBe """{"periodsDeleted":0,"underpaymentsDeleted":0}""".stripMargin
+  }
+
   private def copyPutPeriodInRequest(period: Period): PutPeriodInRequest =
     genPutPeriodInRequest().copy(
       periodID = period.periodID,

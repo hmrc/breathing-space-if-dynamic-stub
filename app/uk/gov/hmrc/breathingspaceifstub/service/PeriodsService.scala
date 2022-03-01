@@ -17,15 +17,15 @@
 package uk.gov.hmrc.breathingspaceifstub.service
 
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.{ExecutionContext, Future}
-
 import cats.syntax.option._
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_JSON}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
+
+import java.util.UUID
 
 @Singleton
 class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
@@ -67,5 +67,12 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
       nino =>
         if (putPeriods.periods.isEmpty) Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
         else individualRepository.updatePeriods(nino, Periods.fromPut(putPeriods.periods))
+    )
+
+  def delete(maybeNino: String, deletePeriodId: UUID): AsyncResponse[Int] =
+    stripNinoSuffixAndExecOp(
+      maybeNino,
+      appConfig.onDevEnvironment,
+      nino => individualRepository.deletePeriod(nino, deletePeriodId)
     )
 }

@@ -67,6 +67,11 @@ class UnderpaymentsService @Inject()(
       case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     }
 
+  def removeUnderpaymentFor(nino: String, periodId: UUID): AsyncResponse[Int] =
+    underpaymentsRepository.removeByNinoAndPeriodId(nino, periodId).collect {
+      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
+    }
+
   def createUnderpayments(ls: List[UnderpaymentRecord]): Underpayments =
     if (ls.exists(upr => upr.underpayment == None)) Underpayments(List.empty[Underpayment])
     else {
