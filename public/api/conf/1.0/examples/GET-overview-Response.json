@@ -1,0 +1,14 @@
+{
+  "periodsByNinos": [
+    {
+      "nino": "AS000001",
+      "periods": [
+        "62b8ef1b-3e3e-4fb2-9fb8-d890109edade"
+      ]
+    },
+    {
+      "nino": "AS000006",
+      "periods": []
+    }
+  ]
+}
