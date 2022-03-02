@@ -18,6 +18,8 @@ package uk.gov.hmrc.breathingspaceifstub.model
 
 import play.api.libs.json.Json
 
+case class PeriodsByNinos(periodsByNinos: List[PeriodsByNino])
 case class PeriodsByNino(nino: String, periods: List[String])
 
 object PeriodsByNino { implicit val format = Json.format[PeriodsByNino] }
+object PeriodsByNinos { implicit val format = Json.format[PeriodsByNinos] }

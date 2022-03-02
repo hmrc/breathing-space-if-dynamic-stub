@@ -197,16 +197,19 @@ class IndividualControllerISpec extends BaseISpec {
 
     status(response) shouldBe OK
     val periodIDs = getPeriodIDsFromResponse(contentAsString(periodsResponse))
-    contentAsString(response) shouldBe (s"""[{"nino":"${individual.nino}","periods":["${periodIDs(0)}","${periodIDs(1)}"]}]""")
+    contentAsString(response) shouldBe (
+      s"""{"periodsByNinos":[{"nino":"${individual.nino}","periods":["${periodIDs(0)}","${periodIDs(1)}"]}]}"""
+      )
   }
 
   private def getPeriodIDsFromResponse(resp: String): List[String] = {
-    val periodsRaw = resp.replaceAll(".*\"periods\":\\[\\{\"", "")
-    val tokens = periodsRaw.split("periodID")
-    val pattern = "\":\"(.*)\",\"s.*".r
-    val validTokens = tokens.filter(tok => !tok.isEmpty)
-    val pattern(a) = validTokens(0)
-    val pattern(b) = validTokens(1)
-    List(a, b)
+    val periodsRaw = resp.replaceAll(".*\\[\\{", "")
+    val tokens = periodsRaw.split(",").toList
+    val cleanTokens = tokens
+      .map(_.replaceAll("[^a-zA-Z-0-9:]", ""))
+      .filter(_.startsWith("periodID:"))
+      .map(_.drop("periodID:".size))
+
+    List(cleanTokens(0), cleanTokens(1))
   }
 }

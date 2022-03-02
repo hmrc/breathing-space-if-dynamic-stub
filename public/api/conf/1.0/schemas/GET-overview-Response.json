@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Schema of List of Periods by Nino response",
+  "title": "Breathing Space Overivew of Periods",
+  "type": "object",
+  "properties": {
+    "periodsByNinos": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "additionalItems": false,
+      "items": {
+        "type": "object",
+        "properties": {
+          "nino": {
+            "type": "string"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["nino", "periods"]
+      }
+    }
+  },
+  "required": [ "periodsByNinos" ]
+}
+
+
+
