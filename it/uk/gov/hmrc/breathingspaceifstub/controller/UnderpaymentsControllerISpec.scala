@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import play.api.http.Status.{CONFLICT, OK}
+import play.api.http.Status.{CONFLICT, NO_CONTENT, OK}
 import play.api.test.Helpers.{contentAsJson, contentAsString, status}
 import uk.gov.hmrc.breathingspaceifstub.model.Underpayments
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
@@ -79,5 +79,15 @@ class UnderpaymentsControllerISpec extends BaseISpec {
     status(response) shouldBe OK
     val underpayments = contentAsJson(response).as[Underpayments].underPayments
     underpayments should contain theSameElementsAs List(u1, u2, u3)
+  }
+
+  test("\"GET\" Underpayments should get 204 (NO_CONTENT) response for an empty underpayment list ") {
+    val n1 = "AS000001B"
+    val p1 = "a55d2098-61b3-11ec-9ff0-60f262c313dd"
+    status(postUnderpayments(n1, p1, Underpayments(List()))) shouldBe OK
+
+    val response = getUnderpayments(n1, UUID.fromString(p1))
+
+    status(response) shouldBe NO_CONTENT
   }
 }
