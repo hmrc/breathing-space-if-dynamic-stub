@@ -82,7 +82,13 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
         .get(nino, periodId)
         .map(
           _.fold(
-            _ => logAndGenFailureResult(Failure(NO_DATA_FOUND)),
+            failure => {
+              if (failure.baseError != BaseError.GATEWAY_TIMEOUT) {
+                logAndGenFailureResult(Failure(NO_DATA_FOUND))
+              } else {
+                logAndGenFailureResult(failure)
+              }
+            },
             underpayments => Ok(Json.toJson(underpayments))
           )
         )

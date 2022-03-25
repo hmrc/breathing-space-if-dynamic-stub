@@ -52,6 +52,7 @@ object BaseError extends Enum[BaseError] {
   case object MISSING_JSON_HEADER extends BaseError(UNSUPPORTED_MEDIA_TYPE, "'Content-Type' header missing or invalid")
   case object NO_DATA_FOUND extends BaseError(NOT_FOUND, "No records found for the given Nino")
   case object INVALID_UNDERPAYMENT extends BaseError(BAD_REQUEST, "Invalid underpayment")
+  case object GATEWAY_TIMEOUT extends BaseError(Status.GATEWAY_TIMEOUT, "Upstream systems are not responding")
 
   // Only used by test-only endpoints. IDENTIFIER_NOT_FOUND is returned by EIS.
   case object RESOURCE_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
