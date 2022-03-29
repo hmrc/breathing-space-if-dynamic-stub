@@ -22,7 +22,9 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{
   GATEWAY_TIMEOUT,
   IDENTIFIER_NOT_FOUND,
   INVALID_UNDERPAYMENT,
-  RESOURCE_NOT_FOUND
+  RESOURCE_NOT_FOUND,
+  SERVER_ERROR,
+  SERVICE_UNAVAILABLE
 }
 import uk.gov.hmrc.breathingspaceifstub.model.Validators.validateUnderpayment
 import uk.gov.hmrc.breathingspaceifstub.model._
@@ -46,10 +48,15 @@ class UnderpaymentsService @Inject()(
   def count(nino: String, periodId: UUID): AsyncResponse[Int] = underpaymentsRepository.count(nino, periodId)
 
   def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] =
-    if (nino == "BS000409C" && periodId == UUID.fromString("77e99753-db06-4220-92c3-9c104b08fc1f")) {
-      Future.successful(Left(Failure(GATEWAY_TIMEOUT)))
-    } else {
-      stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveUnderpayments(nino, periodId))
+    (nino, periodId.toString) match {
+      case ("BS000409D", "50099753-db06-4220-92c3-9c104b08fc1d") =>
+        Future.successful(Left(Failure(SERVER_ERROR)))
+      case ("BS000409D", "50399753-db06-4220-92c3-9c104b08fc1e") =>
+        Future.successful(Left(Failure(SERVICE_UNAVAILABLE)))
+      case ("BS000507C", "77e99753-db06-4220-92c3-9c104b08fc1f") =>
+        Future.successful(Left(Failure(GATEWAY_TIMEOUT)))
+      case _ =>
+        stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveUnderpayments(nino, periodId))
     }
 
   def saveUnderpayments(

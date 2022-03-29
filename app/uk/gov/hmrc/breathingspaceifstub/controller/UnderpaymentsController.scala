@@ -18,7 +18,7 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_JSON, NO_DATA_FOUND}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.service.UnderpaymentsService
@@ -82,13 +82,7 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
         .get(nino, periodId)
         .map(
           _.fold(
-            failure => {
-              if (failure.baseError != BaseError.GATEWAY_TIMEOUT) {
-                logAndGenFailureResult(Failure(NO_DATA_FOUND))
-              } else {
-                logAndGenFailureResult(failure)
-              }
-            },
+            error => logAndGenFailureResult(error),
             underpayments => Ok(Json.toJson(underpayments))
           )
         )
