@@ -49,9 +49,9 @@ class UnderpaymentsService @Inject()(
 
   def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] =
     (nino, periodId.toString) match {
-      case ("BS000409D", "50099753-db06-4220-92c3-9c104b08fc1d") =>
+      case ("BS000500C", "50099753-db06-4220-92c3-9c104b08fc1d") =>
         Future.successful(Left(Failure(SERVER_ERROR)))
-      case ("BS000409D", "50399753-db06-4220-92c3-9c104b08fc1e") =>
+      case ("BS000503C", "50399753-db06-4220-92c3-9c104b08fc1e") =>
         Future.successful(Left(Failure(SERVICE_UNAVAILABLE)))
       case ("BS000507C", "77e99753-db06-4220-92c3-9c104b08fc1f") =>
         Future.successful(Left(Failure(GATEWAY_TIMEOUT)))
