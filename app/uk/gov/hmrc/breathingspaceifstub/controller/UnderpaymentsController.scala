@@ -83,7 +83,7 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
         .map(
           _.fold(
             error => logAndGenFailureResult(error),
-            underpayments => Ok(Json.toJson(underpayments))
+            underpayments => if (underpayments.underPayments.isEmpty) NoContent else Ok(Json.toJson(underpayments))
           )
         )
     }
