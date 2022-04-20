@@ -11,7 +11,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     majorVersion             := 0,
     scalaVersion             := "2.12.12",
-    PlayKeys.playDefaultPort := 9601,
+    PlayKeys.playDefaultPort := 9503,
     TwirlKeys.templateImports := Seq(),
     libraryDependencies      ++= Dependencies.compile ++ Dependencies.test,
     scalacOptions ++= Seq(
