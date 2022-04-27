@@ -67,6 +67,9 @@ trait BaseISpec
   def getDebts(nino: String, periodId: UUID = UUID.randomUUID): Future[Result] =
     attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
 
+  def getMemorandum(nino: String): Future[Result] =
+    attendedCall(Helpers.GET, MemorandumController.get(nino).url)
+
   def getPeriods(nino: String): Future[Result] = attendedCall(Helpers.GET, PeriodsController.get(nino).url)
 
   def postPeriods(nino: String, periods: List[PostPeriodInRequest]): Future[Result] =
