@@ -97,11 +97,27 @@ trait BreathingSpaceTestSupport extends NinoValidation {
     withPeriods: Boolean = false,
     withDebts: Boolean = false
   ): IndividualInRequest =
-    IndividualInRequest(
-      genNino,
+    genIndividualInRequest(
       individualDetails,
       if (withPeriods) List(genPostPeriodInRequest(), genPostPeriodInRequest(withEndDate)).some else none,
       if (withDebts) List(debt1, debt2).some else none
+    )
+
+  def genIndividualInRequest(
+    periods: Option[List[PostPeriodInRequest]]
+  ): IndividualInRequest =
+    genIndividualInRequest(none, periods, none)
+
+  def genIndividualInRequest(
+    individualDetails: Option[IndividualDetails],
+    periods: Option[List[PostPeriodInRequest]],
+    debts: Option[List[Debt]]
+  ): IndividualInRequest =
+    IndividualInRequest(
+      genNino,
+      individualDetails,
+      periods,
+      debts
     )
 
   def genPutPeriodInRequest(withEndDate: Boolean = false): PutPeriodInRequest =
@@ -113,9 +129,12 @@ trait BreathingSpaceTestSupport extends NinoValidation {
     )
 
   def genPostPeriodInRequest(withEndDate: Boolean = false): PostPeriodInRequest =
+    genPostPeriodInRequest(if (withEndDate) LocalDate.now.some else none)
+
+  def genPostPeriodInRequest(endDate: Option[LocalDate]): PostPeriodInRequest =
     PostPeriodInRequest(
       LocalDate.now.minusMonths(2),
-      if (withEndDate) LocalDate.now.some else none,
+      endDate,
       ZonedDateTime.now.format(timestampFormatter)
     )
 }
