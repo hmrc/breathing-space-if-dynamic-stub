@@ -16,17 +16,32 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import cats.implicits.catsSyntaxOptionId
 import play.api.http.Status.{CREATED, OK}
 import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.breathingspaceifstub.model.Memorandum
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
+import java.time.LocalDate
+
 class MemorandumControllerISpec extends BaseISpec {
 
   test("\"get\" (Memorandum) should return true when periods exist") {
     val individual = genIndividualInRequest(withPeriods = true)
-    status(postIndividual(individual)) shouldBe CREATED
 
+    status(postIndividual(individual)) shouldBe CREATED
+    val response = getMemorandum(individual.nino)
+    status(response) shouldBe OK
+
+    val memorandum = contentAsJson(response).as[Memorandum]
+    memorandum shouldBe Memorandum(true)
+  }
+
+  test("\"get\" (Memorandum) should return true when periods has future date") {
+    val futurePeriod = genPostPeriodInRequest(endDate = LocalDate.now().plusDays(1).some)
+    val individual = genIndividualInRequest(periods = List(futurePeriod).some)
+
+    status(postIndividual(individual)) shouldBe CREATED
     val response = getMemorandum(individual.nino)
     status(response) shouldBe OK
 
@@ -44,4 +59,6 @@ class MemorandumControllerISpec extends BaseISpec {
     val memorandum = contentAsJson(response).as[Memorandum]
     memorandum shouldBe Memorandum(false)
   }
+
+
 }

@@ -24,6 +24,7 @@ import uk.gov.hmrc.breathingspaceifstub.model.{Failure, Memorandum, NinoValidati
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -43,7 +44,7 @@ class MemorandumService @Inject()(
         _.fold[Response[Memorandum]](
           Failure(IDENTIFIER_NOT_IN_BREATHINGSPACE).asLeft
         ) { individual =>
-          Memorandum(individual.periods.exists(_.endDate.isEmpty)).asRight
+          Memorandum(individual.periods.exists(p => p.endDate.isEmpty || p.endDate.exists(_.isAfter(LocalDate.now())))).asRight
         }
       }
 }
