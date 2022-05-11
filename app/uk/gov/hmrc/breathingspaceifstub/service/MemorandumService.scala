@@ -19,13 +19,13 @@ package uk.gov.hmrc.breathingspaceifstub.service
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_IN_BREATHINGSPACE
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_IN_BREATHINGSPACE, TOO_MANY_REQUESTS}
 import uk.gov.hmrc.breathingspaceifstub.model.{Failure, Memorandum, NinoValidation}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 
 import java.time.LocalDate
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class MemorandumService @Inject()(
@@ -34,8 +34,10 @@ class MemorandumService @Inject()(
 )(implicit ec: ExecutionContext)
     extends NinoValidation {
 
-  def get(nino: String): AsyncResponse[Memorandum] =
-    stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveMemorandum)
+  def get(nino: String): AsyncResponse[Memorandum] = nino match {
+    case "BS000429C" => Future.successful(Left(Failure(TOO_MANY_REQUESTS)))
+    case _ => stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveMemorandum)
+  }
 
   private val retrieveMemorandum: String => AsyncResponse[Memorandum] =
     individualRepository

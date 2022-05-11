@@ -17,7 +17,7 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import cats.implicits.catsSyntaxOptionId
-import play.api.http.Status.{CREATED, OK}
+import play.api.http.Status.{CREATED, OK, TOO_MANY_REQUESTS}
 import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.breathingspaceifstub.model.Memorandum
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
@@ -60,5 +60,10 @@ class MemorandumControllerISpec extends BaseISpec {
     memorandum shouldBe Memorandum(false)
   }
 
+  test("\"get\" (Memorandum) should return an Error TOO_MANY_REQUESTS(429) for the nino BS000429C") {
+    val nino = "BS000429C"
+    val response = getMemorandum(nino)
+    status(response) shouldBe TOO_MANY_REQUESTS
+  }
 
 }
