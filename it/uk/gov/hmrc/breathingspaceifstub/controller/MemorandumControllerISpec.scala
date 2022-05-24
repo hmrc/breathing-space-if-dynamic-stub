@@ -17,7 +17,7 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import cats.implicits.catsSyntaxOptionId
-import play.api.http.Status.{CREATED, OK, TOO_MANY_REQUESTS}
+import play.api.http.Status._
 import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.breathingspaceifstub.model.Memorandum
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
@@ -60,10 +60,51 @@ class MemorandumControllerISpec extends BaseISpec {
     memorandum shouldBe Memorandum(false)
   }
 
-  test("\"get\" (Memorandum) should return an Error TOO_MANY_REQUESTS(429) for the nino BS000429C") {
-    val nino = "BS000429C"
+  test("\"get\" (Memorandum) should return an Error BREATHINGSPACE_EXPIRED(403) for the nino BS000403B") {
+    val nino = "BS000403B"
     val response = getMemorandum(nino)
-    status(response) shouldBe TOO_MANY_REQUESTS
+    status(response) shouldBe FORBIDDEN
   }
 
+  test("\"get\" (Memorandum) should return an Error RESOURCE_NOT_FOUND(404) for the nino BS000404B") {
+    val nino = "BS000404B"
+    val response = getMemorandum(nino)
+    status(response) shouldBe NOT_FOUND
+  }
+
+  test("\"get\" (Memorandum) should return an Error NO_DATA_FOUND(404) for the nino BS000404C") {
+    val nino = "BS000404C"
+    val response = getMemorandum(nino)
+    status(response) shouldBe NOT_FOUND
+  }
+
+  test("\"get\" (Memorandum) should return an Error PERIOD_ID_NOT_FOUND(404) for the nino BS000404D") {
+    val nino = "BS000404D"
+    val response = getMemorandum(nino)
+    status(response) shouldBe NOT_FOUND
+  }
+
+  test("\"get\" (Memorandum) should return an Error CONFLICTING_REQUEST(409) for the nino BS000409B") {
+    val nino = "BS000409B"
+    val response = getMemorandum(nino)
+    status(response) shouldBe CONFLICT
+  }
+
+  test("\"get\" (Memorandum) should return an Error SERVER_ERROR(500) for the nino BS000500B") {
+    val nino = "BS000500B"
+    val response = getMemorandum(nino)
+    status(response) shouldBe INTERNAL_SERVER_ERROR
+  }
+
+  test("\"get\" (Memorandum) should return an Error BAD_GATEWAY(502) for the nino BS000502B") {
+    val nino = "BS000502B"
+    val response = getMemorandum(nino)
+    status(response) shouldBe BAD_GATEWAY
+  }
+
+  test("\"get\" (Memorandum) should return an Error SERVICE_UNAVAILABLE(503) for the nino BS000503B") {
+    val nino = "BS000503B"
+    val response = getMemorandum(nino)
+    status(response) shouldBe SERVICE_UNAVAILABLE
+  }
 }

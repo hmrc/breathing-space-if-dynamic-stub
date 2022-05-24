@@ -19,7 +19,7 @@ package uk.gov.hmrc.breathingspaceifstub.service
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_IN_BREATHINGSPACE, TOO_MANY_REQUESTS}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
 import uk.gov.hmrc.breathingspaceifstub.model.{Failure, Memorandum, NinoValidation}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
@@ -35,7 +35,14 @@ class MemorandumService @Inject()(
     extends NinoValidation {
 
   def get(nino: String): AsyncResponse[Memorandum] = nino match {
-    case "BS000429C" => Future.successful(Left(Failure(TOO_MANY_REQUESTS)))
+    case "BS000403B" => Future.successful(Left(Failure(BREATHINGSPACE_EXPIRED)))
+    case "BS000404B" => Future.successful(Left(Failure(RESOURCE_NOT_FOUND)))
+    case "BS000404C" => Future.successful(Left(Failure(NO_DATA_FOUND)))
+    case "BS000404D" => Future.successful(Left(Failure(PERIOD_ID_NOT_FOUND)))
+    case "BS000409B" => Future.successful(Left(Failure(CONFLICTING_REQUEST)))
+    case "BS000500B" => Future.successful(Left(Failure(SERVER_ERROR)))
+    case "BS000502B" => Future.successful(Left(Failure(BAD_GATEWAY)))
+    case "BS000503B" => Future.successful(Left(Failure(SERVICE_UNAVAILABLE)))
     case _ => stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveMemorandum)
   }
 
