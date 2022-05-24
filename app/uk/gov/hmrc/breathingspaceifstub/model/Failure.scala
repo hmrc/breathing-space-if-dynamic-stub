@@ -53,8 +53,7 @@ object BaseError extends Enum[BaseError] {
   case object NO_DATA_FOUND extends BaseError(NOT_FOUND, "No records found for the given Nino")
   case object INVALID_UNDERPAYMENT extends BaseError(BAD_REQUEST, "Invalid underpayment")
   case object GATEWAY_TIMEOUT extends BaseError(Status.GATEWAY_TIMEOUT, "Upstream systems are not responding")
-  case object TOO_MANY_REQUESTS
-      extends BaseError(Status.TOO_MANY_REQUESTS, "Too many requests in a given amount of time")
+  case object PERIOD_ID_NOT_FOUND extends BaseError(NOT_FOUND, "Period Id not found")
 
   // Only used by test-only endpoints. IDENTIFIER_NOT_FOUND is returned by EIS.
   case object RESOURCE_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
