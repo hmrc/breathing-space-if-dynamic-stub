@@ -50,7 +50,7 @@ class MemorandumControllerISpec extends BaseISpec {
   }
 
   test("\"get\" (Memorandum) should return false when periods doesn't exist") {
-    val individual = genIndividualInRequest(withPeriods = false)
+    val individual = genIndividualInRequest()
     status(postIndividual(individual)) shouldBe CREATED
 
     val response = getMemorandum(individual.nino)

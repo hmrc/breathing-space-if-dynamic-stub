@@ -51,6 +51,12 @@ trait BreathingSpaceTestSupport extends NinoValidation {
     Header.OriginatorId -> Attended.DA2_BS_UNATTENDED.toString
   )
 
+  lazy val memorandumRequestHeaders = List(
+    CONTENT_TYPE -> MimeTypes.JSON,
+    Header.CorrelationId -> correlationIdAsString,
+    Header.OriginatorId -> Attended.DA2_PTA.toString
+  )
+
   val individualDetails =
     IndividualDetails(
       details = Details.empty.copy(dateOfBirth = LocalDate.now.some),

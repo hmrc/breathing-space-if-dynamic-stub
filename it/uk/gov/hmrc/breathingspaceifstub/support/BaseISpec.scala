@@ -68,7 +68,7 @@ trait BaseISpec
     attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
 
   def getMemorandum(nino: String): Future[Result] =
-    attendedCall(Helpers.GET, MemorandumController.get(nino).url)
+    memorandumCall(Helpers.GET, MemorandumController.get(nino).url)
 
   def getPeriods(nino: String): Future[Result] = attendedCall(Helpers.GET, PeriodsController.get(nino).url)
 
@@ -120,6 +120,9 @@ trait BaseISpec
   // ==========================================================================================================
 
   def attendedCall(method: String, url: String): Future[Result] = route(app, attendedFakeRequest(method, url)).get
+
+  def memorandumCall(method: String, url: String): Future[Result] = route(app, memorandumFakeRequest(method, url)).get
+
   def attendedCall(method: String, url: String, body: JsValue): Future[Result] =
     route(app, attendedFakeRequest(method, url).withBody(body)).get
 
@@ -131,4 +134,7 @@ trait BaseISpec
 
   def unattendedFakeRequest(method: String, url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(method, url).withHeaders(unattendedRequestHeaders: _*)
+
+  def memorandumFakeRequest(method: String, url: String): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(method, url).withHeaders(memorandumRequestHeaders: _*)
 }
