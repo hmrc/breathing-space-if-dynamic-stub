@@ -78,7 +78,7 @@ class MemorandumControllerISpec extends BaseISpec {
     status(response) shouldBe NOT_FOUND
   }
 
-  test("\"get\" (Memorandum) should return an Error PERIOD_ID_NOT_FOUND(404) for the nino BS000404D") {
+  test("\"get\" (Memorandum) should return an Error IDENTIFIER_NOT_FOUND(404) for the nino BS000404D") {
     val nino = "BS000404D"
     val response = getMemorandum(nino)
     status(response) shouldBe NOT_FOUND
