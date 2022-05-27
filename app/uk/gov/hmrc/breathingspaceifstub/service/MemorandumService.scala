@@ -38,7 +38,7 @@ class MemorandumService @Inject()(
     case "BS000403B" => Future.successful(Left(Failure(BREATHINGSPACE_EXPIRED)))
     case "BS000404B" => Future.successful(Left(Failure(RESOURCE_NOT_FOUND)))
     case "BS000404C" => Future.successful(Left(Failure(NO_DATA_FOUND)))
-    case "BS000404D" => Future.successful(Left(Failure(PERIOD_ID_NOT_FOUND)))
+    case "BS000404D" => Future.successful(Left(Failure(IDENTIFIER_NOT_FOUND)))
     case "BS000409B" => Future.successful(Left(Failure(CONFLICTING_REQUEST)))
     case "BS000500B" => Future.successful(Left(Failure(SERVER_ERROR)))
     case "BS000502B" => Future.successful(Left(Failure(BAD_GATEWAY)))
