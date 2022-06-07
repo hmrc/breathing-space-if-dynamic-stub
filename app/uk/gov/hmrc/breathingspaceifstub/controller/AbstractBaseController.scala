@@ -18,7 +18,6 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import cats.syntax.either._
 import cats.syntax.option._
 import play.api.Logging
@@ -28,7 +27,7 @@ import play.api.mvc._
 import uk.gov.hmrc.breathingspaceifstub._
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Periods_POST, BS_Periods_PUT}
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Memorandum_GET, BS_Periods_POST, BS_Periods_PUT}
 import uk.gov.hmrc.breathingspaceifstub.model.Failure.HttpErrorCode
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -131,6 +130,9 @@ abstract class AbstractBaseController(cc: ControllerComponents) extends BackendC
 
           case Some(Attended.DA2_BS_ATTENDED) if endpointId == BS_Periods_POST || endpointId == BS_Periods_PUT =>
             Left(HttpError(correlationId.some, Failure(INVALID_HEADER)))
+
+          case Some(Attended.DA2_PTA) if endpointId == BS_Memorandum_GET =>
+            Right(false)
 
           case Some(Attended.DA2_BS_ATTENDED) => Right(true) // UserId is required
           case Some(Attended.DA2_BS_UNATTENDED) => Right(false) // UserId is not required
