@@ -96,7 +96,6 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
   def retrieveUtr(nino: String): AsyncResponse[Option[String]] =
     stripNinoSuffixAndExecOp(
       nino,
-      appConfig.onDevEnvironment,
       individualRepository
         .findIndividual(_)
         .map {

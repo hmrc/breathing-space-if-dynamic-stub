@@ -36,6 +36,7 @@ class MemorandumService @Inject()(
 
   def get(nino: String): AsyncResponse[Memorandum] = nino match {
     case "BS000403B" => Future.successful(Left(Failure(BREATHINGSPACE_EXPIRED)))
+    case "BS000404A" => Future.successful(Left(Failure(IDENTIFIER_NOT_IN_BREATHINGSPACE)))
     case "BS000404B" => Future.successful(Left(Failure(RESOURCE_NOT_FOUND)))
     case "BS000404C" => Future.successful(Left(Failure(NO_DATA_FOUND)))
     case "BS000404D" => Future.successful(Left(Failure(IDENTIFIER_NOT_FOUND)))
@@ -43,7 +44,7 @@ class MemorandumService @Inject()(
     case "BS000500B" => Future.successful(Left(Failure(SERVER_ERROR)))
     case "BS000502B" => Future.successful(Left(Failure(BAD_GATEWAY)))
     case "BS000503B" => Future.successful(Left(Failure(SERVICE_UNAVAILABLE)))
-    case _ => stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveMemorandum)
+    case _ => stripNinoSuffixAndExecOp(nino, retrieveMemorandum)
   }
 
   private val retrieveMemorandum: String => AsyncResponse[Memorandum] =

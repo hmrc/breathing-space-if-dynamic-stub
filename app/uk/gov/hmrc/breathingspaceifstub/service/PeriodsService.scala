@@ -35,7 +35,6 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
   def get(nino: String): AsyncResponse[Periods] =
     stripNinoSuffixAndExecOp(
       nino,
-      appConfig.onDevEnvironment,
       individualRepository
         .findIndividual(_)
         .map {
@@ -48,7 +47,6 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
   def post(maybeNino: String, postPeriods: PostPeriodsInRequest): AsyncResponse[Periods] =
     stripNinoSuffixAndExecOp(
       maybeNino,
-      appConfig.onDevEnvironment,
       nino =>
         if (!postPeriods.periods.isEmpty) {
           individualRepository.addPeriods(
@@ -63,7 +61,6 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
   def put(maybeNino: String, putPeriods: PutPeriodsInRequest): AsyncResponse[Periods] =
     stripNinoSuffixAndExecOp(
       maybeNino,
-      appConfig.onDevEnvironment,
       nino =>
         if (putPeriods.periods.isEmpty) Future.successful(Left(Failure(INVALID_JSON, "List of periods is empty.".some)))
         else individualRepository.updatePeriods(nino, Periods.fromPut(putPeriods.periods))
@@ -72,7 +69,6 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
   def delete(maybeNino: String, deletePeriodId: UUID): AsyncResponse[Int] =
     stripNinoSuffixAndExecOp(
       maybeNino,
-      appConfig.onDevEnvironment,
       nino => individualRepository.deletePeriod(nino, deletePeriodId)
     )
 }
