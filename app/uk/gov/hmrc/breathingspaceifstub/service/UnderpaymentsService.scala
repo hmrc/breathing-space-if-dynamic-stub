@@ -56,7 +56,7 @@ class UnderpaymentsService @Inject()(
       case ("BS000504C", "77e99753-db06-4220-92c3-9c104b08fc1f") =>
         Future.successful(Left(Failure(GATEWAY_TIMEOUT)))
       case _ =>
-        stripNinoSuffixAndExecOp(nino, appConfig.onDevEnvironment, retrieveUnderpayments(nino, periodId))
+        stripNinoSuffixAndExecOp(nino, retrieveUnderpayments(nino, periodId))
     }
 
   def saveUnderpayments(

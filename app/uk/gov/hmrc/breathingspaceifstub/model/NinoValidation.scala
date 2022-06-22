@@ -28,18 +28,12 @@ trait NinoValidation {
 
   def isValid(nino: String): Boolean = nino.matches(validNinoFormat)
 
-  def stripNinoSuffixAndExecOp[T](nino: String, f: String => AsyncResponse[T]): AsyncResponse[T] =
-    if (!isValid(nino)) failed(Failure(INVALID_NINO))
-    else if (nino.length == 9) f(nino.substring(0, 8))
-    else f(nino)
-
   def stripNinoSuffixAndExecOp[T](
     nino: String,
-    onDevEnvironment: Boolean,
     f: String => AsyncResponse[T]
   ): AsyncResponse[T] =
     if (!isValid(nino)) failed(Failure(INVALID_NINO))
-    else if (onDevEnvironment && httpErrorSet.contains(nino.take(8))) httpErrorCode(nino)
+    else if (httpErrorSet.contains(nino.take(8))) httpErrorCode(nino)
     else if (nino.length == 9) f(nino.take(8))
     else f(nino)
 

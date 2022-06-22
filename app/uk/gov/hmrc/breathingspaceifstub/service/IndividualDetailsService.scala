@@ -35,7 +35,6 @@ class IndividualDetailsService @Inject()(appConfig: AppConfig, individualReposit
   def getIndividualDetails(nino: String): AsyncResponse[IndividualDetails] =
     stripNinoSuffixAndExecOp(
       nino,
-      appConfig.onDevEnvironment,
       individualRepository
         .findIndividual(_)
         .map(_.fold[Response[IndividualDetails]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
@@ -46,7 +45,6 @@ class IndividualDetailsService @Inject()(appConfig: AppConfig, individualReposit
   def getIndividualDetailsForBS(nino: String): AsyncResponse[JsObject] =
     stripNinoSuffixAndExecOp(
       nino,
-      appConfig.onDevEnvironment,
       individualRepository
         .findIndividual(_)
         .map(_.fold[Response[JsObject]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>

@@ -47,6 +47,9 @@ class PeriodsController @Inject()(
   def post(nino: String): Action[Response[PostPeriodsInRequest]] =
     Action.async(withJsonBody[PostPeriodsInRequest]) { implicit request =>
       withHeaderValidation(BS_Periods_POST) { implicit requestId =>
+        println("*" * 1000)
+        println(nino)
+
         request.body.fold(
           logAndSendFailureResult,
           periodsService
