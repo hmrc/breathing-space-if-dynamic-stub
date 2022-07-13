@@ -17,7 +17,9 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.ExecutionContext
+
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.Response
@@ -63,12 +65,12 @@ class IndividualController @Inject()(
   }
 
   val deleteAll: Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_IndividualAll_DELETE)
+    implicit val requestId: RequestId = RequestId(BS_IndividualAll_DELETE)
     individualService.deleteAll.map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("deleted" -> count))))
   }
 
   def exists(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_IndividualExists_GET)
+    implicit val requestId: RequestId = RequestId(BS_IndividualExists_GET)
     individualService.exists(nino).map(_.fold(logAndGenErrorResult, exists => Ok(Json.obj("exists" -> exists))))
   }
 
@@ -78,7 +80,7 @@ class IndividualController @Inject()(
 
   val postIndividual: Action[Response[IndividualInRequest]] = Action.async(withJsonBody[IndividualInRequest]) {
     implicit request =>
-      implicit val requestId = RequestId(BS_Individual_POST)
+      implicit val requestId: RequestId = RequestId(BS_Individual_POST)
       request.body.fold(
         logAndSendErrorResult,
         individualService.addIndividual(_).map(_.fold(logAndGenErrorResult, _ => Created))
@@ -87,7 +89,7 @@ class IndividualController @Inject()(
 
   val postIndividuals: Action[Response[IndividualsInRequest]] = Action.async(withJsonBody[IndividualsInRequest]) {
     implicit request =>
-      implicit val requestId = RequestId(BS_Individuals_POST)
+      implicit val requestId: RequestId = RequestId(BS_Individuals_POST)
       request.body.fold(
         logAndSendErrorResult,
         individualService
@@ -98,7 +100,7 @@ class IndividualController @Inject()(
 
   def replaceIndividualDetails(nino: String): Action[Response[IndividualDetails]] =
     Action.async(withJsonBody[IndividualDetails]) { implicit request =>
-      implicit val requestId = RequestId(BS_Individual_PUT)
+      implicit val requestId: RequestId = RequestId(BS_Individual_PUT)
       request.body.fold(
         logAndSendErrorResult,
         individualService.replaceIndividualDetails(nino, _).map(_.fold(logAndGenErrorResult, _ => NoContent))
@@ -106,7 +108,7 @@ class IndividualController @Inject()(
     }
 
   def retrieveUtr(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_IndividualUtr_GET)
+    implicit val requestId: RequestId = RequestId(BS_IndividualUtr_GET)
     individualService
       .retrieveUtr(nino)
       .map(
@@ -117,7 +119,7 @@ class IndividualController @Inject()(
       )
   }
 
-  def getOverview(): Action[Unit] = Action.async(withoutBody) { _ =>
+  def getOverview: Action[Unit] = Action.async(withoutBody) { _ =>
     individualService.listOfPeriodsForAllNinos
       .map(listOfPeriodsByNino => Ok(Json.toJson(PeriodsByNinos(listOfPeriodsByNino))))
   }

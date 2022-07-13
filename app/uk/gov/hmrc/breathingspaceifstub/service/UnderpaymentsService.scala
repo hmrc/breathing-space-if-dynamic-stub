@@ -16,26 +16,24 @@
 
 package uk.gov.hmrc.breathingspaceifstub.service
 
-import play.api.{Logger, Logging}
-import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{
-  GATEWAY_TIMEOUT,
-  IDENTIFIER_NOT_FOUND,
-  INVALID_UNDERPAYMENT,
-  RESOURCE_NOT_FOUND,
-  SERVER_ERROR,
-  SERVICE_UNAVAILABLE
-}
-import uk.gov.hmrc.breathingspaceifstub.model.Validators.validateUnderpayment
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToListOfUnderpaymentsDTOs
-import uk.gov.hmrc.breathingspaceifstub.repository.{UnderpaymentRecord, UnderpaymentsRepository}
-import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
-
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
+
+import play.api.{Logger, Logging}
+import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{
+  IDENTIFIER_NOT_FOUND,
+  INVALID_UNDERPAYMENT,
+  RESOURCE_NOT_FOUND
+}
+import uk.gov.hmrc.breathingspaceifstub.model.Validators.validateUnderpayment
+import uk.gov.hmrc.breathingspaceifstub.repository.{UnderpaymentRecord, UnderpaymentsRepository}
+import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToListOfUnderpaymentsDTOs
 
 @Singleton
 class UnderpaymentsService @Inject()(
@@ -43,21 +41,14 @@ class UnderpaymentsService @Inject()(
   appConfig: AppConfig
 )(implicit ec: ExecutionContext)
     extends NinoValidation
+    with CustomErrors
     with Logging {
 
   def count(nino: String, periodId: UUID): AsyncResponse[Int] = underpaymentsRepository.count(nino, periodId)
 
-  def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] =
-    (nino, periodId.toString) match {
-      case ("BS000500C", "50099753-db06-4220-92c3-9c104b08fc1d") =>
-        Future.successful(Left(Failure(SERVER_ERROR)))
-      case ("BS000503C", "50399753-db06-4220-92c3-9c104b08fc1e") =>
-        Future.successful(Left(Failure(SERVICE_UNAVAILABLE)))
-      case ("BS000504C", "77e99753-db06-4220-92c3-9c104b08fc1f") =>
-        Future.successful(Left(Failure(GATEWAY_TIMEOUT)))
-      case _ =>
-        stripNinoSuffixAndExecOp(nino, retrieveUnderpayments(nino, periodId))
-    }
+  def get(nino: String, periodId: UUID): AsyncResponse[Underpayments] = checkForCustomError(nino).getOrElse(
+    stripNinoSuffixAndExecOp(nino, retrieveUnderpayments(nino, periodId))
+  )
 
   def saveUnderpayments(
     nino: String,

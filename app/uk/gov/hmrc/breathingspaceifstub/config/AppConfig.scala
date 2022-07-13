@@ -32,6 +32,6 @@ class AppConfig @Inject()(config: Configuration) {
     config.getOptional[String]("environment.id").fold(false)(_.toLowerCase == "development")
 
   // Must be 'lazy'
-  lazy val v1WhitelistedApplicationIds =
+  lazy val v1WhitelistedApplicationIds: Seq[String] =
     config.get[Seq[String]]("api.access.version-1.0.whitelistedApplicationIds")
 }

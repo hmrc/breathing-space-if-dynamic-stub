@@ -28,9 +28,9 @@ object BaseError extends Enum[BaseError] {
 
   case object BAD_GATEWAY extends BaseError(Status.BAD_GATEWAY, "Downstream systems are not responding")
 
-  case object BREATHINGSPACE_EXPIRED extends BaseError(FORBIDDEN, "Breathing Space has expired for the given Nino")
+  case object BREATHING_SPACE_EXPIRED extends BaseError(FORBIDDEN, "Breathing Space has expired for the given Nino")
 
-  case object BREATHINGSPACE_ID_NOT_FOUND
+  case object BREATHING_SPACE_ID_NOT_FOUND
       extends BaseError(NOT_FOUND, "The provided Breathing Space Period reference was not found")
 
   case object CONFLICTING_REQUEST extends BaseError(CONFLICT, "The request is conflicting. Maybe a duplicate POST?")
@@ -40,20 +40,17 @@ object BaseError extends Enum[BaseError] {
 
   case object HEADERS_PRECONDITION_NOT_MET extends BaseError(PRECONDITION_REQUIRED, "Invalid header combination")
   case object IDENTIFIER_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
-  case object IDENTIFIER_NOT_IN_BREATHINGSPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")
+  case object IDENTIFIER_NOT_IN_BREATHING_SPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")
   case object INVALID_BODY extends BaseError(BAD_REQUEST, "Not expected a body to this endpoint")
   case object INVALID_ENDPOINT extends BaseError(BAD_REQUEST, "Not a valid endpoint")
   case object INVALID_HEADER extends BaseError(BAD_REQUEST, "Invalid value for the header")
-  case object INVALID_IDENTIFIERS extends BaseError(PRECONDITION_REQUIRED, "Invalid path parameter combination")
   case object INVALID_JSON extends BaseError(BAD_REQUEST, "Payload not in the expected Json format")
   case object INVALID_NINO extends BaseError(BAD_REQUEST, "Invalid Nino")
   case object MISSING_BODY extends BaseError(BAD_REQUEST, "The request must have a body")
   case object MISSING_HEADER extends BaseError(BAD_REQUEST, "Missing required header")
-  case object MISSING_JSON_HEADER extends BaseError(UNSUPPORTED_MEDIA_TYPE, "'Content-Type' header missing or invalid")
   case object NO_DATA_FOUND extends BaseError(NOT_FOUND, "No records found for the given Nino")
   case object INVALID_UNDERPAYMENT extends BaseError(BAD_REQUEST, "Invalid underpayment")
   case object GATEWAY_TIMEOUT extends BaseError(Status.GATEWAY_TIMEOUT, "Upstream systems are not responding")
-  case object PERIOD_ID_NOT_FOUND extends BaseError(NOT_FOUND, "Period Id not found")
 
   // Only used by test-only endpoints. IDENTIFIER_NOT_FOUND is returned by EIS.
   case object RESOURCE_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
@@ -74,14 +71,14 @@ object BaseError extends Enum[BaseError] {
 
 final case class Failure(baseError: BaseError, detailsToNotShareUpstream: Option[String] = None)
 
-object Failure {
+class HttpErrorCode(httpCode: Int, message: String) extends BaseError(httpCode = httpCode, message = message)
 
-  class HttpErrorCode(httpCode: Int, message: String) extends BaseError(httpCode = httpCode, message = message)
+object Failure {
 
   def apply(httpCode: Int): Failure =
     Failure(new HttpErrorCode(httpCode, "Nino suffixed with Http error code"))
 
-  implicit val writes = new Writes[Failure] {
+  implicit val writes: Writes[Failure] = new Writes[Failure] {
     def writes(failure: Failure): JsObject = {
       val bE = failure.baseError
       val code =

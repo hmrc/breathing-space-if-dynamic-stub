@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.ExecutionContext
+
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.Response
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.{PeriodsService, UnderpaymentsService}
-
-import java.util.UUID
 
 @Singleton()
 class PeriodsController @Inject()(

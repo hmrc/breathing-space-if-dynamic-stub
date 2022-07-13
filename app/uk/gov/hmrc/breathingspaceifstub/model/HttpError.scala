@@ -27,7 +27,7 @@ import play.api.mvc.Results.Status
 import uk.gov.hmrc.breathingspaceifstub.Header
 
 case class HttpError(value: Result) {
-  lazy val send = Future.successful(value)
+  lazy val send: Future[Result] = Future.successful(value)
 }
 
 object HttpError extends Logging {
@@ -38,7 +38,7 @@ object HttpError extends Logging {
   }
 
   def asErrorItem(correlationId: => Option[String], failure: Failure, httpCode: Int = 0): HttpError = {
-    implicit val writes = Failure.asErrorItem
+    implicit val writes: Writes[Failure] = Failure.asErrorItem
     val payload = Json.obj("errors" -> List(failure))
     apply(correlationId.toString.some, if (httpCode == 0) failure.baseError.httpCode else httpCode, payload)
   }

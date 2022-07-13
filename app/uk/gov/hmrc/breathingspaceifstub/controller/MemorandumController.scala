@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import javax.inject.{Inject, Singleton}
+
+import scala.concurrent.ExecutionContext
+
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.MemorandumService
-
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
 
 @Singleton()
 class MemorandumController @Inject()(memorandumService: MemorandumService, cc: ControllerComponents)(

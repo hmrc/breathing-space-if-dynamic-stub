@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import play.api.http.Status.{CONFLICT, NO_CONTENT, OK}
+import play.api.http.Status.{BAD_GATEWAY, CONFLICT, INTERNAL_SERVER_ERROR, GATEWAY_TIMEOUT, NO_CONTENT, OK}
 import play.api.test.Helpers.{contentAsJson, contentAsString, status}
 import uk.gov.hmrc.breathingspaceifstub.model.Underpayments
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
@@ -89,5 +89,23 @@ class UnderpaymentsControllerISpec extends BaseISpec {
     val response = getUnderpayments(n1, UUID.fromString(p1))
 
     status(response) shouldBe NO_CONTENT
+  }
+
+  test("\"get\" Underpayments should return an Error INTERNAL_SERVER_ERROR(500) for the nino BS000500C") {
+    val nino = "BS000500C"
+    val response = getMemorandum(nino)
+    status(response) shouldBe INTERNAL_SERVER_ERROR
+  }
+
+  test("\"get\" Underpayments should return an Error BAD_GATEWAY(502) for the nino BS000502C") {
+    val nino = "BS000502C"
+    val response = getMemorandum(nino)
+    status(response) shouldBe BAD_GATEWAY
+  }
+
+  test("\"get\" Underpayments should return an Error SERVICE_UNAVAILABLE(503) for the nino BS000504C") {
+    val nino = "BS000504C"
+    val response = getMemorandum(nino)
+    status(response) shouldBe GATEWAY_TIMEOUT
   }
 }

@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.breathingspaceifstub.service
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.{ExecutionContext, Future}
+
 import cats.syntax.option._
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_JSON}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
-
-import java.util.UUID
 
 @Singleton
 class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
@@ -48,7 +49,7 @@ class PeriodsService @Inject()(appConfig: AppConfig, individualRepository: Indiv
     stripNinoSuffixAndExecOp(
       maybeNino,
       nino =>
-        if (!postPeriods.periods.isEmpty) {
+        if (postPeriods.periods.nonEmpty) {
           individualRepository.addPeriods(
             nino,
             postPeriods.consumerRequestId,

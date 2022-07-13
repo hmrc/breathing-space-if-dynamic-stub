@@ -24,7 +24,7 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{BREATHINGSPACE_ID_NOT_FOUND, IDENTIFIER_NOT_FOUND}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{BREATHING_SPACE_ID_NOT_FOUND, IDENTIFIER_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
@@ -33,16 +33,16 @@ class DebtsService @Inject()(appConfig: AppConfig, individualRepository: Individ
 ) extends NinoValidation {
 
   def get(nino: String, periodId: UUID): AsyncResponse[Debts] =
-    stripNinoSuffixAndExecOp(nino, retrieveDetbs(periodId))
+    stripNinoSuffixAndExecOp(nino, retrieveDebts(periodId))
 
-  private def retrieveDetbs(periodId: UUID): String => AsyncResponse[Debts] =
+  private def retrieveDebts(periodId: UUID): String => AsyncResponse[Debts] =
     individualRepository
       .findIndividual(_)
       .map {
         _.fold[Response[Debts]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
           individual =>
             if (individual.periods.exists(_.periodID == periodId)) Right(individual.debts)
-            else Left(Failure(BREATHINGSPACE_ID_NOT_FOUND))
+            else Left(Failure(BREATHING_SPACE_ID_NOT_FOUND))
         )
       }
 }
