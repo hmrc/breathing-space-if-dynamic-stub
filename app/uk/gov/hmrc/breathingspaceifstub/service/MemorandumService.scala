@@ -43,7 +43,7 @@ class MemorandumService @Inject()(
       .findIndividual(_)
       .map {
         _.fold[Response[Memorandum]](
-          Failure(IDENTIFIER_NOT_IN_BREATHING_SPACE).asLeft
+          Failure(IDENTIFIER_NOT_IN_BREATHINGSPACE).asLeft
         ) { individual =>
           Memorandum(individual.periods.exists(p => p.endDate.isEmpty || p.endDate.exists(_.isAfter(LocalDate.now())))).asRight
         }

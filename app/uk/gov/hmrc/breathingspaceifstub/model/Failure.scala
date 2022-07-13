@@ -28,9 +28,9 @@ object BaseError extends Enum[BaseError] {
 
   case object BAD_GATEWAY extends BaseError(Status.BAD_GATEWAY, "Downstream systems are not responding")
 
-  case object BREATHING_SPACE_EXPIRED extends BaseError(FORBIDDEN, "Breathing Space has expired for the given Nino")
+  case object BREATHINGSPACE_EXPIRED extends BaseError(FORBIDDEN, "Breathing Space has expired for the given Nino")
 
-  case object BREATHING_SPACE_ID_NOT_FOUND
+  case object BREATHINGSPACE_ID_NOT_FOUND
       extends BaseError(NOT_FOUND, "The provided Breathing Space Period reference was not found")
 
   case object CONFLICTING_REQUEST extends BaseError(CONFLICT, "The request is conflicting. Maybe a duplicate POST?")
@@ -40,7 +40,7 @@ object BaseError extends Enum[BaseError] {
 
   case object HEADERS_PRECONDITION_NOT_MET extends BaseError(PRECONDITION_REQUIRED, "Invalid header combination")
   case object IDENTIFIER_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
-  case object IDENTIFIER_NOT_IN_BREATHING_SPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")
+  case object IDENTIFIER_NOT_IN_BREATHINGSPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")
   case object INVALID_BODY extends BaseError(BAD_REQUEST, "Not expected a body to this endpoint")
   case object INVALID_ENDPOINT extends BaseError(BAD_REQUEST, "Not a valid endpoint")
   case object INVALID_HEADER extends BaseError(BAD_REQUEST, "Invalid value for the header")

@@ -29,8 +29,8 @@ trait CustomErrors {
   private def returnError[T](error: BaseError): Option[AsyncResponse[T]] = Some(Future.successful(Left(Failure(error))))
 
   def checkForCustomError[T](nino: String): Option[AsyncResponse[T]] = nino.toUpperCase match {
-    case ErrorPattern(_, "403", _) => returnError(BREATHING_SPACE_EXPIRED)
-    case ErrorPattern(_, "404", "A") => returnError(IDENTIFIER_NOT_IN_BREATHING_SPACE)
+    case ErrorPattern(_, "403", _) => returnError(BREATHINGSPACE_EXPIRED)
+    case ErrorPattern(_, "404", "A") => returnError(IDENTIFIER_NOT_IN_BREATHINGSPACE)
     case ErrorPattern(_, "404", "B") => returnError(RESOURCE_NOT_FOUND)
     case ErrorPattern(_, "404", "C") => returnError(NO_DATA_FOUND)
     case ErrorPattern(_, "404", "D") => returnError(IDENTIFIER_NOT_FOUND)
