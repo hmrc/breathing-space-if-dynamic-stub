@@ -26,11 +26,7 @@ import play.api.{Logger, Logging}
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{
-  IDENTIFIER_NOT_FOUND,
-  INVALID_UNDERPAYMENT,
-  RESOURCE_NOT_FOUND
-}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_UNDERPAYMENT, RESOURCE_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.model.Validators.validateUnderpayment
 import uk.gov.hmrc.breathingspaceifstub.repository.{UnderpaymentRecord, UnderpaymentsRepository}
 import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToListOfUnderpaymentsDTOs
