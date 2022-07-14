@@ -53,7 +53,7 @@ class DebtsControllerISpec extends BaseISpec {
 
     val response = getDebts(individual.nino)
     status(response) shouldBe NOT_FOUND
-    assert(contentAsString(response).startsWith("""{"failures":[{"code":"BREATHINGSPACE_ID_NOT_FOUND""""))
+    assert(contentAsString(response).startsWith("""{"failures":[{"code":"BREATHING_SPACE_ID_NOT_FOUND""""))
   }
 
   test("\"get\" (Debts) should report if the provided Nino is unknown") {

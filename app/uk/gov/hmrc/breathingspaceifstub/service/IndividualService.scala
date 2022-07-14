@@ -52,7 +52,7 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
       case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     })
 
-  def deleteAll: AsyncResponse[Int] = individualRepository.deleteAll
+  def deleteAll(): AsyncResponse[Int] = individualRepository.deleteAll
 
   def exists(nino: String): AsyncResponse[Boolean] =
     stripNinoSuffixAndExecOp(nino, individualRepository.exists(_).map(Right(_)))

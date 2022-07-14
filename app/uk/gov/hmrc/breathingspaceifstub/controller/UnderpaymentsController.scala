@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.service.UnderpaymentsService
-
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents}
+import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
+import uk.gov.hmrc.breathingspaceifstub.service.UnderpaymentsService
 
 @Singleton()
 class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsService, cc: ControllerComponents)(
@@ -70,7 +71,7 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
   }
 
   def clearUnderpayments: Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_Underpayments_DELETE)
+    implicit val requestId: RequestId = RequestId(BS_Underpayments_DELETE)
     underpaymentsService.removeUnderpayments.map(
       _.fold(logAndGenErrorResult, count => Ok(Json.obj("deleted" -> count)))
     )

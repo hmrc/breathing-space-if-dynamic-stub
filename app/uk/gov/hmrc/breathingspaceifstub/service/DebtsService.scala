@@ -33,9 +33,9 @@ class DebtsService @Inject()(appConfig: AppConfig, individualRepository: Individ
 ) extends NinoValidation {
 
   def get(nino: String, periodId: UUID): AsyncResponse[Debts] =
-    stripNinoSuffixAndExecOp(nino, retrieveDetbs(periodId))
+    stripNinoSuffixAndExecOp(nino, retrieveDebts(periodId))
 
-  private def retrieveDetbs(periodId: UUID): String => AsyncResponse[Debts] =
+  private def retrieveDebts(periodId: UUID): String => AsyncResponse[Debts] =
     individualRepository
       .findIndividual(_)
       .map {

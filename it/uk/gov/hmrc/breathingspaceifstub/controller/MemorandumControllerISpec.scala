@@ -90,7 +90,7 @@ class MemorandumControllerISpec extends BaseISpec {
     status(response) shouldBe CONFLICT
   }
 
-  test("\"get\" (Memorandum) should return an Error SERVER_ERROR(500) for the nino BS000500B") {
+  test("\"get\" (Memorandum) should return an Error INTERNAL_SERVER_ERROR(500) for the nino BS000500B") {
     val nino = "BS000500B"
     val response = getMemorandum(nino)
     status(response) shouldBe INTERNAL_SERVER_ERROR
