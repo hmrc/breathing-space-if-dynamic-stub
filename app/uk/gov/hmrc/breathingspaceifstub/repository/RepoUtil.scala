@@ -16,35 +16,29 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import reactivemongo.api.commands.{MultiBulkWriteResult, WriteResult}
-import reactivemongo.core.errors.DatabaseException
+import org.mongodb.scala.{BulkWriteResult, MongoWriteException}
+import org.mongodb.scala.result.DeleteResult
 import uk.gov.hmrc.breathingspaceifstub.Response
+import uk.gov.hmrc.breathingspaceifstub.model.{Failure, WriteResult}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{CONFLICTING_REQUEST, SERVER_ERROR}
-import uk.gov.hmrc.breathingspaceifstub.model.{BulkWriteResult, Failure}
 
 object RepoUtil {
 
   val duplicateKey = 11000
 
-  private[repository] def handleBulkWriteResult(writeResult: MultiBulkWriteResult): Response[BulkWriteResult] = {
-    val duplicates = writeResult.writeErrors.count(_.code == duplicateKey)
-    Right(BulkWriteResult(writeResult.n, duplicates, writeResult.totalN - writeResult.n - duplicates))
-  }
+  private[repository] def handleBulkWriteResult(
+    writeResult: BulkWriteResult,
+    duplicates: Int = 0
+  ): Response[WriteResult] =
+    Right(WriteResult(writeResult.getInsertedCount, duplicates, writeResult.getDeletedCount))
 
   private[repository] def handleDuplicateKeyError[T]: PartialFunction[Throwable, Response[T]] = {
-    case exc: DatabaseException if exc.code.contains(duplicateKey) =>
+    case exc: MongoWriteException if exc.getError.getCode == duplicateKey =>
       Left(Failure(CONFLICTING_REQUEST))
   }
 
-  private[repository] def handleWriteResult[T](writeResult: WriteResult, f: WriteResult => T): Response[T] =
-    if (writeResult.ok) Right(f(writeResult))
-    else Left(Failure(SERVER_ERROR, resolveWriteResultError(writeResult)))
-
-  private def resolveWriteResultError(writeResult: WriteResult): Option[String] =
-    Option(
-      WriteResult
-        .lastError(writeResult)
-        .flatMap(_.errmsg.map(identity))
-        .getOrElse("Unexpected error while inserting a document.")
-    )
+  private[repository] def handleDeleteResult[T](deleteResult: DeleteResult, f: DeleteResult => T): Response[T] =
+    if (deleteResult.wasAcknowledged()) {
+      Right(f(deleteResult))
+    } else Left(Failure(SERVER_ERROR))
 }

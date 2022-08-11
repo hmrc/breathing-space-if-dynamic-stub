@@ -69,7 +69,7 @@ object GenIndividualDetailsSchema extends App {
   private def genPostIndividualsResponseSchema(): Unit = {
     val description = "Schema of POST Individual documents response"
     genSchemaFile(
-      Json.schema[BulkWriteResult].withTitle(titleForIndividual).withDescription(description),
+      Json.schema[WriteResult].withTitle(titleForIndividual).withDescription(description),
       destinationFile = "POST-Individuals-Response.json"
     )
   }

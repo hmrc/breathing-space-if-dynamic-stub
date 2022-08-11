@@ -40,7 +40,7 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
 
   val validateNino = (nino: String) => isValid(nino) && nino.length == 8
 
-  def addIndividuals(individualsInRequest: IndividualsInRequest): AsyncResponse[BulkWriteResult] =
+  def addIndividuals(individualsInRequest: IndividualsInRequest): AsyncResponse[WriteResult] =
     if (individualsInRequest.individuals.forall(individual => validateNino(individual.nino))) {
       individualRepository.addIndividuals(Individual.fromIndividualsInRequest(individualsInRequest))
     } else Future.successful(Left(Failure(INVALID_NINO, "Maybe a Nino with Suffix? (Not valid for this action)".some)))
@@ -52,7 +52,7 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
       case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     })
 
-  def deleteAll(): AsyncResponse[Int] = individualRepository.deleteAll
+  def deleteAll(): AsyncResponse[Int] = individualRepository.deleteAll()
 
   def exists(nino: String): AsyncResponse[Boolean] =
     stripNinoSuffixAndExecOp(nino, individualRepository.exists(_).map(Right(_)))

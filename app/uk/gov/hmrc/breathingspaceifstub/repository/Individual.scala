@@ -17,10 +17,10 @@
 package uk.gov.hmrc.breathingspaceifstub.repository
 
 import cats.syntax.option._
+import org.bson.types.ObjectId
 import play.api.libs.json.Json
-import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats._
+import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
 
 final case class Individual(
   nino: String,
@@ -28,7 +28,7 @@ final case class Individual(
   consumerRequestIds: List[String],
   periods: List[Period],
   debts: Debts,
-  id: BSONObjectID = BSONObjectID.generate
+  _id: ObjectId = new ObjectId()
 )
 
 object Individual {
@@ -45,7 +45,7 @@ object Individual {
       nino = individualInRequest.nino,
       individualDetails = individualDetails,
       consumerRequestIds = List.empty,
-      periods = individualInRequest.periods.fold(List.empty[Period])(Periods.fromPost(_)),
+      periods = individualInRequest.periods.fold(List.empty[Period])(Periods.fromPost),
       debts = individualInRequest.debts.fold(List.empty[Debt])(identity)
     )
   }
@@ -53,7 +53,6 @@ object Individual {
   def fromIndividualsInRequest(individualsInRequest: IndividualsInRequest): Individuals =
     individualsInRequest.individuals.map(Individual(_))
 
-  implicit val jsonFormat = Json.format[Individual]
-
-  implicit val mongoFormat = mongoEntity { jsonFormat }
+  implicit val objectIdFormat = MongoFormats.objectIdFormat
+  implicit val mongoFormat = Json.format[Individual]
 }

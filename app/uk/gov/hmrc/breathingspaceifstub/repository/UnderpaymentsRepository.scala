@@ -16,34 +16,49 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import play.api.libs.json.Json
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
-import uk.gov.hmrc.breathingspaceifstub.model.{BulkWriteResult, Failure}
-import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.{ExecutionContext, Future}
 
+import com.mongodb.client.model.Filters
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model.InsertOneModel
+import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
+import uk.gov.hmrc.breathingspaceifstub.model.{Failure, Period, WriteResult}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
+import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+import uk.gov.hmrc.mongo.play.json.formats.MongoUuidFormats.Implicits.uuidFormat
+
 @Singleton
-class UnderpaymentsRepository @Inject()(mongo: ReactiveMongoComponent)(implicit executionContext: ExecutionContext)
-    extends ReactiveRepository[UnderpaymentRecord, BSONObjectID](
+class UnderpaymentsRepository @Inject()(mongo: MongoComponent)(implicit executionContext: ExecutionContext)
+    extends PlayMongoRepository[UnderpaymentRecord](
+      mongoComponent = mongo,
       collectionName = "underpayment",
-      mongo = mongo.mongoConnector.db,
-      domainFormat = UnderpaymentRecord.mongoUnderpaymentFormat,
-      idFormat = ReactiveMongoFormats.objectIdFormats
+      domainFormat = ComponentFormats.underPaymentMongoFormat,
+      indexes = Seq(),
+      extraCodecs = Seq(
+        Codecs.playFormatCodec(uuidFormat),
+        Codecs.playFormatCodec(Period.format),
+        Codecs.playFormatCodec(ComponentFormats.underpaymentFormat)
+      ),
+      replaceIndexes = false
     ) {
 
-  def saveUnderpayments(underpayments: List[UnderpaymentRecord]): AsyncResponse[BulkWriteResult] = {
-    logger.info(s"Received request to save ${underpayments.size} underpayments")
+  def saveUnderpayments(underpayments: List[UnderpaymentRecord]): AsyncResponse[WriteResult] = {
 
     val fhits: Future[List[UnderpaymentRecord]] =
-      find("nino" -> underpayments.head.nino, "periodId" -> underpayments.head.periodId)
+      collection
+        .find[UnderpaymentRecord](
+          Filters.and(
+            Filters.eq("nino", underpayments.head.nino),
+            Filters.eq("periodId", underpayments.head.periodId)
+          )
+        )
+        .toFuture()
+        .map(res => res.toList)
     fhits.flatMap(
       hits =>
         if (hits.isEmpty) save(underpayments)
@@ -51,33 +66,42 @@ class UnderpaymentsRepository @Inject()(mongo: ReactiveMongoComponent)(implicit 
     )
   }
 
-  private def save(underpayments: List[UnderpaymentRecord]): AsyncResponse[BulkWriteResult] = {
-    val res = bulkInsert(underpayments)
-      .map(handleBulkWriteResult)
-      .recover(handleDuplicateKeyError[BulkWriteResult])
-
-    logger.info(s"Saved ${underpayments.size} underpayments to disk")
-    res
+  private def save(underpayments: List[UnderpaymentRecord]): AsyncResponse[WriteResult] = {
+    val models = underpayments.map(new InsertOneModel(_))
+    collection
+      .bulkWrite(models)
+      .map { result =>
+        if (result.getInsertedCount == 0) Left(Failure(CONFLICTING_REQUEST))
+        else handleBulkWriteResult(result)
+      }
+      .recover(handleDuplicateKeyError)
+      .head()
   }
 
-  def removeUnderpayments(): AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
+  def removeUnderpayments(): AsyncResponse[Int] = remove(Filters.empty())
 
-  def removeByNino(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
+  def removeByNino(nino: String): AsyncResponse[Int] = remove(Filters.eq("nino", nino))
 
   def removeByNinoAndPeriodId(nino: String, periodId: UUID): AsyncResponse[Int] =
-    remove("nino" -> nino, "periodId" -> periodId).map(handleWriteResult(_, _.n))
+    remove(Filters.and(Filters.eq("nino", nino), Filters.eq("periodId", periodId)))
 
-  def findUnderpayments(nino: String, periodId: String): Future[Option[List[UnderpaymentRecord]]] = {
-    val fHits: Future[List[UnderpaymentRecord]] = find("nino" -> nino, "periodId" -> periodId)
+  private def remove(query: Bson): AsyncResponse[Int] =
+    collection
+      .deleteMany(query)
+      .map(handleDeleteResult(_, _.getDeletedCount.toInt))
+      .head()
 
-    fHits.map {
-      case Nil => None
-      case ls => Some(ls)
-    }
-  }
+  def findUnderpayments(nino: String, periodId: UUID): Future[Option[List[UnderpaymentRecord]]] =
+    collection
+      .find[UnderpaymentRecord](Filters.and(Filters.eq("nino", nino), Filters.eq("periodId", periodId)))
+      .toFuture()
+      .map(res => Some(res.toList))
 
-  def count(nino: String, periodId: UUID): AsyncResponse[Int] = {
-    val query = Json.obj("nino" -> nino, "periodId" -> periodId)
-    count(query).map(n => Right(n))
-  }
+  def count(nino: String, periodId: UUID): AsyncResponse[Int] =
+    collection
+      .countDocuments(
+        Filters.and(Filters.eq("nino", nino), Filters.eq("periodId", periodId))
+      )
+      .head()
+      .map(res => Right(res.toInt))
 }

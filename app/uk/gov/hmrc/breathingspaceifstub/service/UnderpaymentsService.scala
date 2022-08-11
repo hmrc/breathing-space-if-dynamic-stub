@@ -51,7 +51,7 @@ class UnderpaymentsService @Inject()(
     periodId: String,
     underpayments: List[Underpayment],
     logger: Logger
-  ): AsyncResponse[BulkWriteResult] = {
+  ): AsyncResponse[WriteResult] = {
 
     logger.info(s"Service received ${underpayments.size} underpayments for ${nino}/${periodId}")
 
@@ -92,7 +92,7 @@ class UnderpaymentsService @Inject()(
 
   private def retrieveUnderpayments(nino: String, periodId: UUID): String => AsyncResponse[Underpayments] = { _ =>
     val underpaymentDTOs: Future[Option[List[UnderpaymentRecord]]] =
-      underpaymentsRepository.findUnderpayments(nino, periodId.toString)
+      underpaymentsRepository.findUnderpayments(nino, periodId)
 
     val underpayments: Future[Option[Underpayments]] = underpaymentDTOs
       .map(
