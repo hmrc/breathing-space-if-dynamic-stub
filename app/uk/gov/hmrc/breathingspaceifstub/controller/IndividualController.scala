@@ -94,7 +94,7 @@ class IndividualController @Inject()(
         logAndSendErrorResult,
         individualService
           .addIndividuals(_)
-          .map(_.fold(logAndGenErrorResult, composeResponse[BulkWriteResult](OK, _)))
+          .map(_.fold(logAndGenErrorResult, composeResponse[WriteResult](OK, _)))
       )
   }
 

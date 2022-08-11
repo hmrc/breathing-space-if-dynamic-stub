@@ -16,50 +16,65 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import cats.syntax.option._
-import play.api.libs.json.Json.JsValueWrapper
-import play.api.libs.json.{JsObject, JsString, Json}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.FindAndModifyCommand.{Result, UpdateLastError}
-import reactivemongo.api.commands.UpdateWriteResult
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
-import reactivemongo.play.json.collection.Helpers.idWrites
-import uk.gov.hmrc.breathingspaceifstub._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.implicits.catsSyntaxOptionId
+import com.mongodb.client.model.Filters
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model._
+import uk.gov.hmrc.breathingspaceifstub._
+import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
+import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+import uk.gov.hmrc.mongo.play.json.formats.MongoUuidFormats.Implicits.uuidFormat
+
 @Singleton()
-class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit executionContext: ExecutionContext)
-    extends ReactiveRepository[Individual, BSONObjectID](
+class IndividualRepository @Inject()(mongo: MongoComponent)(implicit executionContext: ExecutionContext)
+    extends PlayMongoRepository[Individual](
+      mongoComponent = mongo,
       collectionName = "individual",
-      mongo = mongo.mongoConnector.db,
       domainFormat = Individual.mongoFormat,
-      idFormat = ReactiveMongoFormats.objectIdFormats
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("nino"),
+          IndexOptions().name("Nino").unique(true)
+        ),
+        IndexModel(
+          Indexes.ascending("periods.periodID"),
+          IndexOptions().name("PeriodId").sparse(true)
+        )
+      ),
+      extraCodecs = Seq(
+        Codecs.playFormatCodec(uuidFormat),
+        Codecs.playFormatCodec(Individual.mongoFormat),
+        Codecs.playFormatCodec(ComponentFormats.individualDetailsFormat),
+        Codecs.playFormatCodec(Period.format),
+        Codecs.playFormatCodec(ComponentFormats.debtFormat),
+        Codecs.playFormatCodec(ComponentFormats.dateFormatInstant)
+      ),
+      replaceIndexes = false
     ) {
 
-  override def indexes: Seq[Index] =
-    Seq(
-      Index(Seq("nino" -> IndexType.Ascending), name = Some("Nino"), unique = true),
-      Index(Seq("periods.periodID" -> IndexType.Ascending), name = Some("PeriodId"), sparse = true)
-    )
-
-  def addIndividuals(individuals: Individuals): AsyncResponse[BulkWriteResult] =
-    bulkInsert(individuals)
-      .map(handleBulkWriteResult)
-      .recover(handleDuplicateKeyError[BulkWriteResult])
+  def addIndividuals(individuals: Individuals): AsyncResponse[WriteResult] = {
+    val toInsert = removeDuplicateIndividuals(individuals)
+    val duplicates = individuals.size - toInsert.size
+    collection
+      .bulkWrite(toInsert, BulkWriteOptions().ordered(false))
+      .map(handleBulkWriteResult(_, duplicates))
+      .head()
+  }
 
   def addIndividual(individual: Individual): AsyncResponse[Unit] =
-    insert(individual)
-      .map(handleWriteResult(_, _ => unit))
-      .recover(handleDuplicateKeyError[Unit])
+    collection
+      .insertOne(individual)
+      .map(_ => Right(unit))
+      .recover(handleDuplicateKeyError)
+      .head()
 
   def addPeriods(
     nino: String,
@@ -67,44 +82,69 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
     maybeUtr: Option[String],
     periods: List[Period]
   ): AsyncResponse[Periods] = {
-    val query = Json.obj("nino" -> nino)
-    val add2Set = Json.obj("$addToSet" -> Json.obj("consumerRequestIds" -> JsString(consumerRequestId.toString)))
-
-    // Not atomic, but this is a stub then we can accept it.
-    collection.update(false).one(query, add2Set).flatMap { result: UpdateWriteResult =>
-      if (result.nModified == 1) addPeriods(query, maybeUtr, periods)
-      else Future.successful(Left(Failure(if (result.n == 0) IDENTIFIER_NOT_FOUND else DUPLICATE_SUBMISSION)))
-    }
+    val query = Filters.eq("nino", nino)
+    collection
+      .find(query)
+      .map(_.periods)
+      .head()
+      .flatMap { res =>
+        {
+          val add2Set = Updates.addToSet("consumerRequestIds", consumerRequestId.toString)
+          collection.updateOne(query, add2Set, UpdateOptions().upsert(false)).head().flatMap { result =>
+            if (result.getModifiedCount == 1 && result.getMatchedCount == 1) {
+              addPeriods(query, maybeUtr, periods ++ res)
+            } else {
+              Future.successful(
+                Left(
+                  Failure(
+                    if (result.getMatchedCount == 0) IDENTIFIER_NOT_FOUND
+                    else DUPLICATE_SUBMISSION
+                  )
+                )
+              )
+            }
+          }
+        }
+      }
   }
 
-  private def addPeriods(query: JsObject, maybeUtr: Option[String], periods: List[Period]): AsyncResponse[Periods] = {
-    val opOnPeriods: (String, JsValueWrapper) = "$push" -> Json.obj("periods" -> Json.obj("$each" -> periods))
+  def count(): Future[Int] = collection.countDocuments().head().map(_.toInt)
 
-    val update = maybeUtr.fold(Json.obj(opOnPeriods)) { utr =>
-      Json.obj("$set" -> Json.obj(s"individualDetails.indicators.utr" -> utr), opOnPeriods)
-    }
-
-    findAndUpdate(query, update).map(handleUpdateResult(_, Periods(periods), IDENTIFIER_NOT_FOUND))
-  }
-
-  def delete(nino: String): AsyncResponse[Int] = remove("nino" -> nino).map(handleWriteResult(_, _.n))
+  def delete(nino: String): AsyncResponse[Int] =
+    collection
+      .deleteOne(Filters.eq("nino", nino))
+      .map {
+        handleDeleteResult(_, _.getDeletedCount.toInt)
+      }
+      .head()
 
   def exists(nino: String): Future[Boolean] =
-    collection.find(Json.obj("nino" -> nino), none).one[Individual].map(_.fold(false)(_ => true))
-
-  def deleteAll: AsyncResponse[Int] = removeAll().map(handleWriteResult(_, _.n))
-
-  def findIndividual(nino: String): Future[Option[Individual]] =
     collection
-      .find(Json.obj("nino" -> nino), none)
-      .one[Individual]
+      .countDocuments(Filters.eq("nino", nino))
+      .map { result =>
+        result.toInt > 0
+      }
+      .head()
 
-  def listOfNinos: Future[List[String]] = findAll().map(_.map(_.nino))
+  def deleteAll(): AsyncResponse[Int] =
+    collection
+      .deleteMany(Filters.empty())
+      .map {
+        handleDeleteResult(_, _.getDeletedCount.toInt)
+      }
+      .head()
+
+  def findIndividual(nino: String): Future[Option[Individual]] = collection.find(Filters.eq("nino", nino)).headOption()
+
+  def listOfNinos: Future[List[String]] = collection.find(Filters.empty()).map(_.nino).toFuture().map(_.toList)
 
   def replaceIndividualDetails(nino: String, individualDetails: IndividualDetails): AsyncResponse[Unit] = {
-    val query = Json.obj("nino" -> nino)
-    val update = Json.obj("$set" -> Json.obj("individualDetails" -> individualDetails))
-    findAndUpdate(query, update).map(handleUpdateResult(_, unit, RESOURCE_NOT_FOUND))
+    val query = Filters.eq("nino", nino)
+    val modifier = Updates.set("individualDetails", individualDetails)
+    collection.findOneAndUpdate(query, modifier).toFutureOption().flatMap {
+      case Some(_) => Future.successful(Right(unit))
+      case None => Future(Left(Failure(RESOURCE_NOT_FOUND)))
+    }
   }
 
   def updatePeriods(nino: String, periods: List[Period]): AsyncResponse[Periods] =
@@ -117,46 +157,59 @@ class IndividualRepository @Inject()(mongo: ReactiveMongoComponent)(implicit exe
 
   def deletePeriod(nino: String, periodId: UUID): AsyncResponse[Int] =
     findIndividual(nino).flatMap {
-      _.fold[AsyncResponse[Int]](Future.successful(Left(Failure(IDENTIFIER_NOT_FOUND)))) { _ =>
+      _.fold[AsyncResponse[Int]](Future.successful(Left(Failure(IDENTIFIER_NOT_FOUND)))) { individual =>
+        val newPeriods = individual.periods.filterNot(p => p.periodID.equals(periodId))
         collection
-          .update(ordered = false)
-          .one(
-            Json.obj("nino" -> nino),
-            Json.obj("$pull" -> Json.obj("periods" -> Json.obj("periodID" -> periodId)))
+          .updateOne(
+            Filters.eq("nino", nino),
+            Updates.set("periods", newPeriods)
           )
-          .map(uwr => Right(uwr.nModified))
+          .map(res => Right(res.getModifiedCount.toInt))
+          .head()
       }
     }
 
-  // Not atomic, but this is a stub then we can accept it.
+  private def addPeriods(query: Bson, maybeUtr: Option[String], periods: List[Period]): AsyncResponse[Periods] = {
+    val opOnPeriods = Updates.set("periods", periods)
+    val update = maybeUtr.fold(opOnPeriods) { utr =>
+      Updates.combine(
+        Updates.set(s"individualDetails.indicators.utr", utr),
+        opOnPeriods
+      )
+    }
+
+    collection.updateOne(query, update, UpdateOptions().upsert(true)).toFutureOption().map {
+      case Some(_) => Right(Periods(periods))
+      case None => Left(Failure(IDENTIFIER_NOT_FOUND))
+    }
+  }
+
+  private def removeDuplicateIndividuals(individuals: Individuals): Seq[InsertOneModel[Individual]] =
+    individuals
+      .foldLeft(Seq[Individual]())((unique, curr) => {
+        if (!unique.exists(_.nino == curr.nino)) curr +: unique else unique
+      })
+      .reverse
+      .map(InsertOneModel(_))
+
   private def updatePeriods(nino: String, periods: List[Period], individual: Individual): AsyncResponse[Periods] = {
-    val periodsToNotUpdate = individual.periods.filterNot(p => periods.find(_.periodID == p.periodID).isDefined)
+    val periodsToNotUpdate = individual.periods.filterNot(p => periods.exists(_.periodID == p.periodID))
     if (periodsToNotUpdate.size == individual.periods.size) {
       Future.successful(Right(Periods(periods = periodsToNotUpdate)))
     } else {
       val newPeriods = periods ++ periodsToNotUpdate
       collection
-        .update(ordered = false)
-        .one(
-          Json.obj("nino" -> nino),
-          Json.obj("$set" -> Json.obj("periods" -> Json.toJson(newPeriods)))
+        .updateOne(
+          Filters.eq("nino", nino),
+          Updates.set("periods", newPeriods)
         )
-        .map { uwr =>
-          if (uwr.ok && uwr.nModified == 1) Right(Periods(periods = newPeriods))
+        .map { res =>
+          if (res.getModifiedCount == 1) Right(Periods(periods = newPeriods))
           else {
-            Left(Failure(SERVER_ERROR, s"Nino($nino)'s periods were not updated. UpdateWriteResult($uwr)".some))
+            Left(Failure(SERVER_ERROR, s"Nino($nino)'s periods were not updated. UpdateWriteResult($res)".some))
           }
         }
+        .head()
     }
   }
-
-  private def handleUpdateResult[T](updateResult: Result[_], result: T, notFound: BaseError): Response[T] =
-    updateResult.lastError.fold[Response[T]] {
-      Left(Failure(SERVER_ERROR, "updateResult.lastError missing?".some))
-    } { lastError =>
-      if (lastError.updatedExisting) Right(result) else resolveUpdateLastError(lastError, notFound)
-    }
-
-  private def resolveUpdateLastError[T](updateLastError: UpdateLastError, notFound: BaseError): Response[T] =
-    Left(updateLastError.err.fold(Failure(notFound))(err => Failure(SERVER_ERROR, err.some)))
 }

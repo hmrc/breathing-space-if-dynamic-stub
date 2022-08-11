@@ -16,16 +16,15 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import org.bson.types.ObjectId
 import play.api.libs.json._
-import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.breathingspaceifstub.model.Underpayment
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.mongoEntity
-import reactivemongo.play.json.ImplicitBSONHandlers._
+import uk.gov.hmrc.mongo.play.json.formats.{MongoFormats, MongoUuidFormats}
+
 import java.util.UUID
 
 final case class UnderpaymentRecord(
-  id: BSONObjectID = BSONObjectID.generate(),
+  _id: ObjectId = new ObjectId(),
   underpayment: Option[Underpayment],
   nino: String,
   periodId: UUID
@@ -33,8 +32,10 @@ final case class UnderpaymentRecord(
 
 object UnderpaymentRecord {
 
+  implicit val objectIdFormat = MongoFormats.objectIdFormat
   implicit val jsonUnderpaymentFormat = Json.format[UnderpaymentRecord]
-  implicit val mongoUnderpaymentFormat = mongoEntity { jsonUnderpaymentFormat }
+  implicit val uuidFormats = MongoUuidFormats.uuidFormat
+  implicit val mongoFormat: OFormat[UnderpaymentRecord] = jsonUnderpaymentFormat
 
   def parseToListOfUnderpaymentsDTOs(
     rawUnderpayments: List[Underpayment],

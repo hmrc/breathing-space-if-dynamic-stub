@@ -18,8 +18,8 @@ package uk.gov.hmrc.breathingspaceifstub.model
 
 import play.api.libs.json.Json
 
-final case class BulkWriteResult(successful: Int, duplicates: Int, errors: Int)
+final case class WriteResult(successful: Int, duplicates: Int, errors: Int)
 
-object BulkWriteResult {
-  implicit val writes = Json.writes[BulkWriteResult]
+object WriteResult {
+  implicit val writes = Json.writes[WriteResult]
 }
