@@ -33,14 +33,14 @@ lazy val microservice = Project(appName, file("."))
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(
     scoverageSettings,
-    scalafmtOnCompile in Compile := true
+    Compile / scalafmtOnCompile := true
   )
 
 scalastyleConfig := baseDirectory.value / "project" / "scalastyle-config.xml"
 
-unmanagedResourceDirectories in Compile += baseDirectory.value / "public"
+Compile / unmanagedResourceDirectories += baseDirectory.value / "public"
 
-unmanagedResourceDirectories in IntegrationTest += baseDirectory.value / "it" / "resources"
+IntegrationTest / unmanagedResourceDirectories += baseDirectory.value / "it" / "resources"
 
 lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   coverageExcludedPackages := List(
@@ -54,8 +54,8 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
 )
 
 lazy val assemblySettings = Seq(
-  assemblyJarName in assembly := "breathing-space-if-dynamic-stub.jar",
-  assemblyMergeStrategy in assembly := {
+  assembly / assemblyJarName := "breathing-space-if-dynamic-stub.jar",
+  assembly / assemblyMergeStrategy := {
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
     case x => MergeStrategy.first
   }
