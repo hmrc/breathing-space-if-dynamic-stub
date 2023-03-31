@@ -3,8 +3,10 @@ import sbt._
 
 object Dependencies {
 
+  val bootstrapVersion = "6.3.0"
+
   val compile = Seq(
-    "uk.gov.hmrc"                  %% "bootstrap-backend-play-28"  % "6.3.0",
+    "uk.gov.hmrc"                  %% "bootstrap-backend-play-28"  % bootstrapVersion,
     "org.typelevel"                %% "cats-core"                  % "2.7.0",
     "com.beachape"                 %% "enumeratum"                 % "1.7.0",
     "ai.x"                         %% "play-json-extensions"       % "0.42.0",
@@ -15,7 +17,7 @@ object Dependencies {
   )
 
   val test = Seq(
-    "uk.gov.hmrc"            %% "bootstrap-test-play-28" % "5.7.0"  % "it",
+    "uk.gov.hmrc"            %% "bootstrap-test-play-28" % bootstrapVersion  % "it",
     "com.vladsch.flexmark"   %  "flexmark-all"           % "0.62.2" % "it",
     "com.typesafe.play"      %% "play-test"              % current  % "it",
     "org.scalatest"          %% "scalatest"              % "3.2.12" % "it",
