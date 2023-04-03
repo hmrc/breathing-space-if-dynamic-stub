@@ -10,20 +10,14 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
     majorVersion             := 0,
-    scalaVersion             := "2.12.12",
+    scalaVersion             := "2.13.8",
     PlayKeys.playDefaultPort := 9503,
     TwirlKeys.templateImports := Seq(),
     libraryDependencies      ++= Dependencies.compile ++ Dependencies.test,
     scalacOptions ++= Seq(
-      "-Xfatal-warnings",
       "-deprecation",
       "-feature",
-      "-unchecked",
-      "-P:silencer:pathFilters=routes"  // Using the silencer plugin to suppress warnings
-    ),
-    libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
+      "-unchecked"
     ),
     assemblySettings
   )

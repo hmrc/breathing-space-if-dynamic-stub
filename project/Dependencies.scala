@@ -13,7 +13,6 @@ object Dependencies {
     "com.fasterxml.jackson.module" %% "jackson-module-scala"       % "2.13.3",
     "com.github.andyglow"          %% "scala-jsonschema"           % "0.7.8",
     "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-28"        % "0.68.0"
-
   )
 
   val test = Seq(
