@@ -48,24 +48,6 @@ object GenIndividualDetailsSchema extends App {
 
   final case class ListOfNinos(ninos: List[String])
 
-  /*
-  private def genPostIndividualRequestSchema(): Unit = {
-    val description = "Schema of POST Individual document request"
-    genSchemaFile(
-      Json.schema[IndividualInRequest].withTitle(titleForIndividual).withDescription(description),
-      destinationFile = "POST-Individual-Request.json"
-    )
-  }
-
-  private def genPostIndividualsRequestSchema(): Unit = {
-    val description = "Schema of POST Individual documents request"
-    genSchemaFile(
-      Json.schema[IndividualsInRequest].withTitle(titleForIndividual).withDescription(description),
-      destinationFile = "POST-Individuals-Request.json"
-    )
-  }
-   */
-
   private def genPostIndividualsResponseSchema(): Unit = {
     val description = "Schema of POST Individual documents response"
     genSchemaFile(
@@ -108,8 +90,6 @@ object GenIndividualDetailsSchema extends App {
 
   print("\n")
 
-//  genPostIndividualRequestSchema()
-//  genPostIndividualsRequestSchema()
   genPostIndividualsResponseSchema()
   genPutIndividualRequestSchema()
   genGetListOfNinosResponseSchema()

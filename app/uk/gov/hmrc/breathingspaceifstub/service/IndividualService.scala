@@ -45,7 +45,7 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
       individualRepository.addIndividuals(Individual.fromIndividualsInRequest(individualsInRequest))
     } else Future.successful(Left(Failure(INVALID_NINO, "Maybe a Nino with Suffix? (Not valid for this action)".some)))
 
-  def count: Future[Int] = individualRepository.count
+  def count: Future[Int] = individualRepository.count()
 
   def delete(nino: String): AsyncResponse[Int] =
     stripNinoSuffixAndExecOp(nino, individualRepository.delete(_).collect {
@@ -100,7 +100,7 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
         .findIndividual(_)
         .map {
           _.fold[Response[Option[String]]](Left(Failure(IDENTIFIER_NOT_FOUND))) { individual =>
-            Right(individual.individualDetails.indicators.map(_.utr).flatten)
+            Right(individual.individualDetails.indicators.flatMap(_.utr))
           }
         }
     )
