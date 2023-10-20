@@ -1,6 +1,5 @@
 import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "breathing-space-if-dynamic-stub"
 
@@ -22,7 +21,6 @@ lazy val microservice = Project(appName, file("."))
     assemblySettings
   )
   .configs(IntegrationTest)
-  .settings(publishingSettings: _*)
   .settings(integrationTestSettings(): _*)
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(
