@@ -17,10 +17,7 @@
 package uk.gov.hmrc.breathingspaceifstub.config
 
 import javax.inject.Inject
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
+import scala.concurrent.{ExecutionContext, Future}
 import play.api._
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{JsArray, Json}
@@ -37,7 +34,7 @@ class ErrorHandler @Inject()(
   auditConnector: AuditConnector,
   httpAuditEvent: HttpAuditEvent,
   configuration: Configuration
-) extends JsonErrorHandler(auditConnector, httpAuditEvent, configuration)
+) (implicit ec: ExecutionContext) extends JsonErrorHandler(auditConnector, httpAuditEvent, configuration)
     with Logging {
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
