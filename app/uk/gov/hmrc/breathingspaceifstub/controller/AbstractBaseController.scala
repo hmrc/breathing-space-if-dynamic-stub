@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
+import scala.concurrent.{ExecutionContext, Future}
 import cats.syntax.either._
 import cats.syntax.option._
 import play.api.Logging
@@ -32,7 +30,7 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Memorandum_GET, BS_
 import uk.gov.hmrc.breathingspaceifstub.model.HttpErrorCode
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-abstract class AbstractBaseController(cc: ControllerComponents) extends BackendController(cc) with Logging {
+abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
 
   def composeResponse[T](status: Int, body: T)(implicit requestId: RequestId, writes: Writes[T]): Result =
     logAndAddHeaders(Status(status)(Json.toJson(body)))
