@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package uk.gov.hmrc.breathingspaceifstub.model
 import java.time.LocalDate
 import java.util.UUID
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 // --------------------------------------------------------------------------------
 
@@ -29,10 +29,10 @@ final case class PostPeriodInRequest(
   pegaRequestTimestamp: String
 )
 
-object PostPeriodInRequest { implicit val format = Json.format[PostPeriodInRequest] }
+object PostPeriodInRequest { implicit val format: OFormat[PostPeriodInRequest] = Json.format[PostPeriodInRequest] }
 
 final case class PostPeriodsInRequest(consumerRequestId: UUID, utr: Option[String], periods: List[PostPeriodInRequest])
-object PostPeriodsInRequest { implicit val format = Json.format[PostPeriodsInRequest] }
+object PostPeriodsInRequest { implicit val format: OFormat[PostPeriodsInRequest] = Json.format[PostPeriodsInRequest] }
 
 // --------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ final case class PutPeriodInRequest(
   pegaRequestTimestamp: String
 )
 
-object PutPeriodInRequest { implicit val format = Json.format[PutPeriodInRequest] }
+object PutPeriodInRequest { implicit val format: OFormat[PutPeriodInRequest] = Json.format[PutPeriodInRequest] }
 
 final case class PutPeriodsInRequest(periods: List[PutPeriodInRequest])
-object PutPeriodsInRequest { implicit val format = Json.format[PutPeriodsInRequest] }
+object PutPeriodsInRequest { implicit val format: OFormat[PutPeriodsInRequest] = Json.format[PutPeriodsInRequest] }

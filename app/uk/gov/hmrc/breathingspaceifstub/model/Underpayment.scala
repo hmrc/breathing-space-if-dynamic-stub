@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.model
 
-import play.api.libs.json.Json
-
+import play.api.libs.json.{Json, OFormat}
 import java.lang.Integer.parseInt
 
 // model
@@ -29,11 +28,11 @@ final case class Underpayments(underPayments: List[Underpayment])
 // Serializers
 
 object Underpayment {
-  implicit val format = Json.format[Underpayment]
+  implicit val format: OFormat[Underpayment] = Json.format[Underpayment]
 }
 
 object Underpayments {
-  implicit val format = Json.format[Underpayments]
+  implicit val format: OFormat[Underpayments] = Json.format[Underpayments]
 }
 
 // custom validation for Underpayments

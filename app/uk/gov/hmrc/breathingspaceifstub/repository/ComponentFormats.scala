@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import play.api.libs.json.{Json, OFormat}
+import org.bson.types.ObjectId
+import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.breathingspaceifstub.model.{Debt, IndividualDetails, Underpayment}
 import uk.gov.hmrc.mongo.play.json.formats.{MongoBinaryFormats, MongoFormats, MongoJavatimeFormats, MongoUuidFormats}
+import java.time.LocalDate
 
 trait ComponentFormats
     extends MongoBinaryFormats.Implicits
     with MongoJavatimeFormats.Implicits
     with MongoUuidFormats.Implicits {
 
-  implicit val objectIdFormat = MongoFormats.objectIdFormat
-  implicit val individualDetailsFormat = Json.format[IndividualDetails]
-  implicit val underpaymentFormat = Json.format[Underpayment]
-  implicit val debtFormat = Json.format[Debt]
-  implicit val underpaymentRecordFormat = Json.format[UnderpaymentRecord]
-  implicit val dateFormatInstant = MongoJavatimeFormats.localDateFormat
-
+  implicit val objectIdFormat: Format[ObjectId] = MongoFormats.objectIdFormat
+  implicit val individualDetailsFormat: OFormat[IndividualDetails] = Json.format[IndividualDetails]
+  implicit val underpaymentFormat: OFormat[Underpayment] = Json.format[Underpayment]
+  implicit val debtFormat: OFormat[Debt] = Json.format[Debt]
+  implicit val underpaymentRecordFormat: OFormat[UnderpaymentRecord] = Json.format[UnderpaymentRecord]
+  implicit val dateFormatInstant: Format[LocalDate] = MongoJavatimeFormats.localDateFormat
   implicit val underPaymentMongoFormat: OFormat[UnderpaymentRecord] = underpaymentRecordFormat
 }
 

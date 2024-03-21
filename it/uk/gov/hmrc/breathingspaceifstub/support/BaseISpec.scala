@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,9 @@ trait BaseISpec
 
   override lazy val app: Application = GuiceApplicationBuilder().configure(configProperties).build()
 
-  implicit val materializer = inject[Materializer]
+  implicit val materializer: Materializer = inject[Materializer]
 
-  override def beforeEach: Unit = await(deleteAll)
+  override def beforeEach: Unit = await(deleteAll())
 
   // Production endpoints
   // ====================
@@ -88,11 +88,11 @@ trait BaseISpec
   // Support endpoints
   // =================
 
-  def count: Future[Result] = attendedCall(Helpers.GET, IndividualController.count.url)
+  def count: Future[Result]                = attendedCall(Helpers.GET, IndividualController.count.url)
   def delete(nino: String): Future[Result] = attendedCall(Helpers.DELETE, IndividualController.delete(nino).url)
-  def deleteAll: Future[Result] = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
+  def deleteAll(): Future[Result]          = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
   def exists(nino: String): Future[Result] = attendedCall(Helpers.GET, IndividualController.exists(nino).url)
-  def listOfNinos: Future[Result] = attendedCall(Helpers.GET, IndividualController.listOfNinos.url)
+  def listOfNinos: Future[Result]          = attendedCall(Helpers.GET, IndividualController.listOfNinos.url)
 
   def postIndividual(individualInRequest: IndividualInRequest): Future[Result] =
     attendedCall(Helpers.POST, IndividualController.postIndividual.url, Json.toJson(individualInRequest))
@@ -115,7 +115,7 @@ trait BaseISpec
   def getUnderpayments(nino: String, periodId: UUID): Future[Result] =
     attendedCall(Helpers.GET, UnderpaymentsController.get(nino, periodId).url)
 
-  def getOverview(): Future[Result] = attendedCall(Helpers.GET, IndividualController.getOverview.url)
+  def getOverview: Future[Result] = attendedCall(Helpers.GET, IndividualController.getOverview.url)
 
   // ==========================================================================================================
 

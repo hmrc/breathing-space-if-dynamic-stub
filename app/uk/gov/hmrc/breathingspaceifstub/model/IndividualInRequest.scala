@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.breathingspaceifstub.model
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 final case class IndividualInRequest(
   nino: String,
@@ -24,9 +24,9 @@ final case class IndividualInRequest(
   periods: Option[List[PostPeriodInRequest]],
   debts: Option[Debts]
 )
-object IndividualInRequest { implicit val format = Json.format[IndividualInRequest] }
+object IndividualInRequest { implicit val format: OFormat[IndividualInRequest] = Json.format[IndividualInRequest] }
 
 final case class IndividualsInRequest(
   individuals: List[IndividualInRequest]
 )
-object IndividualsInRequest { implicit val format = Json.format[IndividualsInRequest] }
+object IndividualsInRequest { implicit val format: OFormat[IndividualsInRequest] = Json.format[IndividualsInRequest] }

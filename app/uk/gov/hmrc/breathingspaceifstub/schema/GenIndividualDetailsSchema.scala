@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,17 +34,17 @@ object GenIndividualDetailsSchema extends App {
 
   // Full population ------------------------------------------------------------------------
 
-  implicit val detailsSchema: Schema[Details] = Json.schema[Details]
-  implicit val indicatorsSchema: Schema[Indicators] = Json.schema[Indicators]
+  implicit lazy val detailsSchema: Schema[Details] = Json.schema[Details]
+  implicit lazy val indicatorsSchema: Schema[Indicators] = Json.schema[Indicators]
 
-  implicit val nameDataSchema: Schema[NameData] = Json.schema[NameData]
-  implicit val nameListSchema: Schema[NameList] = Json.schema[NameList]
+  implicit lazy val nameDataSchema: Schema[NameData] = Json.schema[NameData]
+  implicit lazy val nameListSchema: Schema[NameList] = Json.schema[NameList]
 
-  implicit val addressDataSchema: Schema[AddressData] = Json.schema[AddressData]
-  implicit val addressListSchema: Schema[AddressList] = Json.schema[AddressList]
+  implicit lazy val addressDataSchema: Schema[AddressData] = Json.schema[AddressData]
+  implicit lazy val addressListSchema: Schema[AddressList] = Json.schema[AddressList]
 
-  implicit val residencyDataSchema: Schema[ResidencyData] = Json.schema[ResidencyData]
-  implicit val residencyListSchema: Schema[ResidencyList] = Json.schema[ResidencyList]
+  implicit lazy val residencyDataSchema: Schema[ResidencyData] = Json.schema[ResidencyData]
+  implicit lazy val residencyListSchema: Schema[ResidencyList] = Json.schema[ResidencyList]
 
   final case class ListOfNinos(ninos: List[String])
 
