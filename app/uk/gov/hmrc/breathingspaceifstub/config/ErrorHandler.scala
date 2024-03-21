@@ -34,7 +34,8 @@ class ErrorHandler @Inject()(
   auditConnector: AuditConnector,
   httpAuditEvent: HttpAuditEvent,
   configuration: Configuration
-) (implicit ec: ExecutionContext) extends JsonErrorHandler(auditConnector, httpAuditEvent, configuration)
+)(implicit ec: ExecutionContext)
+    extends JsonErrorHandler(auditConnector, httpAuditEvent, configuration)
     with Logging {
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
