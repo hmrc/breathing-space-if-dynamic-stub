@@ -17,7 +17,6 @@
 package uk.gov.hmrc.breathingspaceifstub.model
 
 import java.time.LocalDate
-
 import ai.x.play.json.{BaseNameEncoder, Jsonx}
 import cats.syntax.option.none
 import play.api.libs.json.{Json, OFormat}

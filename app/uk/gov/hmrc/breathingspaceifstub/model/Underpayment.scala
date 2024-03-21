@@ -43,6 +43,6 @@ object Validators {
       if ((u.source == "PAYE UP" || u.source == "SA UP" || u.source == "SA Debt") && parseInt(u.taxYear) > 1900) true
       else false
     } catch {
-      case e: Exception => false
+      case _: Exception => false
     }
 }

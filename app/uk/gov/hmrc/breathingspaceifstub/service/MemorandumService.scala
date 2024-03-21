@@ -21,14 +21,12 @@ import scala.concurrent.ExecutionContext
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
-import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model.{CustomErrors, Failure, Memorandum, NinoValidation}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
 class MemorandumService @Inject()(
-  appConfig: AppConfig,
   individualRepository: IndividualRepository
 )(implicit ec: ExecutionContext)
     extends NinoValidation

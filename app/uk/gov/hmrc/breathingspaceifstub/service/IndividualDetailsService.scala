@@ -22,13 +22,12 @@ import scala.concurrent.ExecutionContext
 
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
-import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_FOUND
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
-class IndividualDetailsService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
+class IndividualDetailsService @Inject()(individualRepository: IndividualRepository)(
   implicit ec: ExecutionContext
 ) extends NinoValidation {
 

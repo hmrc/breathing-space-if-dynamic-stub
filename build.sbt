@@ -16,21 +16,23 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
   .settings(
-    scoverageSettings,
     scalaSettings,
     defaultSettings(),
+    scoverageSettings,
     TwirlKeys.templateImports := Seq(),
     libraryDependencies ++= Dependencies.all,
     PlayKeys.playDefaultPort := 9503,
     scalacOptions ++= Seq(
+      "-feature",
       "-Werror",
+      "-Wdead-code",
+      "-Wextra-implicit",
       "-Wconf:cat=unused-imports&site=.*views\\.html.*:s",
       "-Wconf:cat=unused-imports&site=<empty>:s",
       "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
       "-Wconf:cat=unused&src=.*Routes\\.scala:s",
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
       "-deprecation",
-      "-feature",
       "-unchecked"
     ),
     assemblySettings

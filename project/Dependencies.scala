@@ -5,7 +5,7 @@ import sbt._
 object Dependencies {
 
   val playVersion: String          = "play-30"
-  val bootstrapVersion: String     = "8.5.0"
+  val bootstrapVersion: String     = "8.4.0"
   val hmrcMongoVersion: String     = "1.7.0"
 
   val compile: Seq[ModuleID] = Seq(
@@ -23,7 +23,7 @@ object Dependencies {
     "uk.gov.hmrc.mongo"      %% s"hmrc-mongo-test-$playVersion" % hmrcMongoVersion,
     "com.typesafe.play"      %% "play-test"                     % "2.9.1",
     "org.scalatest"          %% "scalatest"                     % "3.2.17",
-    "org.scalatestplus.play" %% "scalatestplus-play"            % "5.1.0"
+    "org.scalatestplus.play" %% "scalatestplus-play"            % "7.0.1"
   ).map(_ % "test,it")
 
   val all: Seq[ModuleID] = compile ++ testAndIt
