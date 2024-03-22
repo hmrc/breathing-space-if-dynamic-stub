@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifstub.controller
+package controller
 
-import play.api.http.Status.{BAD_GATEWAY, CONFLICT, INTERNAL_SERVER_ERROR, GATEWAY_TIMEOUT, NO_CONTENT, OK}
+import play.api.http.Status.{BAD_GATEWAY, CONFLICT, GATEWAY_TIMEOUT, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import play.api.test.Helpers.{contentAsJson, contentAsString, status}
+import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.model.Underpayments
-import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 import java.util.UUID
 
 class UnderpaymentsControllerISpec extends BaseISpec {
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     status(deleteAllUnderpayments()) shouldBe OK
-  }
 
   test("\"POST\" Underpayments should not allow duplicates") {
 

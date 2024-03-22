@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifstub.support
+package support
 
 import java.util.UUID
-
 import scala.concurrent.Future
-
-import akka.stream.Materializer
 import cats.syntax.option._
+import org.apache.pekko.stream.Materializer
 import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -29,7 +27,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
 import play.api.test.Helpers._
@@ -37,7 +35,7 @@ import uk.gov.hmrc.breathingspaceifstub.controller.routes._
 import uk.gov.hmrc.breathingspaceifstub.model._
 
 trait BaseISpec
-  extends AnyFunSuite
+    extends AnyFunSuite
     with BeforeAndAfterEach
     with BreathingSpaceTestSupport
     with DefaultAwaitTimeout
@@ -56,7 +54,8 @@ trait BaseISpec
 
   implicit val materializer: Materializer = inject[Materializer]
 
-  override def beforeEach: Unit = await(deleteAll())
+  override def beforeEach(): Unit =
+    status(deleteAll()) shouldBe OK
 
   // Production endpoints
   // ====================
@@ -88,11 +87,11 @@ trait BaseISpec
   // Support endpoints
   // =================
 
-  def count: Future[Result]                = attendedCall(Helpers.GET, IndividualController.count.url)
+  def count: Future[Result] = attendedCall(Helpers.GET, IndividualController.count.url)
   def delete(nino: String): Future[Result] = attendedCall(Helpers.DELETE, IndividualController.delete(nino).url)
-  def deleteAll(): Future[Result]          = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
+  def deleteAll(): Future[Result] = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
   def exists(nino: String): Future[Result] = attendedCall(Helpers.GET, IndividualController.exists(nino).url)
-  def listOfNinos: Future[Result]          = attendedCall(Helpers.GET, IndividualController.listOfNinos.url)
+  def listOfNinos: Future[Result] = attendedCall(Helpers.GET, IndividualController.listOfNinos.url)
 
   def postIndividual(individualInRequest: IndividualInRequest): Future[Result] =
     attendedCall(Helpers.POST, IndividualController.postIndividual.url, Json.toJson(individualInRequest))
@@ -104,7 +103,11 @@ trait BaseISpec
     attendedCall(Helpers.PUT, IndividualController.replaceIndividualDetails(nino).url, Json.toJson(individualDetails))
 
   def postUnderpayments(nino: String, periodId: String, underpayments: Underpayments): Future[Result] =
-    attendedCall(Helpers.POST, UnderpaymentsController.saveUnderpayments(nino, periodId).url, Json.toJson(underpayments))
+    attendedCall(
+      Helpers.POST,
+      UnderpaymentsController.saveUnderpayments(nino, periodId).url,
+      Json.toJson(underpayments)
+    )
 
   def countUnderpayments(nino: String, periodId: UUID): Future[Result] =
     attendedCall(Helpers.GET, UnderpaymentsController.count(nino, periodId.toString).url)

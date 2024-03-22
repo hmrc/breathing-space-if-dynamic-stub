@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifstub.controller
+package controller
 
 import java.time.LocalDate
 import java.util.UUID
-
 import cats.syntax.option._
 import org.scalatest.Assertion
 import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
+import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.controller.routes.PeriodsController
 import uk.gov.hmrc.breathingspaceifstub.Header
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_HEADER, INVALID_JSON, MISSING_HEADER}
-import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class PeriodsControllerISpec extends BaseISpec {
 
@@ -298,7 +297,6 @@ class PeriodsControllerISpec extends BaseISpec {
     status(getResponse) shouldBe OK
     val periodsFromGet = contentAsJson(getResponse).as[Periods].periods
     val periodSecondIndividual = periodsFromGet.head.periodID
-
 
     val request = FakeRequest(Helpers.DELETE, PeriodsController.delete(nino, periodSecondIndividual).url)
       .withHeaders(attendedRequestHeaders: _*)

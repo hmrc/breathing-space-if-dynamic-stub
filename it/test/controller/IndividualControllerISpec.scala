@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.breathingspaceifstub.controller
+package controller
 
 import cats.syntax.option._
 import play.api.http.Status.NOT_FOUND
 import play.api.test.Helpers._
+import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
 import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 import java.time.LocalDate
 import java.util.UUID
@@ -43,9 +43,9 @@ class IndividualControllerISpec extends BaseISpec {
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
 
-    status(postUnderpayments(individual.nino,
-      periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93" ,
-      Underpayments(List(u1)))) shouldBe OK
+    status(
+      postUnderpayments(individual.nino, periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93", Underpayments(List(u1)))
+    ) shouldBe OK
 
     status(delete(individual.nino)) shouldBe OK
     val response = count
@@ -56,9 +56,7 @@ class IndividualControllerISpec extends BaseISpec {
   test("\"delete(nino)\" should wipe out the \"Underpayments\" for the given Nino") {
     val nino = "AS000001A"
     val periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93"
-    status(postUnderpayments(nino,
-      periodId,
-      Underpayments(List(u1)))) shouldBe OK
+    status(postUnderpayments(nino, periodId, Underpayments(List(u1)))) shouldBe OK
     val response1 = countUnderpayments(nino, UUID.fromString(periodId))
     status(response1) shouldBe OK
     contentAsString(response1) shouldBe """{"count":1}"""
@@ -199,7 +197,7 @@ class IndividualControllerISpec extends BaseISpec {
     val periodIDs = getPeriodIDsFromResponse(contentAsString(periodsResponse))
     contentAsString(response) shouldBe (
       s"""{"periodsByNinos":[{"nino":"${individual.nino}","periods":["${periodIDs(0)}","${periodIDs(1)}"]}]}"""
-      )
+    )
   }
 
   private def getPeriodIDsFromResponse(resp: String): List[String] = {
