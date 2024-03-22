@@ -38,6 +38,7 @@ lazy val microservice = Project(appName, file("."))
     scoverageSettings,
     scalaSettings,
     libraryDependencies ++= Dependencies.all,
+    defaultSettings(),
     TwirlKeys.templateImports := Seq(),
     scalacOptions ++= Seq(
       "-feature",
