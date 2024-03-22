@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package support
+package uk.gov.hmrc.breathingspaceifstub.support
 
 import java.time.{LocalDate, ZonedDateTime}
 import java.util.UUID

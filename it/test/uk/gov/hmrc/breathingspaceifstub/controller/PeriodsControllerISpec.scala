@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controller
+package uk.gov.hmrc.breathingspaceifstub.controller
 
 import java.time.LocalDate
 import java.util.UUID
@@ -22,11 +22,11 @@ import cats.syntax.option._
 import org.scalatest.Assertion
 import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
-import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.controller.routes.PeriodsController
 import uk.gov.hmrc.breathingspaceifstub.Header
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_HEADER, INVALID_JSON, MISSING_HEADER}
+import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class PeriodsControllerISpec extends BaseISpec {
 

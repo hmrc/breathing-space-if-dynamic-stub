@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package controller
+package uk.gov.hmrc.breathingspaceifstub.controller
 
 import cats.syntax.option._
 import play.api.http.Status.NOT_FOUND
 import play.api.test.Helpers._
-import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
 import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 import java.time.LocalDate
 import java.util.UUID

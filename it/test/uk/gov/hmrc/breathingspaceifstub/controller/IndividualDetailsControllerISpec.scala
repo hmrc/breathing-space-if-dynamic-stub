@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package controller
+package uk.gov.hmrc.breathingspaceifstub.controller
 
 import java.time.LocalDate
 import cats.syntax.option._
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.UNKNOWN_DATA_ITEM
+import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class IndividualDetailsControllerISpec extends BaseISpec {
 

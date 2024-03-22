@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package support
+package uk.gov.hmrc.breathingspaceifstub.support
 
 import java.util.UUID
 import scala.concurrent.Future

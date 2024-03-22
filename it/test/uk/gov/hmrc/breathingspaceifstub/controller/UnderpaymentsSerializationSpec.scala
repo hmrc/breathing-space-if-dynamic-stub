@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package controller
+package uk.gov.hmrc.breathingspaceifstub.controller
 
-import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.model.{Underpayment, Underpayments}
+import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class UnderpaymentsSerializationSpec extends BaseISpec {
 

@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.breathingspaceifstub.model
 
-import java.time.LocalDate
 import ai.x.play.json.{BaseNameEncoder, Jsonx}
+
+import java.time.LocalDate
 import cats.syntax.option.none
 import play.api.libs.json.{Json, OFormat}
 
@@ -136,6 +137,7 @@ final case class Indicators(
   saFinalYear: Option[String],
   digitalP2Ind: Option[Int]
 )
+
 object Indicators {
   implicit val encoder: BaseNameEncoder = BaseNameEncoder()
   implicit val format: OFormat[Indicators] = Jsonx.formatCaseClass[Indicators]

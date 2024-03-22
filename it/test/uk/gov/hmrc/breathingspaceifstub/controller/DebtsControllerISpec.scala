@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package controller
+package uk.gov.hmrc.breathingspaceifstub.controller
 
 import java.util.UUID
 import play.api.test.Helpers._
-import support.BaseISpec
 import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 class DebtsControllerISpec extends BaseISpec {
 
