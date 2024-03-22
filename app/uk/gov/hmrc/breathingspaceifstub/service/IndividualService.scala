@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.syntax.option._
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
-import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_NINO, RESOURCE_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.repository.{Individual, IndividualRepository}
 
 @Singleton
-class IndividualService @Inject()(appConfig: AppConfig, individualRepository: IndividualRepository)(
+class IndividualService @Inject()(individualRepository: IndividualRepository)(
   implicit ec: ExecutionContext
 ) extends NinoValidation {
 
@@ -38,7 +37,7 @@ class IndividualService @Inject()(appConfig: AppConfig, individualRepository: In
       nino => individualRepository.addIndividual(Individual(individualInRequest.copy(nino = nino)))
     )
 
-  val validateNino = (nino: String) => isValid(nino) && nino.length == 8
+  val validateNino: String => Boolean = (nino: String) => isValid(nino) && nino.length == 8
 
   def addIndividuals(individualsInRequest: IndividualsInRequest): AsyncResponse[WriteResult] =
     if (individualsInRequest.individuals.forall(individual => validateNino(individual.nino))) {

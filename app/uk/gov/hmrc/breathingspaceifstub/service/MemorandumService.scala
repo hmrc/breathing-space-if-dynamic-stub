@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,12 @@ import scala.concurrent.ExecutionContext
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
-import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model.{CustomErrors, Failure, Memorandum, NinoValidation}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
 class MemorandumService @Inject()(
-  appConfig: AppConfig,
   individualRepository: IndividualRepository
 )(implicit ec: ExecutionContext)
     extends NinoValidation

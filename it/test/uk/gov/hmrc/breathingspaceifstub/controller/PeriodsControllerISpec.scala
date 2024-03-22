@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import java.time.LocalDate
 import java.util.UUID
-
 import cats.syntax.option._
 import org.scalatest.Assertion
 import play.api.test.{FakeRequest, Helpers}
@@ -298,7 +297,6 @@ class PeriodsControllerISpec extends BaseISpec {
     status(getResponse) shouldBe OK
     val periodsFromGet = contentAsJson(getResponse).as[Periods].periods
     val periodSecondIndividual = periodsFromGet.head.periodID
-
 
     val request = FakeRequest(Helpers.DELETE, PeriodsController.delete(nino, periodSecondIndividual).url)
       .withHeaders(attendedRequestHeaders: _*)

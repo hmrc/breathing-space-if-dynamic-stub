@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ package uk.gov.hmrc.breathingspaceifstub.model
 
 import java.time.LocalDate
 import java.util.UUID
-
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 // --------------------------------------------------------------------------------
 
@@ -29,14 +28,14 @@ final case class Period(
   endDate: Option[LocalDate]
 )
 
-object Period { implicit val format = Json.format[Period] }
+object Period { implicit val format: OFormat[Period] = Json.format[Period] }
 
 // --------------------------------------------------------------------------------
 
 final case class Periods(periods: List[Period])
 
 object Periods {
-  implicit val format = Json.format[Periods]
+  implicit val format: OFormat[Periods] = Json.format[Periods]
 
   def fromPost(postPeriodsInRequest: List[PostPeriodInRequest]): List[Period] =
     postPeriodsInRequest.map { postPeriodInRequest =>

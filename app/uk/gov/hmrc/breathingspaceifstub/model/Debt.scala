@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@
 package uk.gov.hmrc.breathingspaceifstub.model
 
 import java.time.LocalDate
-
 import scala.math.BigDecimal.RoundingMode
-
 import play.api.libs.json._
 
 case class Debt(
@@ -32,10 +30,10 @@ case class Debt(
 )
 
 object Debt {
-  implicit val reads = Json.reads[Debt]
+  implicit val reads: Reads[Debt] = Json.reads[Debt]
 
-  implicit val writes = new Writes[Debt] {
-    def writes(debt: Debt): JsObject = {
+  implicit val writes: Writes[Debt] = new Writes[Debt] {
+    override def writes(debt: Debt): JsObject = {
       val fields = List(
         "chargeReference" -> JsString(debt.chargeReference),
         "chargeDescription" -> JsString(debt.chargeDescription),

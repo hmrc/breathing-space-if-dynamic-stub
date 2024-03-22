@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.hmrc.breathingspaceifstub.repository
 
 import cats.syntax.option._
 import org.bson.types.ObjectId
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
 
@@ -53,6 +53,6 @@ object Individual {
   def fromIndividualsInRequest(individualsInRequest: IndividualsInRequest): Individuals =
     individualsInRequest.individuals.map(Individual(_))
 
-  implicit val objectIdFormat = MongoFormats.objectIdFormat
-  implicit val mongoFormat = Json.format[Individual]
+  implicit val objectIdFormat: Format[ObjectId] = MongoFormats.objectIdFormat
+  implicit val mongoFormat: OFormat[Individual] = Json.format[Individual]
 }
