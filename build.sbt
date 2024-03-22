@@ -31,16 +31,14 @@ ThisBuild / scalafmtOnCompile := true
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala,
-    SbtAutoBuildPlugin,
     SbtDistributablesPlugin)
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
   .settings(
-    scalaSettings,
-    defaultSettings(),
-    scoverageSettings,
-    TwirlKeys.templateImports := Seq(),
-    libraryDependencies ++= Dependencies.all,
     PlayKeys.playDefaultPort := 9503,
+    scoverageSettings,
+    scalaSettings,
+    libraryDependencies ++= Dependencies.all,
+    TwirlKeys.templateImports := Seq(),
     scalacOptions ++= Seq(
       "-feature",
       "-Werror",
@@ -65,7 +63,7 @@ lazy val it = project
   .enablePlugins(play.sbt.PlayScala)
   .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
   .settings(
-    libraryDependencies ++= Dependencies.testAndIt,
+    libraryDependencies ++= Dependencies.test,
     DefaultBuildSettings.itSettings()
   )
 
