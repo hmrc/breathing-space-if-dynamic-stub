@@ -1,12 +1,11 @@
-import play.sbt.PlayImport._
 import sbt._
 
 
 object Dependencies {
 
   val playVersion: String          = "play-30"
-  val bootstrapVersion: String     = "8.4.0"
-  val hmrcMongoVersion: String     = "1.6.0"
+  val bootstrapVersion: String     = "8.5.0"
+  val hmrcMongoVersion: String     = "1.7.0"
 
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                  %% s"bootstrap-backend-$playVersion"   % bootstrapVersion,

@@ -25,7 +25,7 @@ import java.util.UUID
 
 class UnderpaymentsControllerISpec extends BaseISpec {
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     status(deleteAllUnderpayments()) shouldBe OK
 
   test("\"POST\" Underpayments should not allow duplicates") {
