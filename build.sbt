@@ -8,12 +8,31 @@ val appName = "breathing-space-if-dynamic-stub"
 
 val silencerVersion = "1.7.1"
 
+lazy val scoverageSettings = {
+
+  val ScoverageExclusionPatterns = List(
+    "<empty>",
+    "uk\\.gov\\.hmrc\\.breathingspaceifproxy\\.views\\..*",
+    ".*(Reverse|AuthService|BuildInfo|Routes).*"
+  )
+
+  Seq(
+    ScoverageKeys.coverageExcludedPackages := ScoverageExclusionPatterns
+      .mkString("", ";", ""),
+    ScoverageKeys.coverageMinimumStmtTotal := 90,
+    ScoverageKeys.coverageFailOnMinimum := false,
+    ScoverageKeys.coverageHighlighting := true
+  )
+}
+
 ThisBuild / majorVersion := 1
 ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
+  .enablePlugins(play.sbt.PlayScala,
+    SbtAutoBuildPlugin,
+    SbtDistributablesPlugin)
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
   .settings(
     scalaSettings,
@@ -39,25 +58,6 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(resolvers += Resolver.jcenterRepo)
 
-Compile / unmanagedResourceDirectories += baseDirectory.value / "public"
-
-lazy val scoverageSettings = {
-
-  val ScoverageExclusionPatterns = List(
-    "<empty>",
-    "uk\\.gov\\.hmrc\\.breathingspaceifproxy\\.views\\..*",
-    ".*(Reverse|AuthService|BuildInfo|Routes).*"
-  )
-
-  Seq(
-    ScoverageKeys.coverageExcludedPackages := ScoverageExclusionPatterns
-      .mkString("", ";", ""),
-    ScoverageKeys.coverageMinimumStmtTotal := 90,
-    ScoverageKeys.coverageFailOnMinimum := false,
-    ScoverageKeys.coverageHighlighting := true
-  )
-}
-
 Test / Keys.fork := true
 Test / parallelExecution := true
 
@@ -68,6 +68,8 @@ lazy val it = project
     libraryDependencies ++= Dependencies.testAndIt,
     DefaultBuildSettings.itSettings()
   )
+
+Compile / unmanagedResourceDirectories += baseDirectory.value / "public"
 
 lazy val assemblySettings = Seq(
   assembly / assemblyJarName := "breathing-space-if-dynamic-stub.jar",

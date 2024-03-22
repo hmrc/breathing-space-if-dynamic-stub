@@ -78,7 +78,7 @@ class IndividualControllerISpec extends BaseISpec {
     val individual1 = genIndividualInRequest()
     val individual2 = genIndividualInRequest()
     status(postIndividuals(IndividualsInRequest(List(individual1, individual2)))) shouldBe OK
-    status(deleteAll) shouldBe OK
+    status(deleteAll()) shouldBe OK
 
     val response = count
     status(response) shouldBe OK
@@ -193,7 +193,7 @@ class IndividualControllerISpec extends BaseISpec {
     status(postIndividual(individual)) shouldBe CREATED
     val periodsResponse = getPeriods(individual.nino)
 
-    val response = getOverview()
+    val response = getOverview
 
     status(response) shouldBe OK
     val periodIDs = getPeriodIDsFromResponse(contentAsString(periodsResponse))
