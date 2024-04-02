@@ -137,6 +137,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
   test("\"get\" should return 422(UNPROCESSABLE_ENTITY) when \"fields\" provides an unknown \"detail\" value") {
     val response = getIndividualDetails(genNino, "?fields=details(dateOfBirth,cnrIndicator)".some)
     status(response) shouldBe UNPROCESSABLE_ENTITY
-    (contentAsJson(response) \ "failures" \\ "code").head.as[String] shouldBe UNKNOWN_DATA_ITEM.entryName
+    (contentAsJson(response) \ "failures" \\ "code").head
+      .as[String] shouldBe UNKNOWN_DATA_ITEM.getClass.getSimpleName.stripSuffix("$")
   }
 }

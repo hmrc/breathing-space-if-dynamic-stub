@@ -132,7 +132,11 @@ class IndividualControllerISpec extends BaseISpec {
 
     val response = postIndividual(individual)
     status(response) shouldBe CONFLICT
-    assert(contentAsString(response).startsWith(s"""{"errors":[{"code":"${CONFLICTING_REQUEST.entryName}"""))
+    assert(
+      contentAsString(response).startsWith(
+        s"""{"errors":[{"code":"${CONFLICTING_REQUEST.getClass.getSimpleName.stripSuffix("$")}"""
+      )
+    )
   }
 
   test("\"postIndividuals\" should successfully add all given new documents to the \"individual\" collection") {

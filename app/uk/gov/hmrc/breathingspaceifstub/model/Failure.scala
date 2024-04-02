@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.breathingspaceifstub.model
 
-import enumeratum._
 import play.api.http.Status
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json, Writes}
 import uk.gov.hmrc.breathingspaceifstub.httpErrorMap
 
-sealed abstract class BaseError(val httpCode: Int, val message: String) extends EnumEntry
+sealed abstract class BaseError(val httpCode: Int, val message: String)
 
-object BaseError extends Enum[BaseError] {
+object BaseError {
 
   case object BAD_GATEWAY extends BaseError(Status.BAD_GATEWAY, "Downstream systems are not responding")
 
@@ -38,7 +37,6 @@ object BaseError extends Enum[BaseError] {
   case object DUPLICATE_SUBMISSION
       extends BaseError(CONFLICT, "The Breathing Space Period(s) being created already exists")
 
-  case object HEADERS_PRECONDITION_NOT_MET extends BaseError(PRECONDITION_REQUIRED, "Invalid header combination")
   case object IDENTIFIER_NOT_FOUND extends BaseError(NOT_FOUND, "The provided identifier cannot be found")
   case object IDENTIFIER_NOT_IN_BREATHINGSPACE extends BaseError(NOT_FOUND, "The given Nino is not in Breathing Space")
   case object INVALID_BODY extends BaseError(BAD_REQUEST, "Not expected a body to this endpoint")
@@ -65,8 +63,6 @@ object BaseError extends Enum[BaseError] {
 
   case object UNKNOWN_DATA_ITEM
       extends BaseError(UNPROCESSABLE_ENTITY, "1 or more data items in the 'fields' query parameter are incorrect")
-
-  override val values = findValues
 }
 
 final case class Failure(baseError: BaseError, detailsToNotShareUpstream: Option[String] = None)
@@ -83,16 +79,16 @@ object Failure {
       val bE = failure.baseError
       val code =
         if (bE.isInstanceOf[HttpErrorCode]) httpErrorMap.getOrElse(bE.httpCode, bE.httpCode.toString)
-        else bE.entryName
+        else bE.getClass.getSimpleName.stripSuffix("$")
 
       Json.obj("code" -> code, "reason" -> bE.message)
     }
   }
 
-  val asErrorItem = new Writes[Failure] {
+  val asErrorItem: Writes[Failure] = new Writes[Failure] {
     def writes(failure: Failure): JsObject =
       Json.obj(
-        "code" -> failure.baseError.entryName,
+        "code" -> failure.baseError.getClass.getSimpleName.stripSuffix("$"),
         "message" -> failure.baseError.message
       )
   }

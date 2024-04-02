@@ -51,7 +51,7 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
 
   private def logAndGenErrorItem(failure: Failure)(implicit requestId: RequestId): HttpError = {
     val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
-    logger.error(s"$requestId has error code(${failure.baseError.entryName}).$details")
+    logger.error(s"$requestId has error code(${failure.baseError.getClass.getSimpleName}).$details")
     HttpError.asErrorItem(requestId.correlationId, failure)
   }
 
@@ -76,7 +76,7 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
     val bE = failure.baseError
     val code =
       if (bE.isInstanceOf[HttpErrorCode]) httpErrorMap.getOrElse(bE.httpCode, bE.httpCode.toString)
-      else bE.entryName
+      else bE.getClass.getSimpleName
 
     val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
 

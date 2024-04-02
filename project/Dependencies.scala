@@ -10,7 +10,6 @@ object Dependencies {
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                  %% s"bootstrap-backend-$playVersion"   % bootstrapVersion,
     "org.typelevel"                %% "cats-core"                         % "2.10.0",
-    "com.beachape"                 %% "enumeratum"                        % "1.7.3",
     "com.github.arturopala"        %% "play-json-extensions"              % "1.0.0",
     "com.fasterxml.jackson.module" %% "jackson-module-scala"              % "2.17.0",
     "com.github.andyglow"          %% "scala-jsonschema"                  % "0.7.11",

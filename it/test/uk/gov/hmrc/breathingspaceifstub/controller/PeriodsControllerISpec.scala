@@ -69,7 +69,8 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val response = route(app, request).get
     status(response) shouldBe BAD_REQUEST
-    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${MISSING_HEADER.entryName}"""))
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${MISSING_HEADER.getClass.getSimpleName
+      .stripSuffix("$")}"""))
   }
 
   test("An unattended \"get\" Periods should report if it includes a 'UserId' header") {
@@ -82,7 +83,8 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val response = route(app, request).get
     status(response) shouldBe BAD_REQUEST
-    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.entryName}"""))
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.getClass.getSimpleName
+      .stripSuffix("$")}"""))
   }
 
   test("\"get\" Periods should report if the provided Nino is unknown") {
@@ -134,7 +136,8 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val response = route(app, request).get
     status(response) shouldBe BAD_REQUEST
-    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.entryName}"""))
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.getClass.getSimpleName
+      .stripSuffix("$")}"""))
   }
 
   test("\"post\" Periods should report duplicated submission") {
@@ -165,7 +168,8 @@ class PeriodsControllerISpec extends BaseISpec {
     val postPeriodsInRequest = List.empty
     val response = postPeriods(genNino, postPeriodsInRequest)
     status(response) shouldBe BAD_REQUEST
-    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.entryName}"""))
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.getClass.getSimpleName
+      .stripSuffix("$")}"""))
   }
 
   test("\"put\" Periods should successfully update a single period for the provided Nino") {
@@ -228,7 +232,8 @@ class PeriodsControllerISpec extends BaseISpec {
 
     val response = route(app, request).get
     status(response) shouldBe BAD_REQUEST
-    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.entryName}"""))
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_HEADER.getClass.getSimpleName
+      .stripSuffix("$")}"""))
   }
 
   test("\"put\" should return 404(INVALID_JSON) when the list of periods to update is empty") {
@@ -238,7 +243,8 @@ class PeriodsControllerISpec extends BaseISpec {
     val putPeriodsInRequest = List.empty
     val response = putPeriods(genNino, putPeriodsInRequest)
     status(response) shouldBe BAD_REQUEST
-    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.entryName}"""))
+    assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.getClass.getSimpleName
+      .stripSuffix("$")}"""))
   }
 
   test("\"delete\" should successfully remove a period and its underpayments for the provided nino") {
