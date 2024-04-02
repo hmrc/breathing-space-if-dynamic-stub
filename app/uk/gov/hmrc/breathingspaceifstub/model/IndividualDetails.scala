@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.breathingspaceifstub.model
 
-import ai.x.play.json.{BaseNameEncoder, Jsonx}
-
 import java.time.LocalDate
+
 import cats.syntax.option.none
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json._
 
 // Full population ----------------------------------------------------------------
 
@@ -139,8 +138,72 @@ final case class Indicators(
 )
 
 object Indicators {
-  implicit val encoder: BaseNameEncoder = BaseNameEncoder()
-  implicit val format: OFormat[Indicators] = Jsonx.formatCaseClass[Indicators]
+
+  implicit val indicatorsFormat: OFormat[Indicators] = new OFormat[Indicators] {
+    override def reads(json: JsValue): JsResult[Indicators] = JsSuccess(
+      Indicators(
+        (json \ "manualCodingInd").asOpt[Int],
+        (json \ "manualCodingReason").asOpt[Int],
+        (json \ "manualCodingOther").asOpt[String],
+        (json \ "manualCorrInd").asOpt[Int],
+        (json \ "manualCorrReason").asOpt[String],
+        (json \ "additionalNotes").asOpt[String],
+        (json \ "deceasedInd").asOpt[Int],
+        (json \ "s128Ind").asOpt[Int],
+        (json \ "noAllowInd").asOpt[Int],
+        (json \ "eeaCmnwthInd").asOpt[Int],
+        (json \ "noRepaymentInd").asOpt[Int],
+        (json \ "saLinkInd").asOpt[Int],
+        (json \ "noATSInd").asOpt[Int],
+        (json \ "taxEqualBenInd").asOpt[Int],
+        (json \ "p2ToAgentInd").asOpt[Int],
+        (json \ "digitallyExcludedInd").asOpt[Int],
+        (json \ "bankruptcyInd").asOpt[Int],
+        (json \ "bankruptcyFiledDate").asOpt[LocalDate],
+        (json \ "utr").asOpt[String],
+        (json \ "audioOutputInd").asOpt[Int],
+        (json \ "welshOutputInd").asOpt[Int],
+        (json \ "largePrintOutputInd").asOpt[Int],
+        (json \ "brailleOutputInd").asOpt[Int],
+        (json \ "specialistBusinessArea").asOpt[Int],
+        (json \ "saStartYear").asOpt[String],
+        (json \ "saFinalYear").asOpt[String],
+        (json \ "digitalP2Ind").asOpt[Int]
+      )
+    )
+
+    override def writes(o: Indicators): JsObject = Json.obj(
+      "manualCodingInd" -> o.manualCodingInd,
+      "manualCodingReason" -> o.manualCodingReason,
+      "manualCodingInd" -> o.manualCodingInd,
+      "manualCodingReason" -> o.manualCodingReason,
+      "manualCodingOther" -> o.manualCodingOther,
+      "manualCorrInd" -> o.manualCorrInd,
+      "manualCorrReason" -> o.manualCorrReason,
+      "additionalNotes" -> o.additionalNotes,
+      "deceasedInd" -> o.deceasedInd,
+      "s128Ind" -> o.s128Ind,
+      "noAllowInd" -> o.noAllowInd,
+      "eeaCmnwthInd" -> o.eeaCmnwthInd,
+      "noRepaymentInd" -> o.noRepaymentInd,
+      "saLinkInd" -> o.saLinkInd,
+      "noATSInd" -> o.noATSInd,
+      "taxEqualBenInd" -> o.taxEqualBenInd,
+      "p2ToAgentInd" -> o.p2ToAgentInd,
+      "digitallyExcludedInd" -> o.digitallyExcludedInd,
+      "bankruptcyInd" -> o.bankruptcyInd,
+      "bankruptcyFiledDate" -> o.bankruptcyFiledDate,
+      "utr" -> o.utr,
+      "audioOutputInd" -> o.audioOutputInd,
+      "welshOutputInd" -> o.welshOutputInd,
+      "largePrintOutputInd" -> o.largePrintOutputInd,
+      "brailleOutputInd" -> o.brailleOutputInd,
+      "specialistBusinessArea" -> o.specialistBusinessArea,
+      "saStartYear" -> o.saStartYear,
+      "saFinalYear" -> o.saFinalYear,
+      "digitalP2Ind" -> o.digitalP2Ind
+    )
+  }
 
   val empty: Indicators = Indicators(
     manualCodingInd = none,
