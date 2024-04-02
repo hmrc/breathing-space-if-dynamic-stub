@@ -1,4 +1,3 @@
-import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
@@ -52,8 +51,7 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
       "-deprecation",
       "-unchecked"
-    ),
-    assemblySettings
+    )
   )
   .settings(resolvers += Resolver.jcenterRepo)
 
@@ -69,11 +67,3 @@ lazy val it = project
   )
 
 Compile / unmanagedResourceDirectories += baseDirectory.value / "public"
-
-lazy val assemblySettings = Seq(
-  assembly / assemblyJarName := "breathing-space-if-dynamic-stub.jar",
-  assembly / assemblyMergeStrategy := {
-    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-    case x => MergeStrategy.first
-  }
-)
