@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package uk.gov.hmrc.breathingspaceifstub.model
 
 import scala.concurrent.Future
 import scala.util.Random
-
 import uk.gov.hmrc.breathingspaceifstub.{httpErrorSet, AsyncResponse}
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_NINO, RESOURCE_NOT_FOUND}
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
 
 trait NinoValidation {
 
@@ -62,10 +61,33 @@ trait NinoValidation {
 
   private def httpErrorCode[T](nino: String): AsyncResponse[T] = {
     val httpCode = nino.substring(5, 8).toInt
+    val allErrors = List(
+      BAD_GATEWAY,
+      BREATHINGSPACE_EXPIRED,
+      BREATHINGSPACE_ID_NOT_FOUND,
+      CONFLICTING_REQUEST,
+      DUPLICATE_SUBMISSION,
+      IDENTIFIER_NOT_FOUND,
+      IDENTIFIER_NOT_IN_BREATHINGSPACE,
+      INVALID_BODY,
+      INVALID_ENDPOINT,
+      INVALID_HEADER,
+      INVALID_JSON,
+      INVALID_NINO,
+      MISSING_BODY,
+      MISSING_HEADER,
+      NO_DATA_FOUND,
+      INVALID_UNDERPAYMENT,
+      GATEWAY_TIMEOUT,
+      RESOURCE_NOT_FOUND,
+      SERVER_ERROR,
+      SERVICE_UNAVAILABLE,
+      UNKNOWN_DATA_ITEM
+    )
     val failure = httpCode match {
       case 404 => Failure(RESOURCE_NOT_FOUND)
       case _ =>
-        BaseError.values
+        allErrors
           .find(_.httpCode == httpCode)
           .fold(Failure(httpCode))(Failure(_))
     }

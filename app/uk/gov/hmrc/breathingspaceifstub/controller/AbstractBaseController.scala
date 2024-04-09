@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,9 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Memorandum_GET, BS_
 import uk.gov.hmrc.breathingspaceifstub.model.HttpErrorCode
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
+abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
+    with Logging {
 
   def composeResponse[T](status: Int, body: T)(implicit requestId: RequestId, writes: Writes[T]): Result =
     logAndAddHeaders(Status(status)(Json.toJson(body)))
@@ -49,7 +51,7 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
 
   private def logAndGenErrorItem(failure: Failure)(implicit requestId: RequestId): HttpError = {
     val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
-    logger.error(s"$requestId has error code(${failure.baseError.entryName}).$details")
+    logger.error(s"$requestId has error code(${failure.baseError.getClass.getSimpleName}).$details")
     HttpError.asErrorItem(requestId.correlationId, failure)
   }
 
@@ -74,7 +76,7 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
     val bE = failure.baseError
     val code =
       if (bE.isInstanceOf[HttpErrorCode]) httpErrorMap.getOrElse(bE.httpCode, bE.httpCode.toString)
-      else bE.entryName
+      else bE.getClass.getSimpleName
 
     val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
 

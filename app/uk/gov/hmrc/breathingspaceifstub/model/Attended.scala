@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.breathingspaceifstub.model
 
-import enumeratum._
+sealed trait Attended
 
-sealed trait Attended extends EnumEntry
-
-object Attended extends Enum[Attended] {
-
+object Attended {
   case object DA2_BS_ATTENDED extends Attended
   case object DA2_BS_UNATTENDED extends Attended
   case object DA2_PTA extends Attended
 
-  override val values = findValues
+  def withNameOption(name: String): Option[Attended] = name match {
+    case "DA2_BS_ATTENDED" => Some(DA2_BS_ATTENDED)
+    case "DA2_BS_UNATTENDED" => Some(DA2_BS_UNATTENDED)
+    case "DA2_PTA" => Some(DA2_PTA)
+    case _ => None
+  }
 }

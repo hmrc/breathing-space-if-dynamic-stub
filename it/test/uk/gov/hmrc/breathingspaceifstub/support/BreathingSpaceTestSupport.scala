@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,18 +60,26 @@ trait BreathingSpaceTestSupport extends NinoValidation {
   val individualDetails =
     IndividualDetails(
       details = Details.empty.copy(dateOfBirth = LocalDate.now.some),
-      nameList = NameList(List(NameData.empty.copy(
-        firstForename = "Joe".some,
-        surname = "Zawinul".some,
-        nameType = 1.some
-      ))).some,
-      addressList = AddressList(List(AddressData.empty.copy(
-        addressLine1 = "Somewhere St.".some,
-        addressLine2 = "Flat 1 Lodge".some,
-        addressLine3 = "London".some,
-        addressPostcode = "CC12 4UE".some,
-        addressType = 1.some
-      ))).some,
+      nameList = NameList(
+        List(
+          NameData.empty.copy(
+            firstForename = "Joe".some,
+            surname = "Zawinul".some,
+            nameType = 1.some
+          )
+        )
+      ).some,
+      addressList = AddressList(
+        List(
+          AddressData.empty.copy(
+            addressLine1 = "Somewhere St.".some,
+            addressLine2 = "Flat 1 Lodge".some,
+            addressLine3 = "London".some,
+            addressPostcode = "CC12 4UE".some,
+            addressType = 1.some
+          )
+        )
+      ).some,
       indicators = none,
       residencyList = none
     )

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import java.time.LocalDate
-
 import cats.syntax.option._
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -39,11 +38,16 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val addressType = 1
     val welshOutputInd = 1
 
-    val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some,nameType = nameType.some)))
-    val addressList = AddressList(List(
-      AddressData.empty.copy(addressLine1 = addressLine1.some, addressPostcode = addressPostcode.some),
-      AddressData.empty.copy(addressLine2 = addressLine2.some, countryCode = countryCode.some, addressType = addressType.some)
-    ))
+    val nameList = NameList(
+      List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some, nameType = nameType.some))
+    )
+    val addressList = AddressList(
+      List(
+        AddressData.empty.copy(addressLine1 = addressLine1.some, addressPostcode = addressPostcode.some),
+        AddressData.empty
+          .copy(addressLine2 = addressLine2.some, countryCode = countryCode.some, addressType = addressType.some)
+      )
+    )
 
     val indicators = Indicators.empty.copy(welshOutputInd = welshOutputInd.some)
 
@@ -73,8 +77,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
          |  "indicators":{
          |    "welshOutputInd": 1
          |  }
-         |}"""
-        .stripMargin
+         |}""".stripMargin
         .filter(ch => ch >= 32 && ch < 127)
     )
 
@@ -88,7 +91,8 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val nameList = NameList(List(NameData.empty.copy(firstForename = firstForename.some, surname = surname.some)))
 
     val individualDetails = IndividualDetails.empty.copy(
-      details = Details.empty.copy(dateOfBirth = dateOfBirth.some), nameList = nameList.some
+      details = Details.empty.copy(dateOfBirth = dateOfBirth.some),
+      nameList = nameList.some
     )
 
     val individual = genIndividualInRequest(individualDetails.some)
@@ -98,10 +102,10 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     status(response) shouldBe OK
 
     val expectedBody =
-      Json.parse(s"""{"details":{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"},
-          |"nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]}}"""
-        .stripMargin
-        .filterNot(_ == '\n')
+      Json.parse(
+        s"""{"details":{"nino":"${individual.nino}","dateOfBirth":"$dateOfBirth"},
+          |"nameList":{"name":[{"firstForename":"$firstForename","surname":"$surname"}]}}""".stripMargin
+          .filterNot(_ == '\n')
       )
 
     assert(contentAsJson(response) == expectedBody)
@@ -114,7 +118,8 @@ class IndividualDetailsControllerISpec extends BaseISpec {
     val individual = IndividualInRequest(
       ninoWithoutSuffix,
       IndividualDetails.empty.copy(details = Details.empty.copy(dateOfBirth = dateOfBirth.some)).some,
-      none, none
+      none,
+      none
     )
     status(postIndividual(individual)) shouldBe CREATED
 
@@ -132,6 +137,7 @@ class IndividualDetailsControllerISpec extends BaseISpec {
   test("\"get\" should return 422(UNPROCESSABLE_ENTITY) when \"fields\" provides an unknown \"detail\" value") {
     val response = getIndividualDetails(genNino, "?fields=details(dateOfBirth,cnrIndicator)".some)
     status(response) shouldBe UNPROCESSABLE_ENTITY
-    (contentAsJson(response) \ "failures" \\ "code").head.as[String] shouldBe UNKNOWN_DATA_ITEM.entryName
+    (contentAsJson(response) \ "failures" \\ "code").head
+      .as[String] shouldBe UNKNOWN_DATA_ITEM.getClass.getSimpleName.stripSuffix("$")
   }
 }

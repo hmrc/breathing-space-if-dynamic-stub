@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
 
   def saveUnderpayments(nino: String, periodId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>
-      implicit val requestId = RequestId(BS_Underpayments_POST)
+      implicit val requestId: RequestId = RequestId(BS_Underpayments_POST)
 
       val maybeUnderpayments: Either[String, Underpayments] = request.body.validate[Underpayments] match {
         case JsSuccess(value, _) => Right(value)
@@ -72,9 +72,11 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
 
   def clearUnderpayments: Action[Unit] = Action.async(withoutBody) { implicit request =>
     implicit val requestId: RequestId = RequestId(BS_Underpayments_DELETE)
-    underpaymentsService.removeUnderpayments.map(
-      _.fold(logAndGenErrorResult, count => Ok(Json.obj("deleted" -> count)))
-    )
+    underpaymentsService
+      .removeUnderpayments()
+      .map(
+        _.fold(logAndGenErrorResult, count => Ok(Json.obj("deleted" -> count)))
+      )
   }
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
@@ -91,7 +93,7 @@ class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsServi
   }
 
   def count(nino: String, periodId: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    implicit val requestId = RequestId(BS_Underpayments_GET)
+    implicit val requestId: RequestId = RequestId(BS_Underpayments_GET)
     underpaymentsService
       .count(nino, UUID.fromString(periodId))
       .map(_.fold(logAndGenErrorResult, count => Ok(Json.obj("count" -> count))))

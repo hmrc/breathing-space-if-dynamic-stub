@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,9 +43,9 @@ class IndividualControllerISpec extends BaseISpec {
     status(postIndividual(individual)) shouldBe CREATED
     contentAsString(exists(individual.nino)) shouldBe """{"exists":true}"""
 
-    status(postUnderpayments(individual.nino,
-      periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93" ,
-      Underpayments(List(u1)))) shouldBe OK
+    status(
+      postUnderpayments(individual.nino, periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93", Underpayments(List(u1)))
+    ) shouldBe OK
 
     status(delete(individual.nino)) shouldBe OK
     val response = count
@@ -56,9 +56,7 @@ class IndividualControllerISpec extends BaseISpec {
   test("\"delete(nino)\" should wipe out the \"Underpayments\" for the given Nino") {
     val nino = "AS000001A"
     val periodId = "1519948e-8a54-11ec-8ed1-5bb13a0b0e93"
-    status(postUnderpayments(nino,
-      periodId,
-      Underpayments(List(u1)))) shouldBe OK
+    status(postUnderpayments(nino, periodId, Underpayments(List(u1)))) shouldBe OK
     val response1 = countUnderpayments(nino, UUID.fromString(periodId))
     status(response1) shouldBe OK
     contentAsString(response1) shouldBe """{"count":1}"""
@@ -78,7 +76,7 @@ class IndividualControllerISpec extends BaseISpec {
     val individual1 = genIndividualInRequest()
     val individual2 = genIndividualInRequest()
     status(postIndividuals(IndividualsInRequest(List(individual1, individual2)))) shouldBe OK
-    status(deleteAll) shouldBe OK
+    status(deleteAll()) shouldBe OK
 
     val response = count
     status(response) shouldBe OK
@@ -134,7 +132,11 @@ class IndividualControllerISpec extends BaseISpec {
 
     val response = postIndividual(individual)
     status(response) shouldBe CONFLICT
-    assert(contentAsString(response).startsWith(s"""{"errors":[{"code":"${CONFLICTING_REQUEST.entryName}"""))
+    assert(
+      contentAsString(response).startsWith(
+        s"""{"errors":[{"code":"${CONFLICTING_REQUEST.getClass.getSimpleName.stripSuffix("$")}"""
+      )
+    )
   }
 
   test("\"postIndividuals\" should successfully add all given new documents to the \"individual\" collection") {
@@ -193,13 +195,13 @@ class IndividualControllerISpec extends BaseISpec {
     status(postIndividual(individual)) shouldBe CREATED
     val periodsResponse = getPeriods(individual.nino)
 
-    val response = getOverview()
+    val response = getOverview
 
     status(response) shouldBe OK
     val periodIDs = getPeriodIDsFromResponse(contentAsString(periodsResponse))
     contentAsString(response) shouldBe (
       s"""{"periodsByNinos":[{"nino":"${individual.nino}","periods":["${periodIDs(0)}","${periodIDs(1)}"]}]}"""
-      )
+    )
   }
 
   private def getPeriodIDsFromResponse(resp: String): List[String] = {

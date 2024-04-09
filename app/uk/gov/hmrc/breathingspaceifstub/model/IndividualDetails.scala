@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package uk.gov.hmrc.breathingspaceifstub.model
 
 import java.time.LocalDate
 
-import ai.x.play.json.{BaseNameEncoder, Jsonx}
 import cats.syntax.option.none
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 // Full population ----------------------------------------------------------------
 
@@ -38,9 +37,9 @@ final case class NameData(
   surname: Option[String]
 )
 object NameData {
-  implicit val format = Json.format[NameData]
+  implicit val format: OFormat[NameData] = Json.format[NameData]
 
-  val empty = NameData(
+  val empty: NameData = NameData(
     nameSequenceNumber = none,
     nameType = none,
     titleType = none,
@@ -56,7 +55,7 @@ object NameData {
 }
 
 final case class NameList(name: List[NameData])
-object NameList { implicit val format = Json.format[NameList] }
+object NameList { implicit val format: OFormat[NameList] = Json.format[NameList] }
 
 // --------------------------------------------------------------------------------
 
@@ -80,9 +79,9 @@ final case class AddressData(
   addressPostcode: Option[String]
 )
 object AddressData {
-  implicit val format = Json.format[AddressData]
+  implicit val format: OFormat[AddressData] = Json.format[AddressData]
 
-  val empty = AddressData(
+  val empty: AddressData = AddressData(
     addressSequenceNumber = none,
     addressSource = none,
     countryCode = none,
@@ -104,7 +103,7 @@ object AddressData {
 }
 
 final case class AddressList(address: List[AddressData])
-object AddressList { implicit val format = Json.format[AddressList] }
+object AddressList { implicit val format: OFormat[AddressList] = Json.format[AddressList] }
 
 // --------------------------------------------------------------------------------
 
@@ -137,11 +136,76 @@ final case class Indicators(
   saFinalYear: Option[String],
   digitalP2Ind: Option[Int]
 )
-object Indicators {
-  implicit val encoder = BaseNameEncoder()
-  implicit val format = Jsonx.formatCaseClass[Indicators]
 
-  val empty = Indicators(
+object Indicators {
+
+  implicit val indicatorsFormat: OFormat[Indicators] = new OFormat[Indicators] {
+    override def reads(json: JsValue): JsResult[Indicators] = JsSuccess(
+      Indicators(
+        (json \ "manualCodingInd").asOpt[Int],
+        (json \ "manualCodingReason").asOpt[Int],
+        (json \ "manualCodingOther").asOpt[String],
+        (json \ "manualCorrInd").asOpt[Int],
+        (json \ "manualCorrReason").asOpt[String],
+        (json \ "additionalNotes").asOpt[String],
+        (json \ "deceasedInd").asOpt[Int],
+        (json \ "s128Ind").asOpt[Int],
+        (json \ "noAllowInd").asOpt[Int],
+        (json \ "eeaCmnwthInd").asOpt[Int],
+        (json \ "noRepaymentInd").asOpt[Int],
+        (json \ "saLinkInd").asOpt[Int],
+        (json \ "noATSInd").asOpt[Int],
+        (json \ "taxEqualBenInd").asOpt[Int],
+        (json \ "p2ToAgentInd").asOpt[Int],
+        (json \ "digitallyExcludedInd").asOpt[Int],
+        (json \ "bankruptcyInd").asOpt[Int],
+        (json \ "bankruptcyFiledDate").asOpt[LocalDate],
+        (json \ "utr").asOpt[String],
+        (json \ "audioOutputInd").asOpt[Int],
+        (json \ "welshOutputInd").asOpt[Int],
+        (json \ "largePrintOutputInd").asOpt[Int],
+        (json \ "brailleOutputInd").asOpt[Int],
+        (json \ "specialistBusinessArea").asOpt[Int],
+        (json \ "saStartYear").asOpt[String],
+        (json \ "saFinalYear").asOpt[String],
+        (json \ "digitalP2Ind").asOpt[Int]
+      )
+    )
+
+    override def writes(o: Indicators): JsObject = Json.obj(
+      "manualCodingInd" -> o.manualCodingInd,
+      "manualCodingReason" -> o.manualCodingReason,
+      "manualCodingInd" -> o.manualCodingInd,
+      "manualCodingReason" -> o.manualCodingReason,
+      "manualCodingOther" -> o.manualCodingOther,
+      "manualCorrInd" -> o.manualCorrInd,
+      "manualCorrReason" -> o.manualCorrReason,
+      "additionalNotes" -> o.additionalNotes,
+      "deceasedInd" -> o.deceasedInd,
+      "s128Ind" -> o.s128Ind,
+      "noAllowInd" -> o.noAllowInd,
+      "eeaCmnwthInd" -> o.eeaCmnwthInd,
+      "noRepaymentInd" -> o.noRepaymentInd,
+      "saLinkInd" -> o.saLinkInd,
+      "noATSInd" -> o.noATSInd,
+      "taxEqualBenInd" -> o.taxEqualBenInd,
+      "p2ToAgentInd" -> o.p2ToAgentInd,
+      "digitallyExcludedInd" -> o.digitallyExcludedInd,
+      "bankruptcyInd" -> o.bankruptcyInd,
+      "bankruptcyFiledDate" -> o.bankruptcyFiledDate,
+      "utr" -> o.utr,
+      "audioOutputInd" -> o.audioOutputInd,
+      "welshOutputInd" -> o.welshOutputInd,
+      "largePrintOutputInd" -> o.largePrintOutputInd,
+      "brailleOutputInd" -> o.brailleOutputInd,
+      "specialistBusinessArea" -> o.specialistBusinessArea,
+      "saStartYear" -> o.saStartYear,
+      "saFinalYear" -> o.saFinalYear,
+      "digitalP2Ind" -> o.digitalP2Ind
+    )
+  }
+
+  val empty: Indicators = Indicators(
     manualCodingInd = none,
     manualCodingReason = none,
     manualCodingOther = none,
@@ -180,10 +244,10 @@ final case class ResidencyData(
   dateReturningUK: Option[LocalDate],
   residencyStatusFlag: Option[Int]
 )
-object ResidencyData { implicit val format = Json.format[ResidencyData] }
+object ResidencyData { implicit val format: OFormat[ResidencyData] = Json.format[ResidencyData] }
 
 final case class ResidencyList(residency: List[ResidencyData])
-object ResidencyList { implicit val format = Json.format[ResidencyList] }
+object ResidencyList { implicit val format: OFormat[ResidencyList] = Json.format[ResidencyList] }
 
 // --------------------------------------------------------------------------------
 
@@ -212,9 +276,9 @@ final case class Details(
   crnIndicator: Option[Int]
 )
 object Details {
-  implicit val format = Json.format[Details]
+  implicit val format: OFormat[Details] = Json.format[Details]
 
-  val empty = Details(
+  val empty: Details = Details(
     nino = none,
     ninoSuffix = none,
     accountStatusType = none,
@@ -250,9 +314,9 @@ final case class IndividualDetails(
   residencyList: Option[ResidencyList]
 )
 object IndividualDetails {
-  implicit val format = Json.format[IndividualDetails]
+  implicit val format: OFormat[IndividualDetails] = Json.format[IndividualDetails]
 
-  val empty = IndividualDetails(
+  val empty: IndividualDetails = IndividualDetails(
     details = Details.empty,
     nameList = none,
     addressList = none,

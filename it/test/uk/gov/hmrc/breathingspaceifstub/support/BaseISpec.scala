@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,9 @@
 package uk.gov.hmrc.breathingspaceifstub.support
 
 import java.util.UUID
-
 import scala.concurrent.Future
-
-import akka.stream.Materializer
 import cats.syntax.option._
+import org.apache.pekko.stream.Materializer
 import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -29,7 +27,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
 import play.api.test.Helpers._
@@ -37,7 +35,7 @@ import uk.gov.hmrc.breathingspaceifstub.controller.routes._
 import uk.gov.hmrc.breathingspaceifstub.model._
 
 trait BaseISpec
-  extends AnyFunSuite
+    extends AnyFunSuite
     with BeforeAndAfterEach
     with BreathingSpaceTestSupport
     with DefaultAwaitTimeout
@@ -54,9 +52,10 @@ trait BaseISpec
 
   override lazy val app: Application = GuiceApplicationBuilder().configure(configProperties).build()
 
-  implicit val materializer = inject[Materializer]
+  implicit val materializer: Materializer = inject[Materializer]
 
-  override def beforeEach: Unit = await(deleteAll)
+  override def beforeEach(): Unit =
+    status(deleteAll()) shouldBe OK
 
   // Production endpoints
   // ====================
@@ -90,7 +89,7 @@ trait BaseISpec
 
   def count: Future[Result] = attendedCall(Helpers.GET, IndividualController.count.url)
   def delete(nino: String): Future[Result] = attendedCall(Helpers.DELETE, IndividualController.delete(nino).url)
-  def deleteAll: Future[Result] = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
+  def deleteAll(): Future[Result] = attendedCall(Helpers.DELETE, IndividualController.deleteAll.url)
   def exists(nino: String): Future[Result] = attendedCall(Helpers.GET, IndividualController.exists(nino).url)
   def listOfNinos: Future[Result] = attendedCall(Helpers.GET, IndividualController.listOfNinos.url)
 
@@ -104,7 +103,11 @@ trait BaseISpec
     attendedCall(Helpers.PUT, IndividualController.replaceIndividualDetails(nino).url, Json.toJson(individualDetails))
 
   def postUnderpayments(nino: String, periodId: String, underpayments: Underpayments): Future[Result] =
-    attendedCall(Helpers.POST, UnderpaymentsController.saveUnderpayments(nino, periodId).url, Json.toJson(underpayments))
+    attendedCall(
+      Helpers.POST,
+      UnderpaymentsController.saveUnderpayments(nino, periodId).url,
+      Json.toJson(underpayments)
+    )
 
   def countUnderpayments(nino: String, periodId: UUID): Future[Result] =
     attendedCall(Helpers.GET, UnderpaymentsController.count(nino, periodId.toString).url)
@@ -115,7 +118,7 @@ trait BaseISpec
   def getUnderpayments(nino: String, periodId: UUID): Future[Result] =
     attendedCall(Helpers.GET, UnderpaymentsController.get(nino, periodId).url)
 
-  def getOverview(): Future[Result] = attendedCall(Helpers.GET, IndividualController.getOverview.url)
+  def getOverview: Future[Result] = attendedCall(Helpers.GET, IndividualController.getOverview.url)
 
   // ==========================================================================================================
 

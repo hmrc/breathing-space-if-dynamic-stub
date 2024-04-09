@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import scala.util.Success
 
 import play.api.{Logger, Logging}
 import uk.gov.hmrc.breathingspaceifstub.{AsyncResponse, Response}
-import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model._
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, INVALID_UNDERPAYMENT, RESOURCE_NOT_FOUND}
 import uk.gov.hmrc.breathingspaceifstub.model.Validators.validateUnderpayment
@@ -33,8 +32,7 @@ import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToLis
 
 @Singleton
 class UnderpaymentsService @Inject()(
-  underpaymentsRepository: UnderpaymentsRepository,
-  appConfig: AppConfig
+  underpaymentsRepository: UnderpaymentsRepository
 )(implicit ec: ExecutionContext)
     extends NinoValidation
     with CustomErrors
@@ -63,7 +61,7 @@ class UnderpaymentsService @Inject()(
     }
   }
 
-  def removeUnderpayments: AsyncResponse[Int] = underpaymentsRepository.removeUnderpayments()
+  def removeUnderpayments(): AsyncResponse[Int] = underpaymentsRepository.removeUnderpayments()
 
   def removeUnderpaymentFor(nino: String): AsyncResponse[Int] =
     underpaymentsRepository.removeByNino(nino).collect {
