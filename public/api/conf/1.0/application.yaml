@@ -227,8 +227,7 @@ paths:
                     code: CONFLICTING_REQUEST
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/bulk:
     post:
       tags:
@@ -383,8 +382,7 @@ paths:
                     code: MISSING_BODY
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/count:
     get:
       tags:
@@ -407,6 +405,8 @@ paths:
               example:
                 count: 4
       deprecated: false
+      security:
+        - applicationRestricted: [ ]
   /test/individuals/breathing-space/ninos:
     get:
       tags:
@@ -438,8 +438,7 @@ paths:
                 - AS000008
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/utr/{nino}:
     get:
       tags:
@@ -482,8 +481,7 @@ paths:
           content: {}
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/wipe-all:
     delete:
       tags:
@@ -507,8 +505,7 @@ paths:
                 deleted: 6
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/{nino}:
     delete:
       tags:
@@ -548,6 +545,8 @@ paths:
                 individualsDeleted: 0
                 underpaymentsDeleted: 2
       deprecated: false
+      security:
+        - applicationRestricted: []
     get:
       tags:
       - test
@@ -600,8 +599,7 @@ paths:
                     code: INVALID_NINO
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
     put:
       tags:
       - test
@@ -707,8 +705,7 @@ paths:
                     code: RESOURCE_NOT_FOUND
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/{nino}/{periodId}:
     delete:
       tags:
@@ -764,8 +761,7 @@ paths:
                 underpaymentsDeleted: 2
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/{nino}/{periodId}/codingout/bulk:
     post:
       tags:
@@ -879,8 +875,7 @@ paths:
                     code: CONFLICTING_REQUEST
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/codingout:
     delete:
       tags:
@@ -904,8 +899,7 @@ paths:
                 deleted: 1
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
   /test/individuals/breathing-space/overview:
     get:
       tags:
@@ -939,8 +933,7 @@ paths:
                   periods: []
       deprecated: false
       security:
-        - User-Restricted:
-            - breathing-space-test-support
+        - applicationRestricted: []
 components:
   securitySchemes:
     User-Restricted:
@@ -951,7 +944,7 @@ components:
           authorizationUrl: https://api.service.hmrc.gov.uk/oauth/authorize
           tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
           refreshUrl: https://api.service.hmrc.gov.uk/oauth/refresh
-          scopes: breathing-space-test-support
+          scopes: {}
   schemas:
     errorResponse:
       title: errorResponse

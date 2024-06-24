@@ -3,13 +3,7 @@
 @(v1WhitelistedApplicationIds:  Seq[String])
 
 {
-  "scopes":[
-    {
-      "key": "breathing-space-test-support",
-      "name": "Breathing Space Test Support",
-      "description": "Breathing Space Test Support API"
-    }
-  ],
+  "scopes":[],
   "api": {
     "name": "Breathing Space Test Support",
     "description": "Enables setting up test data and simulation of downstream layers for the Breathing Space Program.",
