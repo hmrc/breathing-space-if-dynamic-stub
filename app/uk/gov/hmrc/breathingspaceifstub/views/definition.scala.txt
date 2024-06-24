@@ -5,7 +5,7 @@
 {
   "scopes":[
     {
-      "key": "read:breathing-space-test-support",
+      "key": "breathing-space-test-support",
       "name": "Breathing Space Test Support",
       "description": "Breathing Space Test Support API"
     }

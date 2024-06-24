@@ -228,7 +228,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/bulk:
     post:
       tags:
@@ -384,7 +384,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/count:
     get:
       tags:
@@ -439,7 +439,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/utr/{nino}:
     get:
       tags:
@@ -483,7 +483,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/wipe-all:
     delete:
       tags:
@@ -508,7 +508,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/{nino}:
     delete:
       tags:
@@ -601,7 +601,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
     put:
       tags:
       - test
@@ -708,7 +708,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/{nino}/{periodId}:
     delete:
       tags:
@@ -765,7 +765,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/{nino}/{periodId}/codingout/bulk:
     post:
       tags:
@@ -880,7 +880,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/codingout:
     delete:
       tags:
@@ -905,7 +905,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
   /test/individuals/breathing-space/overview:
     get:
       tags:
@@ -940,7 +940,7 @@ paths:
       deprecated: false
       security:
         - User-Restricted:
-            - read:breathing-space-test-support
+            - breathing-space-test-support
 components:
   securitySchemes:
     User-Restricted:
@@ -952,7 +952,7 @@ components:
           tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
           refreshUrl: https://api.service.hmrc.gov.uk/oauth/refresh
           scopes:
-            read:breathing-space-test-support: Access breathing space
+            breathing-space-test-support: Access breathing space
   schemas:
     errorResponse:
       title: errorResponse
