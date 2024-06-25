@@ -227,7 +227,7 @@ paths:
                     code: CONFLICTING_REQUEST
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/bulk:
     post:
@@ -383,7 +383,7 @@ paths:
                     code: MISSING_BODY
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/count:
     get:
@@ -438,7 +438,7 @@ paths:
                 - AS000008
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/utr/{nino}:
     get:
@@ -482,7 +482,7 @@ paths:
           content: {}
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/wipe-all:
     delete:
@@ -507,7 +507,7 @@ paths:
                 deleted: 6
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/{nino}:
     delete:
@@ -600,7 +600,7 @@ paths:
                     code: INVALID_NINO
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
     put:
       tags:
@@ -707,7 +707,7 @@ paths:
                     code: RESOURCE_NOT_FOUND
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/{nino}/{periodId}:
     delete:
@@ -764,7 +764,7 @@ paths:
                 underpaymentsDeleted: 2
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/{nino}/{periodId}/codingout/bulk:
     post:
@@ -879,7 +879,7 @@ paths:
                     code: CONFLICTING_REQUEST
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/codingout:
     delete:
@@ -904,7 +904,7 @@ paths:
                 deleted: 1
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
   /test/individuals/breathing-space/overview:
     get:
@@ -939,13 +939,13 @@ paths:
                   periods: []
       deprecated: false
       security:
-        - User-Restricted:
+        - userRestricted:
             - breathing-space-test-support
 components:
   securitySchemes:
-    User-Restricted:
+    userRestricted:
       type: oauth2
-      description: HMRC supports OAuth 2.0 for authenticating User-restricted API requests
+      description: HMRC supports OAuth 2.0 for authenticating userRestricted API requests
       flows:
         authorizationCode:
           authorizationUrl: https://api.service.hmrc.gov.uk/oauth/authorize
