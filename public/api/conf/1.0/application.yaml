@@ -407,6 +407,9 @@ paths:
               example:
                 count: 4
       deprecated: false
+      security:
+        - userRestricted:
+            - breathing-space-test-support
   /test/individuals/breathing-space/ninos:
     get:
       tags:
@@ -548,6 +551,9 @@ paths:
                 individualsDeleted: 0
                 underpaymentsDeleted: 2
       deprecated: false
+      security:
+        - userRestricted:
+            - breathing-space-test-support
     get:
       tags:
       - test
