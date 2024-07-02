@@ -1,0 +1,23 @@
+{
+  "scopes":[
+    {
+      "key": "breathing-space-test-support",
+      "name": "Breathing Space Test Support",
+      "description": "Breathing Space Test Support API"
+    }
+  ],
+  "api": {
+    "name": "Breathing Space Test Support",
+    "description": "Enables setting up test data and simulation of downstream layers for the Breathing Space Program.",
+    "context": "test/individuals/breathing-space",
+    "isTestSupport": true,
+    "categories": ["OTHER"],
+    "versions": [
+      {
+        "version": "1.0",
+        "status": "BETA",
+        "endpointsEnabled": true
+      }
+    ]
+  }
+}
