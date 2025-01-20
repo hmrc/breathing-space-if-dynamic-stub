@@ -29,8 +29,8 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.DebtsService
 
 @Singleton()
-class DebtsController @Inject()(debtsService: DebtsService, cc: ControllerComponents)(
-  implicit val ec: ExecutionContext
+class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerComponents)(implicit
+  val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>

@@ -29,8 +29,8 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.UnderpaymentsService
 
 @Singleton()
-class UnderpaymentsController @Inject()(underpaymentsService: UnderpaymentsService, cc: ControllerComponents)(
-  implicit val ec: ExecutionContext
+class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsService, cc: ControllerComponents)(implicit
+  val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
   def saveUnderpayments(nino: String, periodId: String): Action[JsValue] = Action.async(parse.json) {

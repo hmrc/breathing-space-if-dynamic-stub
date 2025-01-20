@@ -32,7 +32,7 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 @Singleton
-class UnderpaymentsRepository @Inject()(mongo: MongoComponent)(implicit executionContext: ExecutionContext)
+class UnderpaymentsRepository @Inject() (mongo: MongoComponent)(implicit executionContext: ExecutionContext)
     extends PlayMongoRepository[UnderpaymentRecord](
       mongoComponent = mongo,
       collectionName = "underpayment",
@@ -58,10 +58,9 @@ class UnderpaymentsRepository @Inject()(mongo: MongoComponent)(implicit executio
         )
         .toFuture()
         .map(res => res.toList)
-    fhits.flatMap(
-      hits =>
-        if (hits.isEmpty) save(underpayments)
-        else Future(Left(Failure(CONFLICTING_REQUEST)))
+    fhits.flatMap(hits =>
+      if (hits.isEmpty) save(underpayments)
+      else Future(Left(Failure(CONFLICTING_REQUEST)))
     )
   }
 

@@ -28,8 +28,8 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, I
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
-class PeriodsService @Inject()(individualRepository: IndividualRepository)(
-  implicit ec: ExecutionContext
+class PeriodsService @Inject() (individualRepository: IndividualRepository)(implicit
+  ec: ExecutionContext
 ) extends NinoValidation {
 
   def get(nino: String): AsyncResponse[Periods] =
@@ -38,8 +38,8 @@ class PeriodsService @Inject()(individualRepository: IndividualRepository)(
       individualRepository
         .findIndividual(_)
         .map {
-          _.fold[Response[Periods]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
-            individual => Right(Periods(individual.periods))
+          _.fold[Response[Periods]](Left(Failure(IDENTIFIER_NOT_FOUND)))(individual =>
+            Right(Periods(individual.periods))
           )
         }
     )

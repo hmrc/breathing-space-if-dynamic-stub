@@ -31,7 +31,7 @@ import uk.gov.hmrc.breathingspaceifstub.repository.{UnderpaymentRecord, Underpay
 import uk.gov.hmrc.breathingspaceifstub.repository.UnderpaymentRecord.parseToListOfUnderpaymentsDTOs
 
 @Singleton
-class UnderpaymentsService @Inject()(
+class UnderpaymentsService @Inject() (
   underpaymentsRepository: UnderpaymentsRepository
 )(implicit ec: ExecutionContext)
     extends NinoValidation
@@ -64,26 +64,25 @@ class UnderpaymentsService @Inject()(
   def removeUnderpayments(): AsyncResponse[Int] = underpaymentsRepository.removeUnderpayments()
 
   def removeUnderpaymentFor(nino: String): AsyncResponse[Int] =
-    underpaymentsRepository.removeByNino(nino).collect {
-      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
+    underpaymentsRepository.removeByNino(nino).collect { case Right(n) =>
+      if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     }
 
   def removeUnderpaymentFor(nino: String, periodId: UUID): AsyncResponse[Int] =
-    underpaymentsRepository.removeByNinoAndPeriodId(nino, periodId).collect {
-      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
+    underpaymentsRepository.removeByNinoAndPeriodId(nino, periodId).collect { case Right(n) =>
+      if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
     }
 
   def createUnderpayments(ls: List[UnderpaymentRecord]): Underpayments =
     if (ls.exists(upr => upr.underpayment == None)) Underpayments(List.empty[Underpayment])
     else {
       Underpayments(
-        ls.map(
-          upr =>
-            upr.underpayment match {
-              case Some(up) => Underpayment(up.taxYear, up.amount, up.source)
-              case _ =>
-                throw new IllegalStateException("Illegal State: Empty Underpayments should have been processed already")
-            }
+        ls.map(upr =>
+          upr.underpayment match {
+            case Some(up) => Underpayment(up.taxYear, up.amount, up.source)
+            case _ =>
+              throw new IllegalStateException("Illegal State: Empty Underpayments should have been processed already")
+          }
         )
       )
     }
@@ -94,10 +93,10 @@ class UnderpaymentsService @Inject()(
 
     val underpayments: Future[Option[Underpayments]] = underpaymentDTOs
       .map(
-        _.map(ls => {
+        _.map(ls =>
           if (ls.isEmpty) Underpayments(List.empty)
           else createUnderpayments(ls)
-        })
+        )
       )
     underpayments.onComplete {
       case Success(Some(ups)) => logger.info(s"The underpayments were: $ups")

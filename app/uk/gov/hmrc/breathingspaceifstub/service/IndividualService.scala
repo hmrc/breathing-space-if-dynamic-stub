@@ -27,8 +27,8 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{IDENTIFIER_NOT_FOUND, I
 import uk.gov.hmrc.breathingspaceifstub.repository.{Individual, IndividualRepository}
 
 @Singleton
-class IndividualService @Inject()(individualRepository: IndividualRepository)(
-  implicit ec: ExecutionContext
+class IndividualService @Inject() (individualRepository: IndividualRepository)(implicit
+  ec: ExecutionContext
 ) extends NinoValidation {
 
   def addIndividual(individualInRequest: IndividualInRequest): AsyncResponse[Unit] =
@@ -47,9 +47,12 @@ class IndividualService @Inject()(individualRepository: IndividualRepository)(
   def count: Future[Int] = individualRepository.count()
 
   def delete(nino: String): AsyncResponse[Int] =
-    stripNinoSuffixAndExecOp(nino, individualRepository.delete(_).collect {
-      case Right(n) => if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
-    })
+    stripNinoSuffixAndExecOp(
+      nino,
+      individualRepository.delete(_).collect { case Right(n) =>
+        if (n == 0) Left(Failure(RESOURCE_NOT_FOUND)) else Right(n)
+      }
+    )
 
   def deleteAll(): AsyncResponse[Int] = individualRepository.deleteAll()
 
@@ -71,7 +74,7 @@ class IndividualService @Inject()(individualRepository: IndividualRepository)(
   private def getPeriodsByNino(maybeIndividualsF: Future[List[Option[Individual]]]): Future[List[PeriodsByNino]] = {
     val periodsByNinosF = for {
       maybeIndividuals <- maybeIndividualsF
-      individuals <- Future { maybeIndividuals.collect { case Some(individual) => individual } }
+      individuals <- Future(maybeIndividuals.collect { case Some(individual) => individual })
       periodsByNinos <- Future {
         createListOfPeriodsByNino(individuals)
       }
