@@ -1,3 +1,6 @@
+import sbt.{Resolver, *}
+import Keys.*
+import play.sbt.PlayImport.*
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
@@ -8,7 +11,6 @@ val appName = "breathing-space-if-dynamic-stub"
 val silencerVersion = "1.7.1"
 
 lazy val scoverageSettings = {
-
   val ScoverageExclusionPatterns = List(
     "<empty>",
     "uk\\.gov\\.hmrc\\.breathingspaceifproxy\\.views\\..*",
@@ -16,23 +18,22 @@ lazy val scoverageSettings = {
   )
 
   Seq(
-    ScoverageKeys.coverageExcludedPackages := ScoverageExclusionPatterns
-      .mkString("", ";", ""),
+    ScoverageKeys.coverageExcludedPackages := ScoverageExclusionPatterns.mkString("", ";", ""),
     ScoverageKeys.coverageMinimumStmtTotal := 90,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true
   )
 }
 
-ThisBuild / majorVersion := 1
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / majorVersion := 2
+ThisBuild / scalaVersion := "3.3.4"
 ThisBuild / scalafmtOnCompile := true
 
-lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala,
-    SbtDistributablesPlugin)
+lazy val microservice = (project in file("."))
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
   .settings(
+    name := appName,
     PlayKeys.playDefaultPort := 9503,
     scoverageSettings,
     scalaSettings,
@@ -41,26 +42,28 @@ lazy val microservice = Project(appName, file("."))
     TwirlKeys.templateImports := Seq(),
     scalacOptions ++= Seq(
       "-feature",
-      "-Werror",
-      "-Wdead-code",
-      "-Wextra-implicit",
-      "-Wconf:cat=unused-imports&site=.*views\\.html.*:s",
-      "-Wconf:cat=unused-imports&site=<empty>:s",
-      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
       "-deprecation",
-      "-unchecked"
-    )
+      "-unchecked",
+      "-Werror",
+      "-Wvalue-discard",
+      "-language:noAutoTupling",
+      "-Wconf:msg=unused import&src=.*views\\.html.*:s",
+      "-Wconf:msg=unused import&src=<empty>:s",
+      "-Wconf:msg=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:msg=unused&src=.*Routes\\.scala:s",
+      "-Wconf:msg=unused&src=.*ReverseRoutes\\.scala:s",
+      "-Wconf:msg=Flag.*repeatedly:s"
+    ),
+    scalacOptions := scalacOptions.value.filterNot(_ contains "-Wunused"),
+      resolvers += Resolver.jcenterRepo
   )
-  .settings(resolvers += Resolver.jcenterRepo)
 
-Test / Keys.fork := true
+Test / fork := true
 Test / parallelExecution := true
 
-lazy val it = project
-  .enablePlugins(play.sbt.PlayScala)
-  .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
+lazy val it = (project in file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test")
   .settings(
     libraryDependencies ++= Dependencies.test,
     DefaultBuildSettings.itSettings()

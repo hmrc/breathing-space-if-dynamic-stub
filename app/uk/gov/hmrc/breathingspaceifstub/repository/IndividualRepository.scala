@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import java.util.UUID
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import cats.implicits.catsSyntaxOptionId
 import com.mongodb.client.model.Filters
 import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model._
-import uk.gov.hmrc.breathingspaceifstub._
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
-import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
+import org.mongodb.scala.model.*
+import org.mongodb.scala.{ObservableFuture, SingleObservableFuture}
+import uk.gov.hmrc.breathingspaceifstub.*
+import uk.gov.hmrc.breathingspaceifstub.model.*
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.*
+import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil.*
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.play.json.formats.MongoUuidFormats.Implicits.uuidFormat
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
 class IndividualRepository @Inject()(mongo: MongoComponent)(implicit executionContext: ExecutionContext)
