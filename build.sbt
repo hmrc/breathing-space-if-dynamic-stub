@@ -1,9 +1,8 @@
-import sbt.{Resolver, *}
-import Keys.*
 import play.sbt.PlayImport.*
+import sbt.Keys.*
+import sbt.{Resolver, *}
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 
 val appName = "breathing-space-if-dynamic-stub"
@@ -36,9 +35,7 @@ lazy val microservice = (project in file("."))
     name := appName,
     PlayKeys.playDefaultPort := 9503,
     scoverageSettings,
-    scalaSettings,
     libraryDependencies ++= Dependencies.all,
-    defaultSettings(),
     TwirlKeys.templateImports := Seq(),
     scalacOptions ++= Seq(
       "-feature",
@@ -54,7 +51,6 @@ lazy val microservice = (project in file("."))
       "-Wconf:msg=unused&src=.*ReverseRoutes\\.scala:s",
       "-Wconf:msg=Flag.*repeatedly:s"
     ),
-    scalacOptions := scalacOptions.value.filterNot(_ contains "-Wunused"),
       resolvers += Resolver.jcenterRepo
   )
 
