@@ -11,6 +11,7 @@ object Dependencies {
     "uk.gov.hmrc"                  %% s"bootstrap-backend-$playVersion"   % bootstrapVersion,
     "org.typelevel"                %% "cats-core"                         % "2.12.0",
     "com.fasterxml.jackson.module" %% "jackson-module-scala"              % "2.18.2",
+    "com.github.andyglow"          %% "scala-jsonschema"                  % "0.7.11",
     "uk.gov.hmrc.mongo"            %% s"hmrc-mongo-$playVersion"          % hmrcMongoVersion
 )
 
