@@ -27,8 +27,8 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_FOUND
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
-class IndividualDetailsService @Inject()(individualRepository: IndividualRepository)(
-  implicit ec: ExecutionContext
+class IndividualDetailsService @Inject() (individualRepository: IndividualRepository)(implicit
+  ec: ExecutionContext
 ) extends NinoValidation {
 
   def getIndividualDetails(nino: String): AsyncResponse[IndividualDetails] =

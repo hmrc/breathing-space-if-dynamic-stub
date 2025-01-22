@@ -45,13 +45,12 @@ object UnderpaymentRecord {
     rawUnderpayments match {
       case Nil => List(UnderpaymentRecord(nino = nino, periodId = UUID.fromString(periodId), underpayment = None))
       case ls =>
-        ls.map(
-          u =>
-            UnderpaymentRecord(
-              nino = nino,
-              periodId = UUID.fromString(periodId),
-              underpayment = Some(Underpayment(u.taxYear, u.amount, u.source))
-            )
+        ls.map(u =>
+          UnderpaymentRecord(
+            nino = nino,
+            periodId = UUID.fromString(periodId),
+            underpayment = Some(Underpayment(u.taxYear, u.amount, u.source))
+          )
         )
     }
 }

@@ -27,8 +27,8 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{BREATHINGSPACE_ID_NOT_F
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
-class DebtsService @Inject()(individualRepository: IndividualRepository)(
-  implicit ec: ExecutionContext
+class DebtsService @Inject() (individualRepository: IndividualRepository)(implicit
+  ec: ExecutionContext
 ) extends NinoValidation {
 
   def get(nino: String, periodId: UUID): AsyncResponse[Debts] =
@@ -38,10 +38,9 @@ class DebtsService @Inject()(individualRepository: IndividualRepository)(
     individualRepository
       .findIndividual(_)
       .map {
-        _.fold[Response[Debts]](Left(Failure(IDENTIFIER_NOT_FOUND)))(
-          individual =>
-            if (individual.periods.exists(_.periodID == periodId)) Right(individual.debts)
-            else Left(Failure(BREATHINGSPACE_ID_NOT_FOUND))
+        _.fold[Response[Debts]](Left(Failure(IDENTIFIER_NOT_FOUND)))(individual =>
+          if (individual.periods.exists(_.periodID == periodId)) Right(individual.debts)
+          else Left(Failure(BREATHINGSPACE_ID_NOT_FOUND))
         )
       }
 }

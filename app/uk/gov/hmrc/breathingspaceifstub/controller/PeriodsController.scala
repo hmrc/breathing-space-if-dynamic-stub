@@ -29,12 +29,12 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.{PeriodsService, UnderpaymentsService}
 
 @Singleton()
-class PeriodsController @Inject()(
+class PeriodsController @Inject() (
   periodsService: PeriodsService,
   cc: ControllerComponents,
   underpaymentsService: UnderpaymentsService
-)(
-  implicit val ec: ExecutionContext
+)(implicit
+  val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
@@ -83,14 +83,13 @@ class PeriodsController @Inject()(
       e2 <- fUnderpaymentsDel
     } yield (e1, e2)
 
-    fRes.map {
-      case (e1, e2) =>
-        Ok(
-          Json.obj(
-            "periodsDeleted" -> normalise(e1),
-            "underpaymentsDeleted" -> normalise(e2)
-          )
+    fRes.map { case (e1, e2) =>
+      Ok(
+        Json.obj(
+          "periodsDeleted" -> normalise(e1),
+          "underpaymentsDeleted" -> normalise(e2)
         )
+      )
     }
   }
 }

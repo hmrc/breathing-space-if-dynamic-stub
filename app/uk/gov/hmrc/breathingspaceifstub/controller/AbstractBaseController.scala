@@ -119,8 +119,8 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
         Left(HttpError(none, Failure(MISSING_HEADER)))
       )(Right(_))
 
-  private def validateOriginatorId(headers: Headers, endpointId: EndpointId)(
-    implicit correlationId: String
+  private def validateOriginatorId(headers: Headers, endpointId: EndpointId)(implicit
+    correlationId: String
   ): Either[HttpError, Boolean] =
     headers
       .get(Header.OriginatorId)
@@ -142,8 +142,8 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
         }
       }
 
-  private def validateUserId(headers: Headers, isUserIdRequired: Boolean)(
-    implicit correlationId: String
+  private def validateUserId(headers: Headers, isUserIdRequired: Boolean)(implicit
+    correlationId: String
   ): Either[HttpError, Unit] =
     headers.get(Header.UserId) match {
       case Some(_) if isUserIdRequired => Right(unit)

@@ -199,9 +199,8 @@ class IndividualControllerISpec extends BaseISpec {
 
     status(response) shouldBe OK
     val periodIDs = getPeriodIDsFromResponse(contentAsString(periodsResponse))
-    contentAsString(response) shouldBe (
+    contentAsString(response) shouldBe
       s"""{"periodsByNinos":[{"nino":"${individual.nino}","periods":["${periodIDs(0)}","${periodIDs(1)}"]}]}"""
-    )
   }
 
   private def getPeriodIDsFromResponse(resp: String): List[String] = {

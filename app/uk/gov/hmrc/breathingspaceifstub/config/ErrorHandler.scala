@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.http.JsonErrorHandler
 import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 
-class ErrorHandler @Inject()(
+class ErrorHandler @Inject() (
   auditConnector: AuditConnector,
   httpAuditEvent: HttpAuditEvent,
   configuration: Configuration

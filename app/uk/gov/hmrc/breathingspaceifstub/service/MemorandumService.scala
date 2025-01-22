@@ -26,7 +26,7 @@ import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
 import uk.gov.hmrc.breathingspaceifstub.repository.IndividualRepository
 
 @Singleton
-class MemorandumService @Inject()(
+class MemorandumService @Inject() (
   individualRepository: IndividualRepository
 )(implicit ec: ExecutionContext)
     extends NinoValidation
@@ -43,7 +43,9 @@ class MemorandumService @Inject()(
         _.fold[Response[Memorandum]](
           Failure(IDENTIFIER_NOT_IN_BREATHINGSPACE).asLeft
         ) { individual =>
-          Memorandum(individual.periods.exists(p => p.endDate.isEmpty || p.endDate.exists(_.isAfter(LocalDate.now())))).asRight
+          Memorandum(
+            individual.periods.exists(p => p.endDate.isEmpty || p.endDate.exists(_.isAfter(LocalDate.now())))
+          ).asRight
         }
       }
 }
