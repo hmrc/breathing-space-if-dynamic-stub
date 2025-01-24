@@ -28,7 +28,7 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.{IndividualService, UnderpaymentsService}
 
 @Singleton()
-class IndividualController @Inject()(
+class IndividualController @Inject() (
   individualService: IndividualService,
   cc: ControllerComponents,
   underpaymentsService: UnderpaymentsService
@@ -53,14 +53,13 @@ class IndividualController @Inject()(
       e2 <- fUnderpaymentsDel
     } yield (e1, e2)
 
-    fRes.map {
-      case (e1, e2) =>
-        Ok(
-          Json.obj(
-            "individualsDeleted" -> normalise(e1),
-            "underpaymentsDeleted" -> normalise(e2)
-          )
+    fRes.map { case (e1, e2) =>
+      Ok(
+        Json.obj(
+          "individualsDeleted" -> normalise(e1),
+          "underpaymentsDeleted" -> normalise(e2)
         )
+      )
     }
   }
 

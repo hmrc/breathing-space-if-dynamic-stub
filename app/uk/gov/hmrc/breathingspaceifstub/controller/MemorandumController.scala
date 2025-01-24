@@ -26,8 +26,8 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.MemorandumService
 
 @Singleton()
-class MemorandumController @Inject()(memorandumService: MemorandumService, cc: ControllerComponents)(
-  implicit val ec: ExecutionContext
+class MemorandumController @Inject() (memorandumService: MemorandumService, cc: ControllerComponents)(implicit
+  val ec: ExecutionContext
 ) extends AbstractBaseController(cc) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>

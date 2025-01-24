@@ -100,5 +100,5 @@ object IndividualDetailsForBS {
     Option(list.flatten).filter(_.nonEmpty).map(JsObject(_))
 
   private def asOptVal[T](name: String, optional: Option[T])(implicit writes: Writes[T]): Option[(String, JsValue)] =
-    optional.map(value => name -> Json.toJson((value)))
+    optional.map(value => name -> Json.toJson(value))
 }

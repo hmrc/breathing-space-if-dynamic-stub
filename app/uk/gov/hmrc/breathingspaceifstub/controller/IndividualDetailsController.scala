@@ -29,7 +29,7 @@ import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
 import uk.gov.hmrc.breathingspaceifstub.service.IndividualDetailsService
 
 @Singleton()
-class IndividualDetailsController @Inject()(
+class IndividualDetailsController @Inject() (
   appConfig: AppConfig,
   individualDetailsService: IndividualDetailsService,
   cc: ControllerComponents

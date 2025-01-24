@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import play.api.libs.json._
 import uk.gov.hmrc.breathingspaceifstub.model.{Underpayment, Underpayments}
-import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
-class UnderpaymentsSerializationSpec extends BaseISpec {
-
-  import play.api.libs.json._
+class UnderpaymentsSerializationSpec extends AnyWordSpec with Matchers {
 
   val up1: Underpayment = Underpayment("2011", 123423.222, "SA UP")
   val up2: Underpayment = Underpayment("2011", 123423.222, "SA UP")
@@ -31,48 +31,52 @@ class UnderpaymentsSerializationSpec extends BaseISpec {
 
   val json = "{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}"
 
-  val jsonList: String = "[{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}" +
-    ",{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"},{\"taxYear\":" +
-    "\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}]"
+  val jsonList: String = "[{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}," +
+    "{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}," +
+    "{\"taxYear\":\"2011\",\"amount\":123423.222,\"source\":\"SA UP\"}]"
 
   val wrapper: Underpayments = Underpayments(underpayments)
 
-  test("json tests - serialization") {
-    val serializedToJson: JsValue = Json.toJson(underpayments)
-    val minifiedString = Json.stringify(serializedToJson) // Json.prettyPrint(serializedToJson)
-    minifiedString shouldBe jsonList
-  }
-
-  test("json tests - deserialization") {
-    val serializedUnderpayment: JsValue = Json.parse(json)
-    val maybeUnderpayment: JsResult[Underpayment] = serializedUnderpayment.validate[Underpayment]
-    val u: Underpayment = maybeUnderpayment match {
-      case JsSuccess(value, _) => value
-      case _ => throw new RuntimeException("parse error")
-    }
-    u shouldBe up1
-  }
-
-  test("json tests - deserialize empty underpayments array") {
-    val emptyUPs: JsValue = Json.parse("{\"underPayments\":[]}")
-
-    val maybeUPs = emptyUPs.validate[Underpayments]
-    val actualUnderpayments = maybeUPs match {
-      case JsSuccess(x, _) => x
-      case JsError(errors) => throw new RuntimeException("Failed: " + errors)
+  "JSON serialization" should {
+    "serialize a list of underpayments to JSON" in {
+      val serializedToJson: JsValue = Json.toJson(underpayments)
+      val minifiedString = Json.stringify(serializedToJson)
+      minifiedString shouldBe jsonList
     }
 
-    val emptyUnderpayments = Array.empty
-    actualUnderpayments.underPayments should equal(emptyUnderpayments)
-  }
+    "deserialize JSON to an underpayment" in {
+      val serializedUnderpayment: JsValue = Json.parse(json)
+      val maybeUnderpayment: JsResult[Underpayment] = serializedUnderpayment.validate[Underpayment]
 
-  test("json tests - serialize empty underpayments array") {
-    val emptyWrapper = Underpayments(List.empty)
-    val serializedWrapper: JsValue = Json.toJson(emptyWrapper)
-    val expectedOutput = "{\"underPayments\":[]}"
+      val u: Underpayment = maybeUnderpayment match {
+        case JsSuccess(value, _) => value
+        case JsError(errors) => throw new RuntimeException("Parse error: " + errors)
+      }
 
-    val actualOutput = Json.stringify(serializedWrapper)
+      u shouldBe up1
+    }
 
-    expectedOutput should equal(actualOutput)
+    "deserialize empty underpayments array" in {
+      val emptyUPs: JsValue = Json.parse("{\"underPayments\":[]}")
+
+      val maybeUPs = emptyUPs.validate[Underpayments]
+      val actualUnderpayments = maybeUPs match {
+        case JsSuccess(x, _) => x
+        case JsError(errors) => throw new RuntimeException("Failed: " + errors)
+      }
+
+      val emptyUnderpayments = Array.empty[Underpayment] // Specify type explicitly
+      actualUnderpayments.underPayments shouldBe emptyUnderpayments.toList // Convert to List for comparison
+    }
+
+    "serialize an empty underpayments array" in {
+      val emptyWrapper = Underpayments(List.empty)
+      val serializedWrapper: JsValue = Json.toJson(emptyWrapper)
+      val expectedOutput = "{\"underPayments\":[]}"
+
+      val actualOutput = Json.stringify(serializedWrapper)
+
+      expectedOutput shouldBe actualOutput
+    }
   }
 }

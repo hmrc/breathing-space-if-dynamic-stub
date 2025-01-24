@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import java.util.UUID
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import com.mongodb.client.model.Filters
+import org.mongodb.scala.ObservableFuture
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.InsertOneModel
 import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
-import uk.gov.hmrc.breathingspaceifstub.model.{Failure, Period, WriteResult}
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST
-import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
+import uk.gov.hmrc.breathingspaceifstub.model.{Failure, Period, WriteResult}
+import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil.*
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.play.json.formats.MongoUuidFormats.Implicits.uuidFormat
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class UnderpaymentsRepository @Inject()(mongo: MongoComponent)(implicit executionContext: ExecutionContext)
+class UnderpaymentsRepository @Inject() (mongo: MongoComponent)(implicit executionContext: ExecutionContext)
     extends PlayMongoRepository[UnderpaymentRecord](
       mongoComponent = mongo,
       collectionName = "underpayment",
@@ -59,10 +59,9 @@ class UnderpaymentsRepository @Inject()(mongo: MongoComponent)(implicit executio
         )
         .toFuture()
         .map(res => res.toList)
-    fhits.flatMap(
-      hits =>
-        if (hits.isEmpty) save(underpayments)
-        else Future(Left(Failure(CONFLICTING_REQUEST)))
+    fhits.flatMap(hits =>
+      if (hits.isEmpty) save(underpayments)
+      else Future(Left(Failure(CONFLICTING_REQUEST)))
     )
   }
 

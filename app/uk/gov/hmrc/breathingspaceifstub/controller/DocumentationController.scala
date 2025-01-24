@@ -27,7 +27,7 @@ import uk.gov.hmrc.breathingspaceifstub.views.txt
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 @Singleton
-class DocumentationController @Inject()(
+class DocumentationController @Inject() (
   appConfig: AppConfig,
   cc: ControllerComponents,
   assets: Assets

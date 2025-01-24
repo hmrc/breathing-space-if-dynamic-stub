@@ -16,25 +16,25 @@
 
 package uk.gov.hmrc.breathingspaceifstub.repository
 
-import java.util.UUID
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import cats.implicits.catsSyntaxOptionId
 import com.mongodb.client.model.Filters
 import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model._
-import uk.gov.hmrc.breathingspaceifstub._
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
-import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil._
+import org.mongodb.scala.model.*
+import org.mongodb.scala.{ObservableFuture, SingleObservableFuture}
+import uk.gov.hmrc.breathingspaceifstub.*
+import uk.gov.hmrc.breathingspaceifstub.model.*
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.*
+import uk.gov.hmrc.breathingspaceifstub.repository.RepoUtil.*
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.play.json.formats.MongoUuidFormats.Implicits.uuidFormat
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class IndividualRepository @Inject()(mongo: MongoComponent)(implicit executionContext: ExecutionContext)
+class IndividualRepository @Inject() (mongo: MongoComponent)(implicit executionContext: ExecutionContext)
     extends PlayMongoRepository[Individual](
       mongoComponent = mongo,
       collectionName = "individual",
@@ -88,21 +88,19 @@ class IndividualRepository @Inject()(mongo: MongoComponent)(implicit executionCo
       .map(_.periods)
       .head()
       .flatMap { res =>
-        {
-          val add2Set = Updates.addToSet("consumerRequestIds", consumerRequestId.toString)
-          collection.updateOne(query, add2Set, UpdateOptions().upsert(false)).head().flatMap { result =>
-            if (result.getModifiedCount == 1 && result.getMatchedCount == 1) {
-              addPeriods(query, maybeUtr, periods ++ res)
-            } else {
-              Future.successful(
-                Left(
-                  Failure(
-                    if (result.getMatchedCount == 0) IDENTIFIER_NOT_FOUND
-                    else DUPLICATE_SUBMISSION
-                  )
+        val add2Set = Updates.addToSet("consumerRequestIds", consumerRequestId.toString)
+        collection.updateOne(query, add2Set, UpdateOptions().upsert(false)).head().flatMap { result =>
+          if (result.getModifiedCount == 1 && result.getMatchedCount == 1) {
+            addPeriods(query, maybeUtr, periods ++ res)
+          } else {
+            Future.successful(
+              Left(
+                Failure(
+                  if (result.getMatchedCount == 0) IDENTIFIER_NOT_FOUND
+                  else DUPLICATE_SUBMISSION
                 )
               )
-            }
+            )
           }
         }
       }
@@ -186,9 +184,9 @@ class IndividualRepository @Inject()(mongo: MongoComponent)(implicit executionCo
 
   private def removeDuplicateIndividuals(individuals: Individuals): Seq[InsertOneModel[Individual]] =
     individuals
-      .foldLeft(Seq[Individual]())((unique, curr) => {
+      .foldLeft(Seq[Individual]()) { (unique, curr) =>
         if (!unique.exists(_.nino == curr.nino)) curr +: unique else unique
-      })
+      }
       .reverse
       .map(InsertOneModel(_))
 
