@@ -52,7 +52,7 @@ class MemorandumController @Inject() (
   private def jsonBreathingSpaceIndicator(hasIndicator: Boolean) = Json.obj("breathingSpaceIndicator" -> hasIndicator)
 
   private def mapNinoToResult(nino: String)(implicit request: Request[_]): Option[Result] =
-    nino match {
+    nino.take(8) match {
       case "AS000001" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
       case "AS000002" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = false)))
       case "AA000333" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
@@ -72,9 +72,7 @@ class MemorandumController @Inject() (
                 case Some(result) => result
                 case _ => logAndGenFailureResult(failure)
               }
-            } else {
-              logAndGenFailureResult(failure)
-            }
+            } else logAndGenFailureResult(failure)
           case Right(memorandum) => Ok(Json.toJson(memorandum))
         }
     }
