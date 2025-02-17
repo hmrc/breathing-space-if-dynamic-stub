@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
 import play.mvc.Http.MimeTypes
 import uk.gov.hmrc.breathingspaceifstub.Header
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_IN_BREATHINGSPACE
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.MemorandumService
 
@@ -66,15 +68,17 @@ class MemorandumController @Inject() (
       memorandumService
         .get(nino)
         .map {
-          case Left(failure) =>
+          case Left(failure) if failure.baseError == IDENTIFIER_NOT_IN_BREATHINGSPACE =>
             if (appConfig.isEnabledStaticData) {
               mapNinoToResult(nino) match {
                 case Some(result) => result
                 case _ => logAndGenFailureResult(failure)
               }
             } else logAndGenFailureResult(failure)
+          case Left(failure) => logAndGenFailureResult(failure)
           case Right(memorandum) => Ok(Json.toJson(memorandum))
         }
     }
   }
+
 }
