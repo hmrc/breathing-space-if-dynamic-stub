@@ -30,6 +30,8 @@ class AppConfig @Inject() (config: Configuration) {
 
   lazy val onDevEnvironment: Boolean =
     config.getOptional[String]("environment.id").fold(false)(_.toLowerCase == "development")
+  lazy val isEnabledStaticData: Boolean =
+    config.getOptional[Boolean]("feature.enableStaticData").getOrElse(false)
 
   // Must be 'lazy'
   lazy val v1WhitelistedApplicationIds: Seq[String] =

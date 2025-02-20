@@ -5,6 +5,14 @@ The dynamic stub is available locally as the default in the sm profile BREATHING
 
 The service allows a user or tests to dynamically add data so that it may be used for testing purposes. It exposes several endpoints described below
 
+If nothing is set up dynamically for the following ninos then for the /memorandum endpoint some hard-coded static data is used:
+- AS000001: Status 200 with json body holding {breathingSpaceIndicator: true}
+- AS000002: Status 200 with json body holding {breathingSpaceIndicator: false}
+- AA000333: Status 200 with json body holding {breathingSpaceIndicator: true}
+- AS000003: Status 422 with response code UNKNOWN_DATA_ITEM
+- AS000004: Status 502 with response code BAD_GATEWAY
+
+
 |Usage| Endpoint      |Data|
 |-----|---------------|----|
 |Insert a single individual details, including debt information and period information| POST: /single | https://github.com/hmrc/breathing-space-if-dynamic-stub/blob/main/app/uk/gov/hmrc/breathingspaceifstub/model/IndividualInRequest.scala#L21|
