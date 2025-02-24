@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import java.util.UUID
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
-import play.api.libs.json.Json
-import play.api.mvc.{Action, ControllerComponents}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.breathingspaceifstub.Response
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.{PeriodsService, UnderpaymentsService}
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
 @Singleton()
 class PeriodsController @Inject() (
@@ -38,10 +39,26 @@ class PeriodsController @Inject() (
 ) extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withHeaderValidation(BS_Periods_GET) { implicit requestId =>
-      periodsService
-        .get(nino)
-        .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
+
+    val staticRetrieval: String => Option[Result] = nino => {
+      def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"periods/$filename")
+      nino.take(8) match {
+        case "AS000001" => Some(sendResponse(OK, jsonDataFromFile("singleBsPeriodFullPopulation.json")))
+        case "AS000002" => Some(sendResponse(OK, jsonDataFromFile("singleBsPeriodPartialPopulation.json")))
+        case "AS000003" => Some(sendResponse(OK, jsonDataFromFile("multipleBsPeriodsFullPopulation.json")))
+        case "AS000004" => Some(sendResponse(OK, jsonDataFromFile("multipleBsPeriodsPartialPopulation.json")))
+        case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsPeriodsMixedPopulation.json")))
+        case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
+        case _ => Some(sendResponse(OK, Json.parse("""{"periods":[]}""")))
+      }
+    }
+
+    withStaticCheck(nino)(staticRetrieval) { request =>
+      withHeaderValidation(BS_Periods_GET) { implicit requestId =>
+        periodsService
+          .get(nino)
+          .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
+      }
     }
   }
 

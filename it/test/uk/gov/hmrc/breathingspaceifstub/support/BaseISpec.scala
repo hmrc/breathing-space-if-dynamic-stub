@@ -108,7 +108,12 @@ trait BaseISpec
       memorandumCall(Helpers.GET, MemorandumController.get(nino).url)
     }
 
-  def getPeriods(nino: String): Future[Result] = attendedCall(Helpers.GET, PeriodsController.get(nino).url)
+  def getPeriods(nino: String, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      attendedCall(Helpers.GET, PeriodsController.get(nino).url, appStaticDataOn)
+    } else {
+      attendedCall(Helpers.GET, PeriodsController.get(nino).url)
+    }
 
   def postPeriods(nino: String, periods: List[PostPeriodInRequest]): Future[Result] =
     postPeriods(nino, UUID.randomUUID, periods)

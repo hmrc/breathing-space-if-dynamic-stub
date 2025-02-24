@@ -35,21 +35,6 @@ class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerCompo
 ) extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
-
-    /*
-  def getAcceptedNinoHandler(nino: String)(implicit request: Request[_]): Future[Result] =
-    nino match {
-      case "AS000001" => sendResponse(OK, jsonDataFromFile("singleBsDebtFullPopulation.json"))
-      case "AS000002" => sendResponse(OK, jsonDataFromFile("singleBsDebtPartialPopulation.json"))
-      case "AS000003" => sendResponse(OK, jsonDataFromFile("multipleBsDebtsFullPopulation.json"))
-      case "AS000004" => sendResponse(OK, jsonDataFromFile("multipleBsDebtsPartialPopulation.json"))
-      case "AS000005" => sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json"))
-      case _          => sendResponse(NOT_FOUND, failures("NO_DATA_FOUND", "No records found for the given Nino"))
-    }
-
-
-     */
-
     val staticRetrieval: String => Option[Result] = nino => {
       def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"debts/$filename")
       nino.take(8) match {
@@ -60,7 +45,6 @@ class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerCompo
         case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json")))
         case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
         case _ => Some(sendResponse(NOT_FOUND, failures("NO_DATA_FOUND", "No records found for the given Nino")))
-        //    case _ => None
       }
     }
 
