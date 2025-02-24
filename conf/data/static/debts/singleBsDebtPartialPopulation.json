@@ -1,0 +1,9 @@
+[
+  {
+    "chargeReference": "ETMP ref01",
+    "chargeDescription": "100 chars long charge description as exist in ETMP",
+    "chargeAmount": 199999999.11,
+    "chargeCreationDate": "2001-09-12",
+    "chargeDueDate": "2001-12-30"
+  }
+]

@@ -20,7 +20,7 @@ import cats.syntax.option.*
 import org.apache.pekko.stream.Materializer
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.{BeforeAndAfterEach, OptionValues}
+import org.scalatest.{Assertion, BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.HeaderNames
@@ -29,11 +29,13 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.Helpers.*
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
+import uk.gov.hmrc.breathingspaceifstub.Header
 import uk.gov.hmrc.breathingspaceifstub.controller.routes.*
 import uk.gov.hmrc.breathingspaceifstub.model.*
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 trait BaseISpec
     extends AnyWordSpec
@@ -45,6 +47,20 @@ trait BaseISpec
     with Injecting
     with Matchers
     with OptionValues {
+
+// FROM STATIC:-
+  lazy val testServerAddress = s"http://localhost:$port"
+
+  protected def checkCorrelationIDInResponse(
+    response: Future[Result]
+  )(implicit correlationHeaderValue: CorrelationId): Assertion =
+    Await
+      .result(response, Duration.Inf)
+      .header
+      .headers
+      .get(Header.CorrelationId) shouldBe correlationHeaderValue.value
+
+// END FROM STATIC
 
   val configProperties: Map[String, Any] = Map(
     "full-population-details-enabled" -> true,

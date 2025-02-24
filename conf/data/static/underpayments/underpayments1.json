@@ -1,0 +1,29 @@
+{
+  "underPayments": [
+    {
+      "taxYear": "2011",
+      "amount": 400.43,
+      "source": "PAYE UP"
+    },
+    {
+      "taxYear": "2013",
+      "amount": 93782.20,
+      "source": "SA UP"
+    },
+    {
+      "taxYear": "2000",
+      "amount": 100333.23,
+      "source": "SA UP"
+    },
+    {
+      "taxYear": "2020",
+      "amount": 9302.22,
+      "source": "SA UP"
+    },
+    {
+      "taxYear": "2015",
+      "amount": 93.33,
+      "source": "SA Debt"
+    }
+  ]
+}

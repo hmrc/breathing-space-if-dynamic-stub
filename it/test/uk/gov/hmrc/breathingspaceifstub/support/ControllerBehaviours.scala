@@ -17,89 +17,91 @@
 package uk.gov.hmrc.breathingspaceifstub.support
 
 import play.api.http.Status
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.breathingspaceifstub.Header
+import play.api.http.Status.*
+import play.api.mvc.Result
+import play.api.test.Helpers.status
 import uk.gov.hmrc.breathingspaceifstub.model.CorrelationId
-import org.scalatest.wordspec.AnyWordSpec
+
+import scala.concurrent.Future
 trait ControllerBehaviours { this: BaseISpec =>
 
   implicit val correlationHeaderValue: CorrelationId
 
-  def aNinoAsErrorCodeEndpoint(wsResponse: String => WSResponse): Unit = {
+  def aNinoAsErrorCodeEndpoint(createResponse: String => Future[Result]): Unit = {
 
     "return 400(BAD_REQUEST) when the Nino 'BS000400B' is sent" in {
-      val response = wsResponse("BS000400B")
-      response.status                       shouldBe Status.BAD_REQUEST
-      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+      val response = createResponse("BS000400B")
+      status(response) shouldBe BAD_REQUEST
+      checkCorrelationIDInResponse(response)
     }
 
     "return 404(NOT_FOUND) when the Nino 'BS000404B' is sent" in {
-      val response = wsResponse("BS000404B")
-      response.status                       shouldBe Status.NOT_FOUND
-      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+      val response = createResponse("BS000404B")
+      status(response) shouldBe NOT_FOUND
+      checkCorrelationIDInResponse(response)
     }
 
     "return 500(SERVER_ERROR) when the Nino 'BS000500B' is sent" in {
-      val response = wsResponse("BS000500B")
-      response.status                       shouldBe Status.INTERNAL_SERVER_ERROR
-      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+      val response = createResponse("BS000500B")
+      status(response) shouldBe INTERNAL_SERVER_ERROR
+      checkCorrelationIDInResponse(response)
     }
 
     "return 500(SERVER_ERROR) when the Nino 'BS0005R0B' is sent" in {
-      val response = wsResponse("BS0005R0B")
-      response.status                       shouldBe Status.INTERNAL_SERVER_ERROR
-      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+      val response = createResponse("BS0005R0B")
+      status(response) shouldBe INTERNAL_SERVER_ERROR
+      checkCorrelationIDInResponse(response)
     }
 
     "return 502(BAD_GATEWAY) when the Nino 'BS000502B' is sent" in {
-      val response = wsResponse("BS000502B")
-      response.status                       shouldBe Status.BAD_GATEWAY
-      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+      val response = createResponse("BS000502B")
+      status(response) shouldBe BAD_GATEWAY
+      checkCorrelationIDInResponse(response)
     }
 
     "return 503(SERVICE_UNAVAILABLE) when the Nino 'BS000503B' is sent" in {
-      val response = wsResponse("BS000503B")
-      response.status                       shouldBe Status.SERVICE_UNAVAILABLE
-      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+      val response = createResponse("BS000503B")
+      status(response) shouldBe SERVICE_UNAVAILABLE
+      checkCorrelationIDInResponse(response)
     }
 
     "return 500(SERVER_ERROR) when the Nino specifies a non-existing HTTP status code" in {
-      val response = wsResponse("BS000700B")
-      response.status                       shouldBe Status.INTERNAL_SERVER_ERROR
-      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+      val response = createResponse("BS000700B")
+      status(response) shouldBe INTERNAL_SERVER_ERROR
+      checkCorrelationIDInResponse(response)
     }
   }
 
-  def acceptsCorrelationId(response: WSResponse, expectedStatus: Int = Status.OK): Unit =
+  def acceptsCorrelationId(response: Future[Result], expectedStatus: Int = Status.OK): Unit =
     "return same CorrelationId as sent regardless of header name's letter case" in {
       withClue("Mixed case") {
-        response.status                       shouldBe expectedStatus
-        response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+        status(response) shouldBe expectedStatus
+        checkCorrelationIDInResponse(response)
       }
 
       withClue("Lower case") {
-        response.status                       shouldBe expectedStatus
-        response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+        status(response) shouldBe expectedStatus
+        checkCorrelationIDInResponse(response)
       }
 
       withClue("Upper case") {
-        response.status                       shouldBe expectedStatus
-        response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+        status(response) shouldBe expectedStatus
+        checkCorrelationIDInResponse(response)
       }
     }
 
-  def ninoSuffixIgnored(wsResponse: String => WSResponse, expectedStatus: Int = Status.OK): Unit =
+  def ninoSuffixIgnored(createResponse: String => Future[Result], expectedStatus: Int = Status.OK): Unit =
     "ensure Nino suffix is ignored" in {
       withClue("With suffix") {
-        val response = wsResponse("AS000001A")
-        response.status                       shouldBe expectedStatus
-        response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+        val response = createResponse("AS000001A")
+        status(response) shouldBe expectedStatus
+        checkCorrelationIDInResponse(response)
       }
 
       withClue("Without suffix") {
-        val response = wsResponse("AS000001")
-        response.status                       shouldBe expectedStatus
-        response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
+        val response = createResponse("AS000001")
+        status(response) shouldBe expectedStatus
+        checkCorrelationIDInResponse(response)
       }
     }
 }

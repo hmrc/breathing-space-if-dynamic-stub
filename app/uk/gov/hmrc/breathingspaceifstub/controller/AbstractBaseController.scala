@@ -75,8 +75,8 @@ abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppCo
     } yield f(RequestId(endpointId))).fold(_.send, identity)
   }
 
-  protected def getDataFromFile(filename: String): String = {
-    val in = getClass.getResourceAsStream(s"/data/$filename")
+  protected def getStaticDataFromFile(filename: String): String = {
+    val in = getClass.getResourceAsStream(s"/data/static/$filename")
     Source.fromInputStream(in).getLines().mkString
   }
 

@@ -39,20 +39,24 @@ class IndividualDetailsController @Inject() (
 
   def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
     val staticRetrieval: String => Option[Result] = nino => {
+      println("\n STATIC RE")
       val result = (nino.toUpperCase.take(8), fields, appConfig.fullPopulationDetailsEnabled) match {
         case (normalisedNino, _, _) if normalisedNino.startsWith("BS") =>
           sendErrorResponseFromNino(normalisedNino) // a bad nino
         case (normalisedNino, None, true) =>
-          sendResponseBla(normalisedNino, getDataFromFile(s"individuals/$fullPopulationDetails"))
+          println("\nUUUUUUUUUUUUUOOOOOOOOOOOOOOOOO")
+          sendResponseBla(normalisedNino, getStaticDataFromFile(s"individuals/$fullPopulationDetails"))
         case (normalisedNino, None, false) => sendResponse(BAD_REQUEST, failures("INVALID_ENDPOINT"))
         case (normalisedNino, Some(queryString), _) =>
+          println("\nRUBBLE")
           val qs = queryString.replaceAll("\\s+", "")
-          if (qs == filter) sendResponseBla(normalisedNino, getDataFromFile(s"individuals/$detailsForBreathingSpace"))
+          if (qs == filter)
+            sendResponseBla(normalisedNino, getStaticDataFromFile(s"individuals/$detailsForBreathingSpace"))
           else sendResponse(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM"))
       }
       Some(result)
     }
-
+    println("\nIN GET")
     withStaticCheck(nino)(staticRetrieval) { request =>
       fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
     }
