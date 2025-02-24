@@ -114,6 +114,7 @@ trait BaseISpec
     } else {
       attendedCall(Helpers.GET, PeriodsController.get(nino).url)
     }
+  /*
 
   def postPeriods(nino: String, periods: List[PostPeriodInRequest]): Future[Result] =
     postPeriods(nino, UUID.randomUUID, periods)
@@ -124,6 +125,27 @@ trait BaseISpec
       PeriodsController.post(nino).url,
       Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods))
     )
+   */
+  def postPeriods(
+    nino: String,
+    consumerRequestId: UUID = UUID.randomUUID(),
+    postPeriods: List[PostPeriodInRequest],
+    staticDataOn: Boolean = false
+  ): Future[Result] =
+    if (staticDataOn) {
+      unattendedCall(
+        Helpers.POST,
+        PeriodsController.post(nino).url,
+        Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods)),
+        appStaticDataOn
+      )
+    } else {
+      unattendedCall(
+        Helpers.POST,
+        PeriodsController.post(nino).url,
+        Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods))
+      )
+    }
 
   def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest]): Future[Result] =
     unattendedCall(Helpers.PUT, PeriodsController.put(nino).url, Json.toJson(PutPeriodsInRequest(putPeriods)))
@@ -175,8 +197,8 @@ trait BaseISpec
   def attendedCall(method: String, url: String, body: JsValue): Future[Result] =
     route(app, attendedFakeRequest(method, url).withBody(body)).get
 
-  def unattendedCall(method: String, url: String, body: JsValue): Future[Result] =
-    route(app, unattendedFakeRequest(method, url).withBody(body)).get
+  def unattendedCall(method: String, url: String, body: JsValue, appl: Application = app): Future[Result] =
+    route(appl, unattendedFakeRequest(method, url).withBody(body)).get
 
   def attendedFakeRequest(method: String, url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(method, url).withHeaders(attendedRequestHeaders: _*)

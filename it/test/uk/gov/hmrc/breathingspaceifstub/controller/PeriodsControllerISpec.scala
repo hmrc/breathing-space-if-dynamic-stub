@@ -38,7 +38,7 @@ class PeriodsControllerISpec extends BaseISpec {
 
       val postPeriod1 = genPostPeriodInRequest(withEndDate)
       val postPeriod2 = genPostPeriodInRequest()
-      status(postPeriods(individual.nino, List(postPeriod1, postPeriod2))) shouldBe CREATED
+      status(postPeriods(nino = individual.nino, postPeriods = List(postPeriod1, postPeriod2))) shouldBe CREATED
 
       val response = getPeriods(individual.nino)
       status(response) shouldBe OK
@@ -108,7 +108,7 @@ class PeriodsControllerISpec extends BaseISpec {
       status(postIndividual(individual)) shouldBe CREATED
 
       val postPeriodsInRequest = List(genPostPeriodInRequest(withEndDate))
-      status(postPeriods(individual.nino, postPeriodsInRequest)) shouldBe CREATED
+      status(postPeriods(nino = individual.nino, postPeriods = postPeriodsInRequest)) shouldBe CREATED
     }
   }
 
@@ -121,7 +121,7 @@ class PeriodsControllerISpec extends BaseISpec {
         genPostPeriodInRequest(withEndDate),
         genPostPeriodInRequest()
       )
-      status(postPeriods(individual.nino, postPeriodsInRequest)) shouldBe CREATED
+      status(postPeriods(nino = individual.nino, postPeriods = postPeriodsInRequest)) shouldBe CREATED
     }
   }
 
@@ -131,10 +131,10 @@ class PeriodsControllerISpec extends BaseISpec {
       status(postIndividual(individual)) shouldBe CREATED
 
       val postPeriodsInRequest1 = List(genPostPeriodInRequest())
-      status(postPeriods(individual.nino, postPeriodsInRequest1)) shouldBe CREATED
+      status(postPeriods(nino = individual.nino, postPeriods = postPeriodsInRequest1)) shouldBe CREATED
 
       val postPeriodsInRequest2 = List(genPostPeriodInRequest(withEndDate), genPostPeriodInRequest())
-      status(postPeriods(individual.nino, postPeriodsInRequest2)) shouldBe CREATED
+      status(postPeriods(nino = individual.nino, postPeriods = postPeriodsInRequest2)) shouldBe CREATED
 
       val response = getPeriods(individual.nino)
       status(response) shouldBe OK
@@ -167,10 +167,14 @@ class PeriodsControllerISpec extends BaseISpec {
       val consumerRequestId = UUID.randomUUID
 
       val postPeriodsInRequest1 = List(genPostPeriodInRequest(withEndDate))
-      status(postPeriods(individual.nino, consumerRequestId, postPeriodsInRequest1)) shouldBe CREATED
+      status(
+        postPeriods(nino = individual.nino, consumerRequestId, postPeriods = postPeriodsInRequest1)
+      ) shouldBe CREATED
 
       val postPeriodsInRequest2 = List(genPostPeriodInRequest(withEndDate))
-      status(postPeriods(individual.nino, consumerRequestId, postPeriodsInRequest2)) shouldBe CONFLICT
+      status(
+        postPeriods(nino = individual.nino, consumerRequestId, postPeriods = postPeriodsInRequest2)
+      ) shouldBe CONFLICT
     }
   }
 
@@ -180,7 +184,7 @@ class PeriodsControllerISpec extends BaseISpec {
       status(postIndividual(individual)) shouldBe CREATED
 
       val postPeriodsInRequest = List(genPostPeriodInRequest(withEndDate))
-      status(postPeriods(genNino, postPeriodsInRequest)) shouldBe NOT_FOUND
+      status(postPeriods(nino = genNino, postPeriods = postPeriodsInRequest)) shouldBe NOT_FOUND
     }
   }
 
@@ -190,7 +194,7 @@ class PeriodsControllerISpec extends BaseISpec {
       status(postIndividual(individual)) shouldBe CREATED
 
       val postPeriodsInRequest = List.empty
-      val response = postPeriods(genNino, postPeriodsInRequest)
+      val response = postPeriods(nino = genNino, postPeriods = postPeriodsInRequest)
       status(response) shouldBe BAD_REQUEST
       assert(contentAsString(response).startsWith(s"""{"failures":[{"code":"${INVALID_JSON.getClass.getSimpleName
           .stripSuffix("$")}"""))
@@ -222,7 +226,7 @@ class PeriodsControllerISpec extends BaseISpec {
       status(postIndividual(individual)) shouldBe CREATED
 
       val postPeriodsInRequest = List(genPostPeriodInRequest())
-      status(postPeriods(individual.nino, postPeriodsInRequest)) shouldBe CREATED
+      status(postPeriods(nino = individual.nino, postPeriods = postPeriodsInRequest)) shouldBe CREATED
 
       val getResponse = getPeriods(individual.nino)
       status(getResponse) shouldBe OK

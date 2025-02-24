@@ -21,6 +21,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.support.{BaseISpec, ControllerBehaviours}
 
+import java.time.{LocalDate, LocalDateTime}
 import scala.io.Source
 
 class PeriodsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
@@ -90,18 +91,30 @@ class PeriodsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
       }
     }
   }
-//
-//  "POST /NINO/:nino/periods" should {
-//
-//    val period1      = """{"startDate":"2020-06-25","pegaRequestTimestamp":"2020-12-22T14:19:03+01:00"}"""
-//    val period2      =
-//      """{"startDate":"2020-06-22","endDate":"2020-08-22","pegaRequestTimestamp":"2020-12-22T14:19:03+01:00"}"""
-//    val bodyContents = s"""{"periods":[$period1,$period2]}"""
-//
+
+  "POST /NINO/:nino/periods" should {
+    val period1 = PostPeriodInRequest(
+      LocalDate.of(2020, 6, 25),
+      None,
+      LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
+    )
+    val period2 = PostPeriodInRequest(
+      LocalDate.of(2020, 6, 22),
+      Some(LocalDate.of(2020, 8, 22)),
+      LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
+    )
+    val periods = List(period1, period2)
+
+    behave.like(
+      aNinoAsErrorCodeEndpoint(nino => postPeriods(nino = nino, postPeriods = periods, staticDataOn = true))
+    )
+//    behave.like(acceptsCorrelationId(getPeriods("AS000001A", staticDataOn = true)))
+//    behave.like(ninoSuffixIgnored(nino => getPeriods(nino, staticDataOn = true)))
+
 //    behave.like(aNinoAsErrorCodeEndpoint(s => makePostRequest(getConnectionUrl(s), bodyContents)))
 //    behave.like(acceptsCorrelationId(makePostRequest(getConnectionUrl("AS000001A"), bodyContents), Status.CREATED))
 //    behave.like(ninoSuffixIgnored(s => makePostRequest(getConnectionUrl(s), bodyContents), Status.CREATED))
-//
+
 //    "return 201(CREATED) with the periods sent when any accepted Nino value is sent" in {
 //      val response = makePostRequest(getConnectionUrl("AS000400A"), bodyContents)
 //      response.status                       shouldBe Status.CREATED
@@ -125,7 +138,7 @@ class PeriodsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
 //      response.status                       shouldBe Status.BAD_REQUEST
 //      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
 //    }
-//  }
+  }
 //
 //  "PUT /NINO/:nino/periods" should {
 //

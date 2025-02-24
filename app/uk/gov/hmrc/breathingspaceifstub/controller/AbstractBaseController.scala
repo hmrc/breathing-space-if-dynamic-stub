@@ -161,9 +161,9 @@ abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppCo
       )
       .as(play.mvc.Http.MimeTypes.JSON)
 
-  protected def withStaticCheck(nino: String)(staticRetrieval: String => Option[Result])(
-    f: Request[_] => Future[Result]
-  )(implicit request: Request[_]): Future[Result] =
+  protected def withStaticCheck[A](nino: String)(staticRetrieval: String => Option[Result])(
+    f: Request[A] => Future[Result]
+  )(implicit request: Request[A]): Future[Result] =
     if (appConfig.isEnabledStaticData) {
       staticRetrieval(nino) match {
         case Some(result) =>
