@@ -17,7 +17,6 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import cats.syntax.option.*
-import play.api.http.Status.NOT_FOUND
 import play.api.test.Helpers.*
 import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.CONFLICTING_REQUEST

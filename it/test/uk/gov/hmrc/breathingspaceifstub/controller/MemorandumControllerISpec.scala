@@ -17,7 +17,6 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import cats.implicits.catsSyntaxOptionId
-import org.scalatest.funsuite.AnyFunSuite
 import play.api.http.Status.*
 import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.breathingspaceifstub.model.*

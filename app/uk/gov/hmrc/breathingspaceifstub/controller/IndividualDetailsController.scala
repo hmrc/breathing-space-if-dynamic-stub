@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
@@ -27,7 +26,6 @@ import uk.gov.hmrc.breathingspaceifstub.service.IndividualDetailsService
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 @Singleton()
 class IndividualDetailsController @Inject() (
@@ -39,16 +37,13 @@ class IndividualDetailsController @Inject() (
 
   def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
     val staticRetrieval: String => Option[Result] = nino => {
-      println("\n STATIC RE")
       val result = (nino.toUpperCase.take(8), fields, appConfig.fullPopulationDetailsEnabled) match {
         case (normalisedNino, _, _) if normalisedNino.startsWith("BS") =>
           sendErrorResponseFromNino(normalisedNino) // a bad nino
         case (normalisedNino, None, true) =>
-          println("\nUUUUUUUUUUUUUOOOOOOOOOOOOOOOOO")
           sendResponseBla(normalisedNino, getStaticDataFromFile(s"individuals/$fullPopulationDetails"))
         case (normalisedNino, None, false) => sendResponse(BAD_REQUEST, failures("INVALID_ENDPOINT"))
         case (normalisedNino, Some(queryString), _) =>
-          println("\nRUBBLE")
           val qs = queryString.replaceAll("\\s+", "")
           if (qs == filter)
             sendResponseBla(normalisedNino, getStaticDataFromFile(s"individuals/$detailsForBreathingSpace"))
@@ -56,7 +51,6 @@ class IndividualDetailsController @Inject() (
       }
       Some(result)
     }
-    println("\nIN GET")
     withStaticCheck(nino)(staticRetrieval) { request =>
       fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
     }
@@ -73,50 +67,6 @@ class IndividualDetailsController @Inject() (
     val Indicators = "indicators(welshOutputInd)"
 
     s"$Details,$NameList,$AddressList,$Indicators"
-  }
-
-  private val httpErrorCodes = Map(
-    400 -> "BAD_REQUEST",
-    401 -> "UNAUTHORIZED",
-    402 -> "PAYMENT_REQUIRED",
-    403 -> "BREATHINGSPACE_EXPIRED",
-    404 -> "RESOURCE_NOT_FOUND",
-    405 -> "METHOD_NOT_ALLOWED",
-    406 -> "NOT_ACCEPTABLE",
-    407 -> "PROXY_AUTHENTICATION_REQUIRED",
-    408 -> "REQUEST_TIMEOUT",
-    409 -> "CONFLICTING_REQUEST",
-    410 -> "GONE",
-    411 -> "LENGTH_REQUIRED",
-    412 -> "PRECONDITION_FAILED",
-    413 -> "REQUEST_ENTITY_TOO_LARGE",
-    414 -> "REQUEST_URI_TOO_LONG",
-    415 -> "MISSING_JSON_HEADER",
-    416 -> "REQUESTED_RANGE_NOT_SATISFIABLE",
-    417 -> "EXPECTATION_FAILED",
-    422 -> "UNKNOWN_DATA_ITEM",
-    423 -> "LOCKED",
-    424 -> "FAILED_DEPENDENCY",
-    426 -> "UPGRADE_REQUIRED",
-    428 -> "HEADERS_PRECONDITION_NOT_MET",
-    429 -> "TOO_MANY_REQUESTS",
-    500 -> "SERVER_ERROR",
-    501 -> "NOT_IMPLEMENTED",
-    502 -> "BAD_GATEWAY",
-    503 -> "SERVICE_UNAVAILABLE",
-    504 -> "GATEWAY_TIMEOUT",
-    505 -> "HTTP_VERSION_NOT_SUPPORTED",
-    507 -> "INSUFFICIENT_STORAGE",
-    511 -> "NETWORK_AUTHENTICATION_REQUIRED"
-  )
-
-  private def sendErrorResponseFromNino(nino: String)(implicit request: Request[_]): Result = {
-    val statusCode = Try(nino.substring(5, 8).toInt).getOrElse(INTERNAL_SERVER_ERROR)
-    httpErrorCodes
-      .get(statusCode)
-      .fold(sendResponse(INTERNAL_SERVER_ERROR, failures("SERVER_ERROR"))) { code =>
-        sendResponse(statusCode, failures(code))
-      }
   }
 
   private def breathingSpacePopulation(nino: String, fields: String)(implicit request: Request[_]): Future[Result] =

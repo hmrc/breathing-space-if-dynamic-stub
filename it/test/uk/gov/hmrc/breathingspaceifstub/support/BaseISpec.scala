@@ -94,8 +94,12 @@ trait BaseISpec
       attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
     }
 
-  def getDebts(nino: String, periodId: UUID = UUID.randomUUID): Future[Result] =
-    attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
+  def getDebts(nino: String, periodId: UUID = UUID.randomUUID, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url, appStaticDataOn)
+    } else {
+      attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
+    }
 
   def getMemorandum(nino: String, staticDataOn: Boolean = false): Future[Result] =
     if (staticDataOn) {
