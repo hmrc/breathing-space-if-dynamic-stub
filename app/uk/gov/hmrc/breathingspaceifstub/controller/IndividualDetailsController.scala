@@ -38,7 +38,22 @@ class IndividualDetailsController @Inject() (
     extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withStaticCheck(nino)(nino => Some(composeResponseFromNino(nino, getAcceptedNinoHandler(fields)))) { request =>
+    val staticRetrieval: String => Option[Result] = nino => {
+      val result = (nino.toUpperCase.take(8), fields, appConfig.fullPopulationDetailsEnabled) match {
+        case (normalisedNino, _, _) if normalisedNino.startsWith("BS") =>
+          sendErrorResponseFromNino(normalisedNino) // a bad nino
+        case (normalisedNino, None, true) =>
+          sendResponseBla(normalisedNino, getDataFromFile(s"individuals/$fullPopulationDetails"))
+        case (normalisedNino, None, false) => sendResponse(BAD_REQUEST, failures("INVALID_ENDPOINT"))
+        case (normalisedNino, Some(queryString), _) =>
+          val qs = queryString.replaceAll("\\s+", "")
+          if (qs == filter) sendResponseBla(normalisedNino, getDataFromFile(s"individuals/$detailsForBreathingSpace"))
+          else sendResponse(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM"))
+      }
+      Some(result)
+    }
+
+    withStaticCheck(nino)(staticRetrieval) { request =>
       fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
     }
   }
@@ -91,19 +106,6 @@ class IndividualDetailsController @Inject() (
     511 -> "NETWORK_AUTHENTICATION_REQUIRED"
   )
 
-  private def getAcceptedNinoHandler(
-    fields: Option[String]
-  )(nino: String)(implicit request: Request[_]): Result =
-    fields.fold {
-      if (appConfig.fullPopulationDetailsEnabled)
-        sendResponseBla(nino, getDataFromFile(s"individuals/$fullPopulationDetails"))
-      else sendResponse(BAD_REQUEST, failures("INVALID_ENDPOINT"))
-    } { queryString =>
-      val qs = queryString.replaceAll("\\s+", "")
-      if (qs == filter) sendResponseBla(nino, getDataFromFile(s"individuals/$detailsForBreathingSpace"))
-      else sendResponse(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM"))
-    }
-
   private def sendErrorResponseFromNino(nino: String)(implicit request: Request[_]): Result = {
     val statusCode = Try(nino.substring(5, 8).toInt).getOrElse(INTERNAL_SERVER_ERROR)
     httpErrorCodes
@@ -111,14 +113,6 @@ class IndividualDetailsController @Inject() (
       .fold(sendResponse(INTERNAL_SERVER_ERROR, failures("SERVER_ERROR"))) { code =>
         sendResponse(statusCode, failures(code))
       }
-  }
-
-  def composeResponseFromNino(nino: String, acceptedHandler: (String) => Result)(implicit
-    request: Request[_]
-  ): Result = {
-    val normalisedNino = nino.toUpperCase.take(8)
-    if (normalisedNino.take(2) == "BS") sendErrorResponseFromNino(normalisedNino) // a bad nino
-    else acceptedHandler(normalisedNino)
   }
 
   private def breathingSpacePopulation(nino: String, fields: String)(implicit request: Request[_]): Future[Result] =

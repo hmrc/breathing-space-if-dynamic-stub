@@ -16,26 +16,27 @@
 
 package uk.gov.hmrc.breathingspaceifstub.support
 
-import java.util.UUID
-import scala.concurrent.Future
-import cats.syntax.option._
+import cats.syntax.option.*
 import org.apache.pekko.stream.Materializer
-import org.scalatest.{BeforeAndAfterEach, OptionValues}
-import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.test.Helpers.*
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
-import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.controller.routes._
-import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.controller.routes.*
+import uk.gov.hmrc.breathingspaceifstub.model.*
+
+import java.util.UUID
+import scala.concurrent.Future
 
 trait BaseISpec
-    extends AnyFunSuite
+    extends AnyWordSpec
     with BeforeAndAfterEach
     with BreathingSpaceTestSupport
     with DefaultAwaitTimeout
@@ -53,6 +54,15 @@ trait BaseISpec
 
   override lazy val app: Application = GuiceApplicationBuilder().configure(configProperties).build()
 
+  protected val appStaticDataOn: Application = {
+    val configProperties: Map[String, Any] = Map(
+      "full-population-details-enabled" -> true,
+      "mongodb.uri" -> "mongodb://localhost:27017/breathing-space-it",
+      "feature.enableStaticData" -> true
+    )
+    GuiceApplicationBuilder().configure(configProperties).build()
+  }
+
   implicit val materializer: Materializer = inject[Materializer]
 
   override def beforeEach(): Unit =
@@ -61,14 +71,22 @@ trait BaseISpec
   // Production endpoints
   // ====================
 
-  def getIndividualDetails(nino: String, fields: Option[String] = none): Future[Result] =
-    attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
+  def getIndividualDetails(nino: String, fields: Option[String] = none, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url, appStaticDataOn)
+    } else {
+      attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
+    }
 
   def getDebts(nino: String, periodId: UUID = UUID.randomUUID): Future[Result] =
     attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
 
-  def getMemorandum(nino: String): Future[Result] =
-    memorandumCall(Helpers.GET, MemorandumController.get(nino).url)
+  def getMemorandum(nino: String, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      memorandumCall(Helpers.GET, MemorandumController.get(nino).url, appStaticDataOn)
+    } else {
+      memorandumCall(Helpers.GET, MemorandumController.get(nino).url)
+    }
 
   def getPeriods(nino: String): Future[Result] = attendedCall(Helpers.GET, PeriodsController.get(nino).url)
 
@@ -123,9 +141,11 @@ trait BaseISpec
 
   // ==========================================================================================================
 
-  def attendedCall(method: String, url: String): Future[Result] = route(app, attendedFakeRequest(method, url)).get
+  def attendedCall(method: String, url: String, appl: Application = app): Future[Result] =
+    route(appl, attendedFakeRequest(method, url)).get
 
-  def memorandumCall(method: String, url: String): Future[Result] = route(app, memorandumFakeRequest(method, url)).get
+  def memorandumCall(method: String, url: String, appl: Application = app): Future[Result] =
+    route(appl, memorandumFakeRequest(method, url)).get
 
   def attendedCall(method: String, url: String, body: JsValue): Future[Result] =
     route(app, attendedFakeRequest(method, url).withBody(body)).get
