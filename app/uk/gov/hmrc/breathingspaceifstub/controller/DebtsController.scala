@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import java.util.UUID
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.ExecutionContext
-
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.NO_DATA_FOUND
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.DebtsService
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
 @Singleton()
 class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerComponents)(implicit
-  val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
+  val ec: ExecutionContext,
+  appConfig: AppConfig
+) extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
     withHeaderValidation(BS_Debts_GET) { implicit requestId =>

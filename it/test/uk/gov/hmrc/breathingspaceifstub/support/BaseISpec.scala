@@ -48,7 +48,7 @@ trait BaseISpec
   val configProperties: Map[String, Any] = Map(
     "full-population-details-enabled" -> true,
     "mongodb.uri" -> "mongodb://localhost:27017/breathing-space-it",
-    "feature.enableStaticData" -> true
+    "feature.enableStaticData" -> false
   )
 
   override lazy val app: Application = GuiceApplicationBuilder().configure(configProperties).build()

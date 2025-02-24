@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import java.util.UUID
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.UnderpaymentsService
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
 class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsService, cc: ControllerComponents)(implicit
-  val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
+  val ec: ExecutionContext,
+  appConfig: AppConfig
+) extends AbstractBaseController(cc, appConfig) {
 
   def saveUnderpayments(nino: String, periodId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>

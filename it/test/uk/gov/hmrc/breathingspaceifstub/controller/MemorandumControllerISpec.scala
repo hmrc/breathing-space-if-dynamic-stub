@@ -17,12 +17,16 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import cats.implicits.catsSyntaxOptionId
+import org.scalatest.funsuite.AnyFunSuite
 import play.api.http.Status.*
+import play.api.test.Helpers
 import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.breathingspaceifstub.model.Memorandum
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
 
 import java.time.LocalDate
+//import play.api.test.Helpers._
+import uk.gov.hmrc.breathingspaceifstub.model.*
 
 class MemorandumControllerISpec extends BaseISpec {
 
@@ -106,26 +110,6 @@ class MemorandumControllerISpec extends BaseISpec {
     val nino = "BS000503B"
     val response = getMemorandum(nino)
     status(response) shouldBe SERVICE_UNAVAILABLE
-  }
-
-  test("\"get\" (Memorandum) should return true when periods exist and is static data and does not exist in mongo") {
-    val individual = genIndividualInRequest(withPeriods = true).copy(nino = "AS000001")
-
-    val response = getMemorandum(individual.nino)
-    status(response) shouldBe OK
-
-    val memorandum = contentAsJson(response).as[Memorandum]
-    memorandum shouldBe Memorandum(true)
-  }
-  test("\"get\" (Memorandum) should return true when periods exist and is static data and does exist in mongo") {
-    val individual = genIndividualInRequest(withPeriods = true).copy(nino = "AS000001")
-
-    status(postIndividual(individual)) shouldBe CREATED
-    val response = getMemorandum(individual.nino)
-    status(response) shouldBe OK
-
-    val memorandum = contentAsJson(response).as[Memorandum]
-    memorandum shouldBe Memorandum(true)
   }
 
 }

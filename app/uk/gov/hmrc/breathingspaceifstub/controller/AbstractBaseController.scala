@@ -16,21 +16,24 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import scala.concurrent.{ExecutionContext, Future}
-import cats.syntax.either._
-import cats.syntax.option._
+import cats.syntax.either.*
+import cats.syntax.option.*
 import play.api.Logging
-import play.api.http.{HeaderNames, MimeTypes}
-import play.api.libs.json._
-import play.api.mvc._
-import uk.gov.hmrc.breathingspaceifstub._
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError._
+import play.api.http.HeaderNames
+import play.api.libs.json.*
+import play.api.mvc.*
+import uk.gov.hmrc.breathingspaceifstub.*
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.*
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.*
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.{BS_Memorandum_GET, BS_Periods_POST, BS_Periods_PUT}
-import uk.gov.hmrc.breathingspaceifstub.model.HttpErrorCode
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: ExecutionContext)
+import java.util.UUID
+import scala.concurrent.{ExecutionContext, Future}
+import scala.io.Source
+
+abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppConfig)(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
@@ -72,6 +75,49 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
     } yield f(RequestId(endpointId))).fold(_.send, identity)
   }
 
+  protected def getDataFromFile(filename: String): String = {
+    val in = getClass.getResourceAsStream(s"/data/$filename")
+    Source.fromInputStream(in).getLines().mkString
+  }
+
+  protected def sendResponse(httpCode: Int, body: JsValue)(implicit request: Request[_]): Result =
+    Status(httpCode)(body)
+      .withHeaders(
+        Header.CorrelationId -> request.headers
+          .get(Header.CorrelationId)
+          .getOrElse(UUID.randomUUID().toString)
+      )
+      .as(play.mvc.Http.MimeTypes.JSON)
+
+  protected def sendResponseBla(nino: String, details: String)(implicit request: Request[_]): Result =
+    sendResponse(OK, Json.parse(details.replaceFirst("\\$\\{nino}", nino)))
+
+  protected def failures(code: String, reason: String = "A generic error"): JsValue =
+    Json.parse(s"""{"failures":[{"code":"$code","reason":"$reason"}]}""")
+
+  protected def createResult(httpCode: Int, body: JsValue)(implicit request: Request[_]): Result =
+    Status(httpCode)(body)
+      .withHeaders(
+        Header.CorrelationId -> request.headers
+          .get(Header.CorrelationId)
+          .getOrElse(UUID.randomUUID().toString)
+      )
+      .as(play.mvc.Http.MimeTypes.JSON)
+
+  protected def withStaticCheck(nino: String)(staticRetrieval: String => Option[Result])(
+    f: Request[_] => Future[Result]
+  )(implicit request: Request[_]): Future[Result] =
+    if (appConfig.isEnabledStaticData) {
+      staticRetrieval(nino) match {
+        case Some(result) =>
+          Future.successful(result)
+        case _ =>
+          f(request)
+      }
+    } else {
+      f(request)
+    }
+
   private def logAndGenFailure(failure: Failure)(implicit requestId: RequestId): HttpError = {
     val bE = failure.baseError
     val code =
@@ -91,10 +137,10 @@ abstract class AbstractBaseController(cc: ControllerComponents)(implicit ec: Exe
     logger.debug(s"Response to $requestId has status(${result.header.status})")
     result
       .withHeaders(
-        HeaderNames.CONTENT_TYPE -> MimeTypes.JSON,
+        HeaderNames.CONTENT_TYPE -> play.mvc.Http.MimeTypes.JSON,
         Header.CorrelationId -> requestId.correlationId.toString
       )
-      .as(MimeTypes.JSON)
+      .as(play.mvc.Http.MimeTypes.JSON)
   }
 
   private def missingBody[T]: BodyParser[Response[T]] = parse.ignore[Response[T]](Left(Failure(MISSING_BODY)))
