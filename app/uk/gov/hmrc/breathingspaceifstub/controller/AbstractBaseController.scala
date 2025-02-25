@@ -140,7 +140,7 @@ abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppCo
       )
       .as(play.mvc.Http.MimeTypes.JSON)
 
-  protected def sendResponseBla(nino: String, details: String)(implicit request: Request[_]): Result =
+  protected def sendResponseReplaceNino(nino: String, details: String)(implicit request: Request[_]): Result =
     sendResponse(OK, Json.parse(details.replaceFirst("\\$\\{nino}", nino)))
 
   protected def failures(code: String, reason: String = "A generic error"): JsValue =

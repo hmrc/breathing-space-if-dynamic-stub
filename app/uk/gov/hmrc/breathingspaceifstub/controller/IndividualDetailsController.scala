@@ -55,16 +55,17 @@ class IndividualDetailsController @Inject() (
 
         s"$Details,$NameList,$AddressList,$Indicators"
       }
+
       val result = (nino.toUpperCase.take(8), fields, appConfig.fullPopulationDetailsEnabled) match {
         case (normalisedNino, _, _) if normalisedNino.startsWith("BS") =>
           sendErrorResponseFromNino(normalisedNino) // a bad nino
         case (normalisedNino, None, true) =>
-          sendResponseBla(normalisedNino, getStaticDataFromFile(s"individuals/$fullPopulationDetails"))
+          sendResponseReplaceNino(normalisedNino, getStaticDataFromFile(s"individuals/$fullPopulationDetails"))
         case (normalisedNino, None, false) => sendResponse(BAD_REQUEST, failures("INVALID_ENDPOINT"))
         case (normalisedNino, Some(queryString), _) =>
           val qs = queryString.replaceAll("\\s+", "")
           if (qs == filter)
-            sendResponseBla(normalisedNino, getStaticDataFromFile(s"individuals/$detailsForBreathingSpace"))
+            sendResponseReplaceNino(normalisedNino, getStaticDataFromFile(s"individuals/$detailsForBreathingSpace"))
           else sendResponse(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM"))
       }
       Some(result)
