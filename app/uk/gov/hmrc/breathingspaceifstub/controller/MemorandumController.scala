@@ -36,7 +36,7 @@ class MemorandumController @Inject() (
 ) extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withStaticCheck(nino)(staticRetrieval) {
+    withStaticDataCheck(nino)(staticDataRetrieval) {
       withHeaderValidation(BS_Memorandum_GET) { implicit requestId =>
         memorandumService
           .get(nino)
@@ -50,7 +50,7 @@ class MemorandumController @Inject() (
     }
   }
 
-  private def staticRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
+  private def staticDataRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
     def jsonBreathingSpaceIndicator(hasIndicator: Boolean) = Json.obj("breathingSpaceIndicator" -> hasIndicator)
     nino.take(8) match {
       case "AS000001" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))

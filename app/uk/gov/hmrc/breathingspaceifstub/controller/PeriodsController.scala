@@ -41,7 +41,7 @@ class PeriodsController @Inject() (
 ) extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withStaticCheck(nino)(staticRetrieval) { request =>
+    withStaticDataCheck(nino)(staticDataRetrieval) { request =>
       withHeaderValidation(BS_Periods_GET) { implicit requestId =>
         periodsService
           .get(nino)
@@ -50,7 +50,7 @@ class PeriodsController @Inject() (
     }
   }
 
-  private def staticRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
+  private def staticDataRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
     def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"periods/$filename")
     nino.take(8) match {
       case "AS000001" => Some(sendResponse(OK, jsonDataFromFile("singleBsPeriodFullPopulation.json")))
@@ -63,7 +63,7 @@ class PeriodsController @Inject() (
     }
   }
 
-  private def staticRetrievalForPOSTAndPUT[A](
+  private def staticDataRetrievalForPOSTAndPUT[A](
     httpSuccessCode: Int,
     addPeriodIdField: Boolean
   )(implicit request: Request[Response[A]], writes: Writes[A]): String => Option[Result] = nino =>
@@ -108,8 +108,8 @@ class PeriodsController @Inject() (
 
   def post(nino: String): Action[Response[PostPeriodsInRequest]] =
     Action.async(withJsonBody[PostPeriodsInRequest]) { implicit request: Request[Response[PostPeriodsInRequest]] =>
-      withStaticCheck[Response[PostPeriodsInRequest]](nino)(
-        staticRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
+      withStaticDataCheck[Response[PostPeriodsInRequest]](nino)(
+        staticDataRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
       ) { request =>
         withHeaderValidation(BS_Periods_POST) { implicit requestId =>
           request.body.fold(
@@ -124,8 +124,8 @@ class PeriodsController @Inject() (
 
   def put(nino: String): Action[Response[PutPeriodsInRequest]] =
     Action.async(withJsonBody[PutPeriodsInRequest]) { implicit request =>
-      withStaticCheck[Response[PutPeriodsInRequest]](nino)(
-        staticRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
+      withStaticDataCheck[Response[PutPeriodsInRequest]](nino)(
+        staticDataRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
       ) {
         withHeaderValidation(BS_Periods_PUT) { implicit requestId =>
           request.body.fold(

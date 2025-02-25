@@ -81,7 +81,7 @@ class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsServ
   }
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withStaticCheck(nino)(staticRetrieval(periodId)) { request =>
+    withStaticDataCheck(nino)(staticDataRetrieval(periodId)) { request =>
       withHeaderValidation(BS_Underpayments_GET) { implicit requestId =>
         underpaymentsService
           .get(nino, periodId)
@@ -95,7 +95,7 @@ class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsServ
     }
   }
 
-  private def staticRetrieval(periodId: UUID)(implicit request: Request[Unit]): String => Option[Result] = nino => {
+  private def staticDataRetrieval(periodId: UUID)(implicit request: Request[Unit]): String => Option[Result] = nino => {
     def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"underpayments/$filename")
     (nino.take(8), periodId.toString) match {
       case (n, _) if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino

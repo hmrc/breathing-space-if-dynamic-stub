@@ -33,22 +33,8 @@ class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerCompo
   val ec: ExecutionContext,
   appConfig: AppConfig
 ) extends AbstractBaseController(cc, appConfig) {
-
-  private def staticRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
-    def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"debts/$filename")
-    nino.take(8) match {
-      case "AS000001" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtFullPopulation.json")))
-      case "AS000002" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtPartialPopulation.json")))
-      case "AS000003" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsFullPopulation.json")))
-      case "AS000004" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsPartialPopulation.json")))
-      case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json")))
-      case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
-      case _ => Some(sendResponse(NOT_FOUND, failures("RESOURCE_NOT_FOUND", "No records found for the given Nino")))
-    }
-  }
-
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withStaticCheck(nino)(staticRetrieval) { request =>
+    withStaticDataCheck(nino)(staticDataRetrieval) { request =>
       withHeaderValidation(BS_Debts_GET) { implicit requestId =>
         debtsService
           .get(nino, periodId)
@@ -61,6 +47,19 @@ class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerCompo
             )
           )
       }
+    }
+  }
+
+  private def staticDataRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
+    def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"debts/$filename")
+    nino.take(8) match {
+      case "AS000001" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtFullPopulation.json")))
+      case "AS000002" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtPartialPopulation.json")))
+      case "AS000003" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsFullPopulation.json")))
+      case "AS000004" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsPartialPopulation.json")))
+      case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json")))
+      case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
+      case _ => Some(sendResponse(NOT_FOUND, failures("RESOURCE_NOT_FOUND", "No records found for the given Nino")))
     }
   }
 }

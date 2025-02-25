@@ -36,12 +36,12 @@ class IndividualDetailsController @Inject() (
     extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withStaticCheck(nino)(staticRetrieval(fields)) { request =>
+    withStaticDataCheck(nino)(staticDataRetrieval(fields)) { request =>
       fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
     }
   }
 
-  private def staticRetrieval(fields: Option[String])(implicit request: Request[Unit]): String => Option[Result] =
+  private def staticDataRetrieval(fields: Option[String])(implicit request: Request[Unit]): String => Option[Result] =
     nino => {
       val fullPopulationDetails = "IndividualDetails.json"
       val detailsForBreathingSpace = "IndividualDetailsForBS.json"
