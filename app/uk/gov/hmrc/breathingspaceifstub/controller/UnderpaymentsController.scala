@@ -96,6 +96,15 @@ class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsServ
       case _                                                    => sendResponse(NOT_FOUND, failures(s"NO_DATA_FOUND", s"$nino or $periodId did not match"))
     }
   }
+
+    | {"underPayments":[{"taxYear":"2011","amount":400.43,"source":"PAYE UP"},{"taxYear":"2020","amount":100.23,"source":"SA UP"}]} |
+      org.scalatest.exceptions.TestFailedException: "... UP"},{"taxYear":"20[20","amount":100.23,"source":"SA UP]"}]}" did not equal "...
+
+       UP"},{"taxYear":"20[13","amount":93782.2,"source":"SA UP"},{"taxYear":"2000","amount":100333.23,"source":"SA UP"},{"taxYear":"2020","amount":9302.22,"source":"SA UP"},{"taxYear":"2015","amount":93.33,"source":"SA Debt]"}]}"
+	at org.scalatest.Assertions.newAssertionFailedException(Assertions.scala:472)
+	at org.scalatest.Assertions.newAssertionFailedException$(Assertions.scala:471)
+	at org.scalatest.Assertions$.newAssertionFailedException(Assertions.scala:1231)
+
    */
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
@@ -103,7 +112,7 @@ class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsServ
       def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"underpayments/$filename")
       (nino.take(8), periodId.toString) match {
         case (n, _) if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
-        case ("AS000001", "648ea46e-8027-11ec-b614-03845253624e") =>
+        case ("AS000001", "a55d2098-61b3-11ec-9ff0-60f262c313dc") =>
           Some(sendResponse(OK, jsonDataFromFile("underpayments1.json")))
 
         case _ => Some(sendResponse(NOT_FOUND, failures("NO_DATA_FOUND", s"$nino or $periodId did not match")))

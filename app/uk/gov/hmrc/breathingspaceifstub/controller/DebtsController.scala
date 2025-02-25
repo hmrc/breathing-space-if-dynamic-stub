@@ -44,7 +44,8 @@ class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerCompo
         case "AS000004" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsPartialPopulation.json")))
         case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json")))
         case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
-        case _ => Some(sendResponse(NOT_FOUND, failures("NO_DATA_FOUND", "No records found for the given Nino")))
+        case _ =>
+          Some(sendResponse(NOT_FOUND, failures("RESOURCE_NOT_FOUND", "No records found for the given Nino")))
       }
     }
 

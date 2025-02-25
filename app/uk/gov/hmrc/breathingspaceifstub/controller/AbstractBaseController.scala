@@ -176,7 +176,6 @@ abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppCo
       else bE.getClass.getSimpleName
 
     val details = failure.detailsToNotShareUpstream.fold("")(details => s" Details: $details")
-
     logger.error(s"$requestId has error code(${code}).$details")
     HttpError(requestId.correlationId, failure)
   }
