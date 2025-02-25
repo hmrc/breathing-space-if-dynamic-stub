@@ -16,56 +16,125 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import play.api.libs.json.*
+import play.api.libs.json.Reads.*
+import play.api.mvc.*
+import uk.gov.hmrc.breathingspaceifstub.Response
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.*
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_JSON, MISSING_BODY}
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
+import uk.gov.hmrc.breathingspaceifstub.service.{PeriodsService, UnderpaymentsService}
+
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.ExecutionContext
-
-import play.api.libs.json.Json
-import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.Response
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
-import uk.gov.hmrc.breathingspaceifstub.service.{PeriodsService, UnderpaymentsService}
 
 @Singleton()
 class PeriodsController @Inject() (
   periodsService: PeriodsService,
   cc: ControllerComponents,
-  underpaymentsService: UnderpaymentsService
+  underpaymentsService: UnderpaymentsService,
+  appConfig: AppConfig
 )(implicit
   val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
+) extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withHeaderValidation(BS_Periods_GET) { implicit requestId =>
-      periodsService
-        .get(nino)
-        .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
+    withStaticDataCheck(nino)(staticDataRetrieval) { request =>
+      withHeaderValidation(BS_Periods_GET) { implicit requestId =>
+        periodsService
+          .get(nino)
+          .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
+      }
     }
   }
 
+  private def staticDataRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
+    def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"periods/$filename")
+    nino.take(8) match {
+      case "AS000001" => Some(sendResponse(OK, jsonDataFromFile("singleBsPeriodFullPopulation.json")))
+      case "AS000002" => Some(sendResponse(OK, jsonDataFromFile("singleBsPeriodPartialPopulation.json")))
+      case "AS000003" => Some(sendResponse(OK, jsonDataFromFile("multipleBsPeriodsFullPopulation.json")))
+      case "AS000004" => Some(sendResponse(OK, jsonDataFromFile("multipleBsPeriodsPartialPopulation.json")))
+      case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsPeriodsMixedPopulation.json")))
+      case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
+      case _ => Some(sendResponse(OK, Json.parse("""{"periods":[]}""")))
+    }
+  }
+
+  private def staticDataRetrievalForPOSTAndPUT[A](
+    httpSuccessCode: Int,
+    addPeriodIdField: Boolean
+  )(implicit request: Request[Response[A]], writes: Writes[A]): String => Option[Result] = nino =>
+    (nino, request.body) match {
+      case (n, _) if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
+      case (n, Left(f)) if f.baseError == MISSING_BODY =>
+        Some(sendResponse(BAD_REQUEST, failures("MISSING_BODY", "The request must have a body")))
+      case (n, Left(f)) if f.baseError == INVALID_JSON =>
+        Some(sendResponse(BAD_REQUEST, failures("INVALID_JSON", "Payload not in the expected Json format")))
+      case (n, Right(p)) =>
+        def transformRequestJsonToResponseJson(jsValue: JsValue, addPeriodIdField: Boolean): JsResult[JsObject] = {
+          val attrTransformer = (__ \ "periods").json.update {
+            __.read[JsArray].map { case JsArray(values) =>
+              val updatedValues = values.map { period =>
+                val retainedFields = period.as[JsObject].fields.filter(_._1 != "pegaRequestTimestamp")
+                val additionalFields =
+                  if (addPeriodIdField) Seq(("periodID", JsString(UUID.randomUUID().toString))) else Seq.empty
+                JsObject(additionalFields ++ retainedFields)
+              }
+
+              JsArray(updatedValues)
+            }
+          }
+          jsValue.transform(attrTransformer)
+        }
+
+        val jsValue = Json.toJson(p)
+        transformRequestJsonToResponseJson(jsValue, addPeriodIdField) match {
+          case JsError(_) =>
+            Some(
+              sendResponse(
+                BAD_REQUEST,
+                failures("INVALID_JSON", "Payload not in the expected Json format")
+              )
+            )
+
+          case JsSuccess(jsObject, _) => Some(sendResponse(httpSuccessCode, jsObject))
+        }
+
+      case _ => Some(sendResponse(OK, Json.parse("""{"periods":[]}""")))
+    }
+
   def post(nino: String): Action[Response[PostPeriodsInRequest]] =
-    Action.async(withJsonBody[PostPeriodsInRequest]) { implicit request =>
-      withHeaderValidation(BS_Periods_POST) { implicit requestId =>
-        request.body.fold(
-          logAndSendFailureResult,
-          periodsService
-            .post(nino, _)
-            .map(_.fold(logAndGenFailureResult, periods => Created(Json.toJson(periods))))
-        )
+    Action.async(withJsonBody[PostPeriodsInRequest]) { implicit request: Request[Response[PostPeriodsInRequest]] =>
+      withStaticDataCheck[Response[PostPeriodsInRequest]](nino)(
+        staticDataRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
+      ) { request =>
+        withHeaderValidation(BS_Periods_POST) { implicit requestId =>
+          request.body.fold(
+            logAndSendFailureResult,
+            periodsService
+              .post(nino, _)
+              .map(_.fold(logAndGenFailureResult, periods => Created(Json.toJson(periods))))
+          )
+        }
       }
     }
 
   def put(nino: String): Action[Response[PutPeriodsInRequest]] =
     Action.async(withJsonBody[PutPeriodsInRequest]) { implicit request =>
-      withHeaderValidation(BS_Periods_PUT) { implicit requestId =>
-        request.body.fold(
-          logAndSendFailureResult,
-          periodsService
-            .put(nino, _)
-            .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
-        )
+      withStaticDataCheck[Response[PutPeriodsInRequest]](nino)(
+        staticDataRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = false)
+      ) {
+        withHeaderValidation(BS_Periods_PUT) { implicit requestId =>
+          request.body.fold(
+            logAndSendFailureResult,
+            periodsService
+              .put(nino, _)
+              .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
+          )
+        }
       }
     }
 

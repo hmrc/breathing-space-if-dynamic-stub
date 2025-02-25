@@ -17,16 +17,12 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import play.api.http.Status.*
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
-import play.mvc.Http.MimeTypes
-import uk.gov.hmrc.breathingspaceifstub.Header
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.IDENTIFIER_NOT_IN_BREATHINGSPACE
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.MemorandumService
 
-import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
@@ -37,23 +33,25 @@ class MemorandumController @Inject() (
   appConfig: AppConfig
 )(implicit
   val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
+) extends AbstractBaseController(cc, appConfig) {
 
-  private def createResult(httpCode: Int, body: JsValue)(implicit request: Request[_]): Result =
-    Status(httpCode)(body)
-      .withHeaders(
-        Header.CorrelationId -> request.headers
-          .get(Header.CorrelationId)
-          .getOrElse(UUID.randomUUID().toString)
-      )
-      .as(MimeTypes.JSON)
+  def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
+    withStaticDataCheck(nino)(staticDataRetrieval) {
+      withHeaderValidation(BS_Memorandum_GET) { implicit requestId =>
+        memorandumService
+          .get(nino)
+          .map {
+            case Left(failure) =>
+              logAndGenFailureResult(failure)
+            case Right(memorandum) =>
+              Ok(Json.toJson(memorandum))
+          }
+      }
+    }
+  }
 
-  private def failures(code: String, reason: String = "A generic error"): JsValue =
-    Json.parse(s"""{"failures":[{"code":"$code","reason":"$reason"}]}""")
-
-  private def jsonBreathingSpaceIndicator(hasIndicator: Boolean) = Json.obj("breathingSpaceIndicator" -> hasIndicator)
-
-  private def mapNinoToResult(nino: String)(implicit request: Request[_]): Option[Result] =
+  private def staticDataRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
+    def jsonBreathingSpaceIndicator(hasIndicator: Boolean) = Json.obj("breathingSpaceIndicator" -> hasIndicator)
     nino.take(8) match {
       case "AS000001" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
       case "AS000002" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = false)))
@@ -61,23 +59,6 @@ class MemorandumController @Inject() (
       case "AS000003" => Some(createResult(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM")))
       case "AS000004" => Some(createResult(BAD_GATEWAY, failures("BAD_GATEWAY")))
       case _ => None
-    }
-
-  def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withHeaderValidation(BS_Memorandum_GET) { implicit requestId =>
-      memorandumService
-        .get(nino)
-        .map {
-          case Left(failure) if failure.baseError == IDENTIFIER_NOT_IN_BREATHINGSPACE =>
-            if (appConfig.isEnabledStaticData) {
-              mapNinoToResult(nino) match {
-                case Some(result) => result
-                case _ => logAndGenFailureResult(failure)
-              }
-            } else logAndGenFailureResult(failure)
-          case Left(failure) => logAndGenFailureResult(failure)
-          case Right(memorandum) => Ok(Json.toJson(memorandum))
-        }
     }
   }
 

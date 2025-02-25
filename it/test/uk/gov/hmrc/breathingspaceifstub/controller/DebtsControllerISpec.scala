@@ -16,49 +16,58 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import java.util.UUID
-import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.model._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.support.BaseISpec
+
+import java.util.UUID
 
 class DebtsControllerISpec extends BaseISpec {
 
-  test("\"get\" (Debts) should return all debts for an existing Nino, if any") {
-    val individual = genIndividualInRequest(withPeriods = true, withDebts = true)
-    status(postIndividual(individual)) shouldBe CREATED
+  "Call" must {
+    "get (Debts) should return all debts for an existing Nino, if any" in {
+      val individual = genIndividualInRequest(withPeriods = true, withDebts = true)
+      status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getDebts(individual.nino, retrievePeriodId(individual.nino))
-    status(response) shouldBe OK
+      val response = getDebts(individual.nino, retrievePeriodId(individual.nino))
+      status(response) shouldBe OK
 
-    val debts = contentAsJson(response).as[Debts]
-    debts.size shouldBe 2
+      val debts = contentAsJson(response).as[Debts]
+      debts.size shouldBe 2
 
-    debts.head shouldBe debt1
-    debts.last shouldBe debt2
+      debts.head shouldBe debt1
+      debts.last shouldBe debt2
+    }
   }
 
-  test("\"get\" (Debts) should return NO_DATA_FOUND(404) if no debts are found for the provided Nino") {
-    val individual = genIndividualInRequest(withPeriods = true)
-    status(postIndividual(individual)) shouldBe CREATED
+  "Call" must {
+    "get (Debts) should return NO_DATA_FOUND(404) if no debts are found for the provided Nino" in {
+      val individual = genIndividualInRequest(withPeriods = true)
+      status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getDebts(individual.nino, retrievePeriodId(individual.nino))
-    status(response) shouldBe NOT_FOUND
-    assert(contentAsString(response).startsWith("""{"failures":[{"code":"NO_DATA_FOUND""""))
+      val response = getDebts(individual.nino, retrievePeriodId(individual.nino))
+      status(response) shouldBe NOT_FOUND
+      assert(contentAsString(response).startsWith("""{"failures":[{"code":"NO_DATA_FOUND""""))
+    }
   }
 
-  test("\"get\" (Debts) should return BREATHINGSPACE_ID_NOT_FOUND(404) if the provided periodId was not found") {
-    val individual = genIndividualInRequest()
-    status(postIndividual(individual)) shouldBe CREATED
+  "Call" must {
+    "get (Debts) should return BREATHINGSPACE_ID_NOT_FOUND(404) if the provided periodId was not found" in {
+      val individual = genIndividualInRequest()
+      status(postIndividual(individual)) shouldBe CREATED
 
-    val response = getDebts(individual.nino)
-    status(response) shouldBe NOT_FOUND
-    assert(contentAsString(response).startsWith("""{"failures":[{"code":"BREATHINGSPACE_ID_NOT_FOUND""""))
+      val response = getDebts(individual.nino)
+      status(response) shouldBe NOT_FOUND
+      assert(contentAsString(response).startsWith("""{"failures":[{"code":"BREATHINGSPACE_ID_NOT_FOUND""""))
+    }
   }
 
-  test("\"get\" (Debts) should report if the provided Nino is unknown") {
-    val response = getDebts(genNino)
-    status(response) shouldBe NOT_FOUND
-    assert(contentAsString(response).startsWith("""{"failures":[{"code":"IDENTIFIER_NOT_FOUND""""))
+  "Call" must {
+    "get (Debts) should report if the provided Nino is unknown" in {
+      val response = getDebts(genNino)
+      status(response) shouldBe NOT_FOUND
+      assert(contentAsString(response).startsWith("""{"failures":[{"code":"IDENTIFIER_NOT_FOUND""""))
+    }
   }
 
   private def retrievePeriodId(nino: String): UUID = {

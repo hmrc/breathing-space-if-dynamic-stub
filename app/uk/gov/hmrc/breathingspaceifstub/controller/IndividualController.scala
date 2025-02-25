@@ -16,24 +16,25 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.ExecutionContext
-
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.breathingspaceifstub.Response
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.*
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.{IndividualService, UnderpaymentsService}
+
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
 @Singleton()
 class IndividualController @Inject() (
   individualService: IndividualService,
   cc: ControllerComponents,
-  underpaymentsService: UnderpaymentsService
+  underpaymentsService: UnderpaymentsService,
+  appConfig: AppConfig
 )(implicit val ec: ExecutionContext)
-    extends AbstractBaseController(cc) {
+    extends AbstractBaseController(cc, appConfig) {
 
   val count: Action[Unit] = Action.async(withoutBody) { _ =>
     individualService.count.map(count => Ok(Json.obj("count" -> count)))

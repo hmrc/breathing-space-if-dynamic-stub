@@ -1,0 +1,12 @@
+{
+  "periods": [
+    {
+      "periodID": "75e4cdc2-eecb-11ea-913a-0a9f09f70a70",
+      "startDate" : "2020-01-01"
+    },
+    {
+      "periodID": "0b1bbc1d-2b1d-4e57-9a6b-ec4020d4c392",
+      "startDate" : "2021-02-02"
+    }
+  ]
+}

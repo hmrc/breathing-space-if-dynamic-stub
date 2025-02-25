@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents, Request, Result}
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.*
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
+import uk.gov.hmrc.breathingspaceifstub.service.UnderpaymentsService
+
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.{ExecutionContext, Future}
-
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
-import uk.gov.hmrc.breathingspaceifstub.service.UnderpaymentsService
 
 @Singleton()
 class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsService, cc: ControllerComponents)(implicit
-  val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
+  val ec: ExecutionContext,
+  appConfig: AppConfig
+) extends AbstractBaseController(cc, appConfig) {
 
   def saveUnderpayments(nino: String, periodId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>
@@ -80,15 +81,28 @@ class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsServ
   }
 
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withHeaderValidation(BS_Underpayments_GET) { implicit requestId =>
-      underpaymentsService
-        .get(nino, periodId)
-        .map(
-          _.fold(
-            error => logAndGenFailureResult(error),
-            underpayments => if (underpayments.underPayments.isEmpty) NoContent else Ok(Json.toJson(underpayments))
+    withStaticDataCheck(nino)(staticDataRetrieval(periodId)) { request =>
+      withHeaderValidation(BS_Underpayments_GET) { implicit requestId =>
+        underpaymentsService
+          .get(nino, periodId)
+          .map(
+            _.fold(
+              error => logAndGenFailureResult(error),
+              underpayments => if (underpayments.underPayments.isEmpty) NoContent else Ok(Json.toJson(underpayments))
+            )
           )
-        )
+      }
+    }
+  }
+
+  private def staticDataRetrieval(periodId: UUID)(implicit request: Request[Unit]): String => Option[Result] = nino => {
+    def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"underpayments/$filename")
+    (nino.take(8), periodId.toString) match {
+      case (n, _) if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
+      case ("AS000001", "a55d2098-61b3-11ec-9ff0-60f262c313dc") =>
+        Some(sendResponse(OK, jsonDataFromFile("underpayments1.json")))
+
+      case _ => Some(sendResponse(NOT_FOUND, failures("NO_DATA_FOUND", s"$nino or $periodId did not match")))
     }
   }
 
