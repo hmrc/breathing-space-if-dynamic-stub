@@ -147,8 +147,21 @@ trait BaseISpec
       )
     }
 
-  def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest]): Future[Result] =
-    unattendedCall(Helpers.PUT, PeriodsController.put(nino).url, Json.toJson(PutPeriodsInRequest(putPeriods)))
+  def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest], staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      unattendedCall(
+        Helpers.PUT,
+        PeriodsController.put(nino).url,
+        Json.toJson(PutPeriodsInRequest(putPeriods)),
+        appStaticDataOn
+      )
+    } else {
+      unattendedCall(
+        Helpers.PUT,
+        PeriodsController.put(nino).url,
+        Json.toJson(PutPeriodsInRequest(putPeriods))
+      )
+    }
 
   // Support endpoints
   // =================

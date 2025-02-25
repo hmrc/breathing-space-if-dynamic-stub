@@ -131,12 +131,7 @@ abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppCo
       }
   }
 
-  protected def sendResponse(httpCode: Int, body: JsValue)(implicit request: Request[_]): Result = {
-    val tt = request.headers
-      .get(Header.CorrelationId)
-
-    println("\nTTTTT=" + tt)
-
+  protected def sendResponse(httpCode: Int, body: JsValue)(implicit request: Request[_]): Result =
     Status(httpCode)(body)
       .withHeaders(
         Header.CorrelationId -> request.headers
@@ -144,7 +139,6 @@ abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppCo
           .getOrElse(UUID.randomUUID().toString)
       )
       .as(play.mvc.Http.MimeTypes.JSON)
-  }
 
   protected def sendResponseBla(nino: String, details: String)(implicit request: Request[_]): Result =
     sendResponse(OK, Json.parse(details.replaceFirst("\\$\\{nino}", nino)))

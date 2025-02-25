@@ -22,7 +22,7 @@ import play.api.mvc.*
 import uk.gov.hmrc.breathingspaceifstub.Response
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model.*
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.MISSING_BODY
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_JSON, MISSING_BODY}
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.{PeriodsService, UnderpaymentsService}
 
@@ -63,14 +63,16 @@ class PeriodsController @Inject() (
     }
   }
 
-  private def staticRetrieval(
+  private def staticRetrievalForPOSTAndPUT[A](
     httpSuccessCode: Int,
     addPeriodIdField: Boolean
-  )(implicit request: Request[Response[PostPeriodsInRequest]]): String => Option[Result] = nino =>
+  )(implicit request: Request[Response[A]], writes: Writes[A]): String => Option[Result] = nino =>
     (nino, request.body) match {
       case (n, _) if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
       case (n, Left(f)) if f.baseError == MISSING_BODY =>
         Some(sendResponse(BAD_REQUEST, failures("MISSING_BODY", "The request must have a body")))
+      case (n, Left(f)) if f.baseError == INVALID_JSON =>
+        Some(sendResponse(BAD_REQUEST, failures("INVALID_JSON", "Payload not in the expected Json format")))
       case (n, Right(p)) =>
         def transformRequestJsonToResponseJson(jsValue: JsValue, addPeriodIdField: Boolean): JsResult[JsObject] = {
           val attrTransformer = (__ \ "periods").json.update {
@@ -85,9 +87,9 @@ class PeriodsController @Inject() (
               JsArray(updatedValues)
             }
           }
-
           jsValue.transform(attrTransformer)
         }
+
         val jsValue = Json.toJson(p)
         transformRequestJsonToResponseJson(jsValue, addPeriodIdField) match {
           case JsError(_) =>
@@ -106,28 +108,33 @@ class PeriodsController @Inject() (
 
   def post(nino: String): Action[Response[PostPeriodsInRequest]] =
     Action.async(withJsonBody[PostPeriodsInRequest]) { implicit request: Request[Response[PostPeriodsInRequest]] =>
-      withStaticCheck[Response[PostPeriodsInRequest]](nino)(staticRetrieval(CREATED, addPeriodIdField = true)) {
-        request =>
-          withHeaderValidation(BS_Periods_POST) { implicit requestId =>
-            request.body.fold(
-              logAndSendFailureResult,
-              periodsService
-                .post(nino, _)
-                .map(_.fold(logAndGenFailureResult, periods => Created(Json.toJson(periods))))
-            )
-          }
+      withStaticCheck[Response[PostPeriodsInRequest]](nino)(
+        staticRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
+      ) { request =>
+        withHeaderValidation(BS_Periods_POST) { implicit requestId =>
+          request.body.fold(
+            logAndSendFailureResult,
+            periodsService
+              .post(nino, _)
+              .map(_.fold(logAndGenFailureResult, periods => Created(Json.toJson(periods))))
+          )
+        }
       }
     }
 
   def put(nino: String): Action[Response[PutPeriodsInRequest]] =
     Action.async(withJsonBody[PutPeriodsInRequest]) { implicit request =>
-      withHeaderValidation(BS_Periods_PUT) { implicit requestId =>
-        request.body.fold(
-          logAndSendFailureResult,
-          periodsService
-            .put(nino, _)
-            .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
-        )
+      withStaticCheck[Response[PutPeriodsInRequest]](nino)(
+        staticRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
+      ) {
+        withHeaderValidation(BS_Periods_PUT) { implicit requestId =>
+          request.body.fold(
+            logAndSendFailureResult,
+            periodsService
+              .put(nino, _)
+              .map(_.fold(logAndGenFailureResult, periods => Ok(Json.toJson(periods))))
+          )
+        }
       }
     }
 

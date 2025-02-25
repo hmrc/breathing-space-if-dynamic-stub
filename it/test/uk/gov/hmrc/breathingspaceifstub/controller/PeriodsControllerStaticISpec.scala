@@ -17,11 +17,14 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import play.api.libs.json.{JsValue, Json}
+import play.api.test.Helpers
 import play.api.test.Helpers.*
+import uk.gov.hmrc.breathingspaceifstub.controller.routes.PeriodsController
 import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.support.{BaseISpec, ControllerBehaviours}
 
 import java.time.{LocalDate, LocalDateTime}
+import java.util.UUID
 import scala.io.Source
 
 class PeriodsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
@@ -92,20 +95,18 @@ class PeriodsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
     }
   }
 
-  private val period1 = PostPeriodInRequest(
-    LocalDate.of(2020, 6, 25),
-    None,
-    LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
-  )
-  private val period2 = PostPeriodInRequest(
-    LocalDate.of(2020, 6, 22),
-    Some(LocalDate.of(2020, 8, 22)),
-    LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
-  )
-  private val periods = List(period1, period2)
-
   "POST /NINO/:nino/periods" should {
-
+    val period1 = PostPeriodInRequest(
+      LocalDate.of(2020, 6, 25),
+      None,
+      LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
+    )
+    val period2 = PostPeriodInRequest(
+      LocalDate.of(2020, 6, 22),
+      Some(LocalDate.of(2020, 8, 22)),
+      LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
+    )
+    val periods = List(period1, period2)
     behave.like(
       aNinoAsErrorCodeEndpoint(nino => postPeriods(nino = nino, postPeriods = periods, staticDataOn = true))
     )
@@ -128,53 +129,77 @@ class PeriodsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
       checkCorrelationIDInResponse(response)
     }
 
-//    "return 400(BAD_REQUEST) when the request is sent with good Nino but without json body" in {
-//      val response = postPeriods(nino = "AS000400A", postPeriods = List(), staticDataOn = true)
-//      status(response) shouldBe BAD_REQUEST
-//      checkCorrelationIDInResponse(response)
-//    }
-//
-//    "return 400(BAD_REQUEST) when the request is sent with invalid json body" in {
-//      val response = makePostRequest(getConnectionUrl("AS000400A"), """{"notWhatWeAreExpecting":"certainlyNot"}""")
-//      response.status                       shouldBe Status.BAD_REQUEST
-//      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
-//    }
+    "return 400(BAD_REQUEST) when the request is sent with good Nino but without json body" in {
+      val response =
+        route(appStaticDataOn, unattendedFakeRequest(Helpers.POST, PeriodsController.post("AS000400A").url)).get
+      status(response) shouldBe BAD_REQUEST
+      checkCorrelationIDInResponse(response)
+    }
+
+    "return 400(BAD_REQUEST) when the request is sent with invalid json body" in {
+      val response = route(
+        appStaticDataOn,
+        unattendedFakeRequest(Helpers.POST, PeriodsController.post("AS000400A").url)
+          .withJsonBody(Json.obj("notWhatWeAreExpecting" -> "certainlyNot"))
+      ).get
+      status(response) shouldBe BAD_REQUEST
+      checkCorrelationIDInResponse(response)
+    }
   }
-//
-//  "PUT /NINO/:nino/periods" should {
-//
-//    val periodId1    = """"periodID": "4043d4b5-1f2a-4d10-8878-ef1ce9d97b32""""
-//    val periodId2    = """"periodID": "6aed4f02-f652-4bef-af14-49c79e968c2e""""
-//    val period1      = s"""{$periodId1, "startDate":"2020-06-25","pegaRequestTimestamp":"2020-12-22T14:19:03+01:00"}"""
-//    val period2      =
-//      s"""{$periodId2, "startDate":"2020-06-22","endDate":"2020-08-22","pegaRequestTimestamp":"2020-12-22T14:19:03+01:00"}"""
-//    val bodyContents = s"""{"periods":[$period1,$period2]}"""
-//
-//    behave.like(aNinoAsErrorCodeEndpoint(s => makePutRequest(getConnectionUrl(s), bodyContents)))
-//    behave.like(acceptsCorrelationId(makePutRequest(getConnectionUrl("AS000001A"), bodyContents)))
-//    behave.like(ninoSuffixIgnored(s => makePutRequest(getConnectionUrl(s), bodyContents)))
-//
-//    "return 200(OK) with the periods sent when any accepted Nino value is sent" in {
-//      val response = makePutRequest(getConnectionUrl("AS000400A"), bodyContents)
-//      response.status                       shouldBe Status.OK
-//      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
-//    }
-//
-//    "return 400(BAD_REQUEST) when the request is sent without json body" in {
-//      val response = makePutRequest(getConnectionUrl("AS000001A"), bodyContents = "")
-//      response.status                       shouldBe Status.BAD_REQUEST
-//      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
-//    }
-//
-//    "return 400(BAD_REQUEST) when the request is sent with invalid json body" in {
-//      val response = makePutRequest(
-//        getConnectionUrl("AS000001A"),
-//        """{"notWhatWeAreExpecting":"certainlyNot"}"""
-//      )
-//      response.status                       shouldBe Status.BAD_REQUEST
-//      response.header(Header.CorrelationId) shouldBe correlationHeaderValue.value
-//    }
-//  }
+
+  "PUT /NINO/:nino/periods" should {
+    val period1 = PutPeriodInRequest(
+      UUID.randomUUID(),
+      LocalDate.of(2020, 6, 25),
+      None,
+      LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
+    )
+    val period2 = PutPeriodInRequest(
+      UUID.randomUUID(),
+      LocalDate.of(2020, 6, 22),
+      Some(LocalDate.of(2020, 8, 22)),
+      LocalDateTime.of(2020, 12, 22, 14, 19).format(timestampFormatter)
+    )
+    val periods = List(period1, period2)
+    behave.like(
+      aNinoAsErrorCodeEndpoint(nino => putPeriods(nino = nino, putPeriods = periods, staticDataOn = true))
+    )
+    behave.like(
+      acceptsCorrelationId(putPeriods(nino = "AS000001A", putPeriods = periods, staticDataOn = true), CREATED)
+    )
+    behave.like(
+      ninoSuffixIgnored(nino => putPeriods(nino = nino, putPeriods = periods, staticDataOn = true), CREATED)
+    )
+
+    "return 201(CREATED) with the periods sent when any accepted Nino value is sent" in {
+      val response = putPeriods(nino = "AS000400A", putPeriods = periods, staticDataOn = true)
+      status(response) shouldBe CREATED
+      checkCorrelationIDInResponse(response)
+    }
+
+    "return 400(BAD_REQUEST) when the request is sent without json body" in {
+      val response = putPeriods(nino = "BS000400A", putPeriods = periods, staticDataOn = true)
+      status(response) shouldBe BAD_REQUEST
+      checkCorrelationIDInResponse(response)
+    }
+
+    "return 400(BAD_REQUEST) when the request is sent with good Nino but without json body" in {
+      val response =
+        route(appStaticDataOn, unattendedFakeRequest(Helpers.POST, PeriodsController.post("AS000400A").url)).get
+      status(response) shouldBe BAD_REQUEST
+      checkCorrelationIDInResponse(response)
+    }
+
+    "return 400(BAD_REQUEST) when the request is sent with invalid json body" in {
+      val response = route(
+        appStaticDataOn,
+        unattendedFakeRequest(Helpers.POST, PeriodsController.post("AS000400A").url)
+          .withJsonBody(Json.obj("notWhatWeAreExpecting" -> "certainlyNot"))
+      ).get
+      status(response) shouldBe BAD_REQUEST
+      checkCorrelationIDInResponse(response)
+    }
+  }
 
   private def getExpectedResponseBody(filename: String): JsValue = {
     val in = getClass.getResourceAsStream(s"/data/static/periods/$filename")
