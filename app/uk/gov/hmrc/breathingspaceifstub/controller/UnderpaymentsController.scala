@@ -17,7 +17,7 @@
 package uk.gov.hmrc.breathingspaceifstub.controller
 
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, ControllerComponents}
+import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.INVALID_JSON
@@ -80,16 +80,46 @@ class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsServ
       )
   }
 
+  /*
+  def get(nino: String, periodId: UUID): Action[AnyContent] = Action.async { implicit request =>
+    val handlerWithPeriodId: String => Future[Result] = underpaymentHandler(periodId.toString) _
+    composeResponse(nino, handlerWithPeriodId)
+  }
+
+  private def underpaymentHandler(periodId: String)(nino: String)(implicit request: Request[_]): Future[Result] = {
+
+    def jsonDataFromFile(filename: String): JsValue = getJsonDataFromFile(s"underpayments/$filename")
+
+    (nino, periodId) match {
+      case ("AS000001", "648ea46e-8027-11ec-b614-03845253624e") =>
+        sendResponse(OK, jsonDataFromFile("underpayments1.json"))
+      case _                                                    => sendResponse(NOT_FOUND, failures(s"NO_DATA_FOUND", s"$nino or $periodId did not match"))
+    }
+  }
+   */
+
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withHeaderValidation(BS_Underpayments_GET) { implicit requestId =>
-      underpaymentsService
-        .get(nino, periodId)
-        .map(
-          _.fold(
-            error => logAndGenFailureResult(error),
-            underpayments => if (underpayments.underPayments.isEmpty) NoContent else Ok(Json.toJson(underpayments))
+    val staticRetrieval: String => Option[Result] = nino => {
+      def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"underpayments/$filename")
+      (nino.take(8), periodId.toString) match {
+        case (n, _) if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
+        case ("AS000001", "648ea46e-8027-11ec-b614-03845253624e") =>
+          Some(sendResponse(OK, jsonDataFromFile("underpayments1.json")))
+
+        case _ => Some(sendResponse(NOT_FOUND, failures("NO_DATA_FOUND", s"$nino or $periodId did not match")))
+      }
+    }
+    withStaticCheck(nino)(staticRetrieval) { request =>
+      withHeaderValidation(BS_Underpayments_GET) { implicit requestId =>
+        underpaymentsService
+          .get(nino, periodId)
+          .map(
+            _.fold(
+              error => logAndGenFailureResult(error),
+              underpayments => if (underpayments.underPayments.isEmpty) NoContent else Ok(Json.toJson(underpayments))
+            )
           )
-        )
+      }
     }
   }
 
