@@ -125,7 +125,7 @@ class PeriodsController @Inject() (
   def put(nino: String): Action[Response[PutPeriodsInRequest]] =
     Action.async(withJsonBody[PutPeriodsInRequest]) { implicit request =>
       withStaticDataCheck[Response[PutPeriodsInRequest]](nino)(
-        staticDataRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = true)
+        staticDataRetrievalForPOSTAndPUT(CREATED, addPeriodIdField = false)
       ) {
         withHeaderValidation(BS_Periods_PUT) { implicit requestId =>
           request.body.fold(
