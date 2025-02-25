@@ -1,6 +1,4 @@
-@import play.api.libs.json.Json
-
-@(v1WhitelistedApplicationIds:  Seq[String])
+@()
 
 {
   "api": {
@@ -15,8 +13,7 @@
         "status": "BETA",
         "endpointsEnabled": true,
         "access": {
-          "type": "PRIVATE",
-          "whitelistedApplicationIds": @{Json.toJson(v1WhitelistedApplicationIds)}
+          "type": "PRIVATE"
         }
       }
     ]

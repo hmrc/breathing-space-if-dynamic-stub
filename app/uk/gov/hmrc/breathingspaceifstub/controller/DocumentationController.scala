@@ -16,19 +16,17 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import javax.inject.{Inject, Singleton}
-
 import controllers.Assets
 import play.api.Logging
 import play.api.http.MimeTypes
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.views.txt
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import javax.inject.{Inject, Singleton}
+
 @Singleton
 class DocumentationController @Inject() (
-  appConfig: AppConfig,
   cc: ControllerComponents,
   assets: Assets
 ) extends BackendController(cc)
@@ -36,7 +34,7 @@ class DocumentationController @Inject() (
 
   val definition: Action[AnyContent] = Action {
     logger.debug(s"DocumentationController definition endpoint has been called")
-    Ok(txt.definition(appConfig.v1WhitelistedApplicationIds)).as(MimeTypes.JSON)
+    Ok(txt.definition()).as(MimeTypes.JSON)
   }
 
   def raml(version: String, file: String): Action[AnyContent] =
