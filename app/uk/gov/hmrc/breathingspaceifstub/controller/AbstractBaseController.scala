@@ -81,7 +81,7 @@ abstract class AbstractBaseController(cc: ControllerComponents, appConfig: AppCo
     Source.fromInputStream(in).getLines().mkString
   }
 
-  def getStaticJsonDataFromFile(filename: String): JsValue = {
+  protected def getStaticJsonDataFromFile(filename: String): JsValue = {
     val in = getClass.getResourceAsStream(s"/data/static/$filename")
     val raw = Source.fromInputStream(in).getLines().mkString
     Json.parse(raw)
