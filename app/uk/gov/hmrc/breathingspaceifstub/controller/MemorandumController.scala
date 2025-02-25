@@ -18,7 +18,7 @@ package uk.gov.hmrc.breathingspaceifstub.controller
 
 import play.api.http.Status.*
 import play.api.libs.json.Json
-import play.api.mvc.{Action, ControllerComponents, Result}
+import play.api.mvc.{Action, ControllerComponents, Request, Result}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
 import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.MemorandumService
@@ -36,18 +36,6 @@ class MemorandumController @Inject() (
 ) extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String): Action[Unit] = Action.async(withoutBody) { implicit request =>
-
-    val staticRetrieval: String => Option[Result] = nino => {
-      def jsonBreathingSpaceIndicator(hasIndicator: Boolean) = Json.obj("breathingSpaceIndicator" -> hasIndicator)
-      nino.take(8) match {
-        case "AS000001" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
-        case "AS000002" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = false)))
-        case "AA000333" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
-        case "AS000003" => Some(createResult(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM")))
-        case "AS000004" => Some(createResult(BAD_GATEWAY, failures("BAD_GATEWAY")))
-        case _ => None
-      }
-    }
     withStaticCheck(nino)(staticRetrieval) {
       withHeaderValidation(BS_Memorandum_GET) { implicit requestId =>
         memorandumService
@@ -59,6 +47,18 @@ class MemorandumController @Inject() (
               Ok(Json.toJson(memorandum))
           }
       }
+    }
+  }
+
+  private def staticRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
+    def jsonBreathingSpaceIndicator(hasIndicator: Boolean) = Json.obj("breathingSpaceIndicator" -> hasIndicator)
+    nino.take(8) match {
+      case "AS000001" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
+      case "AS000002" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = false)))
+      case "AA000333" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
+      case "AS000003" => Some(createResult(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM")))
+      case "AS000004" => Some(createResult(BAD_GATEWAY, failures("BAD_GATEWAY")))
+      case _ => None
     }
   }
 

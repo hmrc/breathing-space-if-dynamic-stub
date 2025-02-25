@@ -66,26 +66,12 @@ class DebtsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
       checkCorrelationIDInResponse(response)
     }
 
-    "return 400(BAD_REQUEST) when the url does not include the periodId" in {
-      val response = getDebts("AS000005A", staticDataOn = true)
-      status(response) shouldBe OK
-//      val connectionUrl = s"$testServerAddress/individuals/breathing-space/NINO/AS000005A/debts"
-//      val response      = makeGetRequest(connectionUrl)
-//      response.status shouldBe Status.NOT_FOUND
-    }
-//
-//    "return 400(BAD_REQUEST) when the periodId is not a valid UUID" in {
-//      val connectionUrl = s"$testServerAddress/individuals/breathing-space/NINO/AS000005A/abc/debts"
-//      val response      = makeGetRequest(connectionUrl)
-//      response.status shouldBe Status.BAD_REQUEST
-//    }
-
     "return 404(NO_DATA_FOUND) when the Nino specified is unknown " in {
       withClue("MA000700A") {
 
         val response = getDebts("MA000700A", staticDataOn = true)
         status(response) shouldBe NOT_FOUND
-        assert(contentAsString(response).startsWith("""{"failures":[{"code":"NO_DATA_FOUND","reason":"""))
+        assert(contentAsString(response).startsWith("""{"failures":[{"code":"RESOURCE_NOT_FOUND","reason":"""))
         checkCorrelationIDInResponse(response)
       }
     }

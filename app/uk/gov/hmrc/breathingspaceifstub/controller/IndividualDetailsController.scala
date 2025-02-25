@@ -36,7 +36,25 @@ class IndividualDetailsController @Inject() (
     extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    val staticRetrieval: String => Option[Result] = nino => {
+    withStaticCheck(nino)(staticRetrieval(fields)) { request =>
+      fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
+    }
+  }
+
+  private def staticRetrieval(fields: Option[String])(implicit request: Request[Unit]): String => Option[Result] =
+    nino => {
+      val fullPopulationDetails = "IndividualDetails.json"
+      val detailsForBreathingSpace = "IndividualDetailsForBS.json"
+
+      val filter = {
+        val Details = "details(nino,dateOfBirth)"
+        val NameList = "nameList(name(firstForename,secondForename,surname,nameType))"
+        val AddressList =
+          "addressList(address(addressLine1,addressLine2,addressLine3,addressLine4,addressLine5,addressPostcode,countryCode,addressType))"
+        val Indicators = "indicators(welshOutputInd)"
+
+        s"$Details,$NameList,$AddressList,$Indicators"
+      }
       val result = (nino.toUpperCase.take(8), fields, appConfig.fullPopulationDetailsEnabled) match {
         case (normalisedNino, _, _) if normalisedNino.startsWith("BS") =>
           sendErrorResponseFromNino(normalisedNino) // a bad nino
@@ -51,23 +69,6 @@ class IndividualDetailsController @Inject() (
       }
       Some(result)
     }
-    withStaticCheck(nino)(staticRetrieval) { request =>
-      fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
-    }
-  }
-
-  private val fullPopulationDetails = "IndividualDetails.json"
-  private val detailsForBreathingSpace = "IndividualDetailsForBS.json"
-
-  private val filter = {
-    val Details = "details(nino,dateOfBirth)"
-    val NameList = "nameList(name(firstForename,secondForename,surname,nameType))"
-    val AddressList =
-      "addressList(address(addressLine1,addressLine2,addressLine3,addressLine4,addressLine5,addressPostcode,countryCode,addressType))"
-    val Indicators = "indicators(welshOutputInd)"
-
-    s"$Details,$NameList,$AddressList,$Indicators"
-  }
 
   private def breathingSpacePopulation(nino: String, fields: String)(implicit request: Request[_]): Future[Result] =
     withHeaderValidation(BS_Details_GET) { implicit requestId =>
