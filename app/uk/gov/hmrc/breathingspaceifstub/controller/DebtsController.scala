@@ -57,7 +57,7 @@ class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerCompo
     nino.take(8) match {
       case "AS000001" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtFullPopulation.json")))
       case "AS000002" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json")))
-//      case "AS000003" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtPartialPopulation.json")))
+      case "AS000003" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtPartialPopulation.json")))
 //      case "AS000004" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsPartialPopulation.json")))
       case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json")))
       case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
