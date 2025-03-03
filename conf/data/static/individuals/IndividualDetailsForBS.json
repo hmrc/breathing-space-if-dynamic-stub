@@ -1,13 +1,13 @@
 {
   "details": {
     "nino": "${nino}",
-    "dateOfBirth": "1980-07-31"
+    "dateOfBirth": "1976-12-11"
   },
   "nameList": {
     "name": [
       {
         "firstForename": "John",
-        "secondForename": "Junior",
+        "secondForename": "Cena",
         "surname": "Smith",
         "nameType": 1
       }
@@ -27,7 +27,45 @@
       }
     ]
   },
+  "residencyList": {
+    "residency": [
+      {
+        "residencySequenceNumber": 1,
+        "dateLeavingUK": "2002-11-10",
+        "dateReturningUK": "2002-12-10",
+        "residencyStatusFlag": 1
+      }
+    ]
+  },
   "indicators": {
-    "welshOutputInd": 2
+    "manualCodingInd": 1,
+    "manualCodingReason": 1,
+    "manualCodingOther": "mm",
+    "manualCorrInd": 1,
+    "manualCorrReason": "mm",
+    "additionalNotes": "mm",
+    "deceasedInd": 1,
+    "s128Ind": 1,
+    "noAllowInd": 1,
+    "eeaCmnwthInd": 1,
+    "noRepaymentInd": 1,
+    "saLinkInd": 1,
+    "noATSInd": 1,
+    "taxEqualBenInd": 1,
+    "p2ToAgentInd": 1,
+    "digitallyExcludedInd": 1,
+    "bankruptcyInd": 1,
+    "bankruptcyFiledDate": "2002-11-10",
+    "utr": "mm",
+    "audioOutputInd": 1,
+    "welshOutputInd": 1,
+    "largePrintOutputInd": 1,
+    "brailleOutputInd": 1,
+    "specialistBusinessArea": 1,
+    "saStartYear": "2010",
+    "saFinalYear": "2010",
+    "digitalP2Ind": 1
   }
 }
+
+  

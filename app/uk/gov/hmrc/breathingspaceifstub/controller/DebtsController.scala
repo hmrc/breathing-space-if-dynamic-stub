@@ -28,6 +28,7 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
+val noPeriodIdFound = ""
 @Singleton()
 class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerComponents)(implicit
   val ec: ExecutionContext,
@@ -42,7 +43,8 @@ class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerCompo
             _.fold(
               logAndGenFailureResult,
               debts =>
-                if (debts.isEmpty) logAndGenFailureResult(Failure(NO_DATA_FOUND))
+                if (debts.isEmpty)
+                  logAndGenFailureResult(Failure(NO_DATA_FOUND))
                 else Ok(Json.toJson(debts))
             )
           )
