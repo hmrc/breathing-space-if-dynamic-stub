@@ -101,7 +101,8 @@ class UnderpaymentsController @Inject() (underpaymentsService: UnderpaymentsServ
       case (n, _) if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
       case ("AS000001", "a55d2098-61b3-11ec-9ff0-60f262c313dc") =>
         Some(sendResponse(OK, jsonDataFromFile("underpayments1.json")))
-
+      case ("AS000001", "648ea46e-8027-11ec-b614-03845253624e") =>
+        Some(sendResponse(OK, jsonDataFromFile("underpayments1.json")))5
       case _ => Some(sendResponse(NOT_FOUND, failures("NO_DATA_FOUND", s"$nino or $periodId did not match")))
     }
   }
