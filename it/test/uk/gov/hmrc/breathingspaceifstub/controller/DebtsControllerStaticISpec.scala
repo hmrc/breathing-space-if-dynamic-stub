@@ -38,31 +38,31 @@ class DebtsControllerStaticISpec extends BaseISpec with ControllerBehaviours {
       checkCorrelationIDInResponse(response)
     }
 
-    "return 200(OK) with a single debt (partial population) when the Nino 'AS000002A' is sent" in {
-      val response = getDebts("AS000002A", staticDataOn = true)
+    "return 200(OK) with a single debt (partial population) when the Nino 'AS000003A' is sent" in {
+      val response = getDebts("AS000003A", staticDataOn = true)
       status(response) shouldBe OK
       assert(contentAsJson(response) == getExpectedResponseBody("singleBsDebtPartialPopulation.json"))
       checkCorrelationIDInResponse(response)
     }
 
-    "return 200(OK) with multiple debts (all full population) when the Nino 'AS000003A' is sent" in {
-      val response = getDebts("AS000003A", staticDataOn = true)
+    "return 200(OK) with multiple debts (mixed partial population) when the Nino 'AS000002A' is sent" in {
+      val response = getDebts("AS000002A", staticDataOn = true)
+      status(response) shouldBe OK
+      assert(contentAsJson(response) == getExpectedResponseBody("multipleBsDebtsMixedPopulation.json"))
+      checkCorrelationIDInResponse(response)
+    }
+
+    "return 200(OK) with multiple debts (all full population) when the Nino 'AS000007A' is sent" in {
+      val response = getDebts("AS000007A", staticDataOn = true)
       status(response) shouldBe OK
       assert(contentAsJson(response) == getExpectedResponseBody("multipleBsDebtsFullPopulation.json"))
       checkCorrelationIDInResponse(response)
     }
 
-    "return 200(OK) with multiple debts (all partial population) when the Nino 'AS000004A' is sent" in {
-      val response = getDebts("AS000004A", staticDataOn = true)
+    "return 200(OK) with multiple debts (all partial population) when the Nino 'AS000008A' is sent" in {
+      val response = getDebts("AS000008A", staticDataOn = true)
       status(response) shouldBe OK
       assert(contentAsJson(response) == getExpectedResponseBody("multipleBsDebtsPartialPopulation.json"))
-      checkCorrelationIDInResponse(response)
-    }
-
-    "return 200(OK) with multiple debts (mixed population) when the Nino 'AS000005A' is sent" in {
-      val response = getDebts("AS000005A", staticDataOn = true)
-      status(response) shouldBe OK
-      assert(contentAsJson(response) == getExpectedResponseBody("multipleBsDebtsMixedPopulation.json"))
       checkCorrelationIDInResponse(response)
     }
 
