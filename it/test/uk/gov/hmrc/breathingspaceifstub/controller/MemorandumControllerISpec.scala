@@ -132,7 +132,7 @@ class MemorandumControllerISpec extends BaseISpec {
 
   "Call" must {
     "when static data is on get (Memorandum) should return true when periods exist and does not exist in mongo" in {
-      val individual = genIndividualInRequest(withPeriods = true).copy(nino = "AS000001")
+      val individual = genIndividualInRequest(withPeriods = true).copy(nino = "AA000333")
 
       val response = getMemorandum(individual.nino, staticDataOn = true)
 
@@ -145,7 +145,7 @@ class MemorandumControllerISpec extends BaseISpec {
 
   "Call" must {
     "when static data is on get (Memorandum) should return true when periods exist and does exist in mongo" in {
-      val individual = genIndividualInRequest(withPeriods = true).copy(nino = "AS000001")
+      val individual = genIndividualInRequest(withPeriods = true).copy(nino = "AA000333")
 
       status(postIndividual(individual)) shouldBe CREATED
 
