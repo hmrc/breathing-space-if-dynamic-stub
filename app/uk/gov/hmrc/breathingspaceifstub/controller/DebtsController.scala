@@ -29,9 +29,9 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class DebtsController @Inject()(debtsService: DebtsService, cc: ControllerComponents)(implicit
-                                                                                      val ec: ExecutionContext,
-                                                                                      appConfig: AppConfig
+class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerComponents)(implicit
+  val ec: ExecutionContext,
+  appConfig: AppConfig
 ) extends AbstractBaseController(cc, appConfig) {
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
     withStaticDataCheck(nino)(staticDataRetrieval) { request =>
