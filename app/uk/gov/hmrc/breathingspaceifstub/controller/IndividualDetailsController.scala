@@ -16,17 +16,16 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
-import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
 import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
-import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.{INVALID_ENDPOINT, UNKNOWN_DATA_ITEM}
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
 import uk.gov.hmrc.breathingspaceifstub.service.IndividualDetailsService
+
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
 class IndividualDetailsController @Inject() (
@@ -34,11 +33,43 @@ class IndividualDetailsController @Inject() (
   individualDetailsService: IndividualDetailsService,
   cc: ControllerComponents
 )(implicit val ec: ExecutionContext)
-    extends AbstractBaseController(cc) {
+    extends AbstractBaseController(cc, appConfig) {
 
   def get(nino: String, fields: Option[String]): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
+    withStaticDataCheck(nino)(staticDataRetrieval(fields)) { request =>
+      fields.fold(fullPopulation(nino))(breathingSpacePopulation(nino, _))
+    }
   }
+
+  private def staticDataRetrieval(fields: Option[String])(implicit request: Request[Unit]): String => Option[Result] =
+    nino => {
+      val fullPopulationDetails = "IndividualDetails.json"
+      val detailsForBreathingSpace = "IndividualDetailsForBS.json"
+
+      val filter = {
+        val Details = "details(nino,dateOfBirth)"
+        val NameList = "nameList(name(firstForename,secondForename,surname,nameType))"
+        val AddressList =
+          "addressList(address(addressLine1,addressLine2,addressLine3,addressLine4,addressLine5,addressPostcode,countryCode,addressType))"
+        val Indicators = "indicators(welshOutputInd)"
+
+        s"$Details,$NameList,$AddressList,$Indicators"
+      }
+
+      val result = (nino.toUpperCase.take(8), fields, appConfig.fullPopulationDetailsEnabled) match {
+        case (normalisedNino, _, _) if normalisedNino.startsWith("BS") =>
+          sendErrorResponseFromNino(normalisedNino) // a bad nino
+        case (normalisedNino, None, true) =>
+          sendResponseReplaceNino(normalisedNino, getStaticDataFromFile(s"individuals/$fullPopulationDetails"))
+        case (normalisedNino, None, false) => sendResponse(BAD_REQUEST, failures("INVALID_ENDPOINT"))
+        case (normalisedNino, Some(queryString), _) =>
+          val qs = queryString.replaceAll("\\s+", "")
+          if (qs == filter)
+            sendResponseReplaceNino(normalisedNino, getStaticDataFromFile(s"individuals/$detailsForBreathingSpace"))
+          else sendResponse(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM"))
+      }
+      Some(result)
+    }
 
   private def breathingSpacePopulation(nino: String, fields: String)(implicit request: Request[_]): Future[Result] =
     withHeaderValidation(BS_Details_GET) { implicit requestId =>
@@ -58,4 +89,5 @@ class IndividualDetailsController @Inject() (
           .map(_.fold(logAndGenFailureResult, details => Ok(Json.toJson(details))))
       } else logAndSendFailureResult(Failure(INVALID_ENDPOINT))
     }
+
 }

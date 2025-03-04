@@ -16,26 +16,29 @@
 
 package uk.gov.hmrc.breathingspaceifstub.support
 
-import java.util.UUID
-import scala.concurrent.Future
-import cats.syntax.option._
+import cats.syntax.option.*
 import org.apache.pekko.stream.Materializer
-import org.scalatest.{BeforeAndAfterEach, OptionValues}
-import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{Assertion, BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.test.Helpers.*
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers, Injecting}
-import play.api.test.Helpers._
-import uk.gov.hmrc.breathingspaceifstub.controller.routes._
-import uk.gov.hmrc.breathingspaceifstub.model._
+import uk.gov.hmrc.breathingspaceifstub.Header
+import uk.gov.hmrc.breathingspaceifstub.controller.routes.*
+import uk.gov.hmrc.breathingspaceifstub.model.*
+
+import java.util.UUID
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 trait BaseISpec
-    extends AnyFunSuite
+    extends AnyWordSpec
     with BeforeAndAfterEach
     with BreathingSpaceTestSupport
     with DefaultAwaitTimeout
@@ -45,13 +48,36 @@ trait BaseISpec
     with Matchers
     with OptionValues {
 
+// FROM STATIC:-
+  lazy val testServerAddress = s"http://localhost:$port"
+
+  protected def checkCorrelationIDInResponse(
+    response: Future[Result]
+  )(implicit correlationHeaderValue: CorrelationId): Assertion =
+    Await
+      .result(response, Duration.Inf)
+      .header
+      .headers
+      .get(Header.CorrelationId) shouldBe correlationHeaderValue.value
+
+// END FROM STATIC
+
   val configProperties: Map[String, Any] = Map(
     "full-population-details-enabled" -> true,
     "mongodb.uri" -> "mongodb://localhost:27017/breathing-space-it",
-    "feature.enableStaticData" -> true
+    "feature.enableStaticData" -> false
   )
 
   override lazy val app: Application = GuiceApplicationBuilder().configure(configProperties).build()
+
+  protected val appStaticDataOn: Application = {
+    val configProperties: Map[String, Any] = Map(
+      "full-population-details-enabled" -> true,
+      "mongodb.uri" -> "mongodb://localhost:27017/breathing-space-it",
+      "feature.enableStaticData" -> true
+    )
+    GuiceApplicationBuilder().configure(configProperties).build()
+  }
 
   implicit val materializer: Materializer = inject[Materializer]
 
@@ -61,16 +87,34 @@ trait BaseISpec
   // Production endpoints
   // ====================
 
-  def getIndividualDetails(nino: String, fields: Option[String] = none): Future[Result] =
-    attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
+  def getIndividualDetails(nino: String, fields: Option[String] = none, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url, appStaticDataOn)
+    } else {
+      attendedCall(Helpers.GET, IndividualDetailsController.get(nino, fields).url)
+    }
 
-  def getDebts(nino: String, periodId: UUID = UUID.randomUUID): Future[Result] =
-    attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
+  def getDebts(nino: String, periodId: UUID = UUID.randomUUID, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url, appStaticDataOn)
+    } else {
+      attendedCall(Helpers.GET, DebtsController.get(nino, periodId).url)
+    }
 
-  def getMemorandum(nino: String): Future[Result] =
-    memorandumCall(Helpers.GET, MemorandumController.get(nino).url)
+  def getMemorandum(nino: String, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      memorandumCall(Helpers.GET, MemorandumController.get(nino).url, appStaticDataOn)
+    } else {
+      memorandumCall(Helpers.GET, MemorandumController.get(nino).url)
+    }
 
-  def getPeriods(nino: String): Future[Result] = attendedCall(Helpers.GET, PeriodsController.get(nino).url)
+  def getPeriods(nino: String, staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      attendedCall(Helpers.GET, PeriodsController.get(nino).url, appStaticDataOn)
+    } else {
+      attendedCall(Helpers.GET, PeriodsController.get(nino).url)
+    }
+  /*
 
   def postPeriods(nino: String, periods: List[PostPeriodInRequest]): Future[Result] =
     postPeriods(nino, UUID.randomUUID, periods)
@@ -81,9 +125,43 @@ trait BaseISpec
       PeriodsController.post(nino).url,
       Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods))
     )
+   */
+  def postPeriods(
+    nino: String,
+    consumerRequestId: UUID = UUID.randomUUID(),
+    postPeriods: List[PostPeriodInRequest],
+    staticDataOn: Boolean = false
+  ): Future[Result] =
+    if (staticDataOn) {
+      unattendedCall(
+        Helpers.POST,
+        PeriodsController.post(nino).url,
+        Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods)),
+        appStaticDataOn
+      )
+    } else {
+      unattendedCall(
+        Helpers.POST,
+        PeriodsController.post(nino).url,
+        Json.toJson(PostPeriodsInRequest(consumerRequestId, "1234567890".some, postPeriods))
+      )
+    }
 
-  def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest]): Future[Result] =
-    unattendedCall(Helpers.PUT, PeriodsController.put(nino).url, Json.toJson(PutPeriodsInRequest(putPeriods)))
+  def putPeriods(nino: String, putPeriods: List[PutPeriodInRequest], staticDataOn: Boolean = false): Future[Result] =
+    if (staticDataOn) {
+      unattendedCall(
+        Helpers.PUT,
+        PeriodsController.put(nino).url,
+        Json.toJson(PutPeriodsInRequest(putPeriods)),
+        appStaticDataOn
+      )
+    } else {
+      unattendedCall(
+        Helpers.PUT,
+        PeriodsController.put(nino).url,
+        Json.toJson(PutPeriodsInRequest(putPeriods))
+      )
+    }
 
   // Support endpoints
   // =================
@@ -123,15 +201,17 @@ trait BaseISpec
 
   // ==========================================================================================================
 
-  def attendedCall(method: String, url: String): Future[Result] = route(app, attendedFakeRequest(method, url)).get
+  def attendedCall(method: String, url: String, appl: Application = app): Future[Result] =
+    route(appl, attendedFakeRequest(method, url)).get
 
-  def memorandumCall(method: String, url: String): Future[Result] = route(app, memorandumFakeRequest(method, url)).get
+  def memorandumCall(method: String, url: String, appl: Application = app): Future[Result] =
+    route(appl, memorandumFakeRequest(method, url)).get
 
   def attendedCall(method: String, url: String, body: JsValue): Future[Result] =
     route(app, attendedFakeRequest(method, url).withBody(body)).get
 
-  def unattendedCall(method: String, url: String, body: JsValue): Future[Result] =
-    route(app, unattendedFakeRequest(method, url).withBody(body)).get
+  def unattendedCall(method: String, url: String, body: JsValue, appl: Application = app): Future[Result] =
+    route(appl, unattendedFakeRequest(method, url).withBody(body)).get
 
   def attendedFakeRequest(method: String, url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(method, url).withHeaders(attendedRequestHeaders: _*)

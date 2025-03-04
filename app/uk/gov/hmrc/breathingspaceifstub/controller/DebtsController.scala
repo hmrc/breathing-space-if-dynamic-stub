@@ -16,35 +16,50 @@
 
 package uk.gov.hmrc.breathingspaceifstub.controller
 
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents, Request, Result}
+import uk.gov.hmrc.breathingspaceifstub.config.AppConfig
+import uk.gov.hmrc.breathingspaceifstub.model.*
+import uk.gov.hmrc.breathingspaceifstub.model.BaseError.NO_DATA_FOUND
+import uk.gov.hmrc.breathingspaceifstub.model.EndpointId.*
+import uk.gov.hmrc.breathingspaceifstub.service.DebtsService
+
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.ExecutionContext
-
-import play.api.libs.json.Json
-import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.breathingspaceifstub.model._
-import uk.gov.hmrc.breathingspaceifstub.model.BaseError.NO_DATA_FOUND
-import uk.gov.hmrc.breathingspaceifstub.model.EndpointId._
-import uk.gov.hmrc.breathingspaceifstub.service.DebtsService
 
 @Singleton()
 class DebtsController @Inject() (debtsService: DebtsService, cc: ControllerComponents)(implicit
-  val ec: ExecutionContext
-) extends AbstractBaseController(cc) {
-
+  val ec: ExecutionContext,
+  appConfig: AppConfig
+) extends AbstractBaseController(cc, appConfig) {
   def get(nino: String, periodId: UUID): Action[Unit] = Action.async(withoutBody) { implicit request =>
-    withHeaderValidation(BS_Debts_GET) { implicit requestId =>
-      debtsService
-        .get(nino, periodId)
-        .map(
-          _.fold(
-            logAndGenFailureResult,
-            debts =>
-              if (debts.isEmpty) logAndGenFailureResult(Failure(NO_DATA_FOUND))
-              else Ok(Json.toJson(debts))
+    withStaticDataCheck(nino)(staticDataRetrieval) { request =>
+      withHeaderValidation(BS_Debts_GET) { implicit requestId =>
+        debtsService
+          .get(nino, periodId)
+          .map(
+            _.fold(
+              logAndGenFailureResult,
+              debts =>
+                if (debts.isEmpty) logAndGenFailureResult(Failure(NO_DATA_FOUND))
+                else Ok(Json.toJson(debts))
+            )
           )
-        )
+      }
+    }
+  }
+
+  private def staticDataRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
+    def jsonDataFromFile(filename: String): JsValue = getStaticJsonDataFromFile(s"debts/$filename")
+    nino.take(8) match {
+      case "AS000001" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtFullPopulation.json")))
+      case "AS000002" => Some(sendResponse(OK, jsonDataFromFile("singleBsDebtPartialPopulation.json")))
+      case "AS000003" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsFullPopulation.json")))
+      case "AS000004" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsPartialPopulation.json")))
+      case "AS000005" => Some(sendResponse(OK, jsonDataFromFile("multipleBsDebtsMixedPopulation.json")))
+      case n if n.startsWith("BS") => Some(sendErrorResponseFromNino(n)) // a bad nino
+      case _ => Some(sendResponse(NOT_FOUND, failures("RESOURCE_NOT_FOUND", "No records found for the given Nino")))
     }
   }
 }
