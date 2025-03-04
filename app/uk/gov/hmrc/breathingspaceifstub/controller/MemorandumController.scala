@@ -53,7 +53,7 @@ class MemorandumController @Inject() (
   private def staticDataRetrieval(implicit request: Request[Unit]): String => Option[Result] = nino => {
     def jsonBreathingSpaceIndicator(hasIndicator: Boolean) = Json.obj("breathingSpaceIndicator" -> hasIndicator)
     nino.take(8) match {
-      case "AS000001" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = false)))
+      case "AS000001" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
       case "AS000002" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = false)))
       case "AA000333" => Some(createResult(OK, jsonBreathingSpaceIndicator(hasIndicator = true)))
       case "AS000003" => Some(createResult(UNPROCESSABLE_ENTITY, failures("UNKNOWN_DATA_ITEM")))
