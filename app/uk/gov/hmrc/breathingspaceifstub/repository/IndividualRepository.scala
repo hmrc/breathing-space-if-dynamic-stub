@@ -20,7 +20,6 @@ import cats.implicits.catsSyntaxOptionId
 import com.mongodb.client.model.Filters
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
-import org.mongodb.scala.{ObservableFuture, SingleObservableFuture}
 import uk.gov.hmrc.breathingspaceifstub.*
 import uk.gov.hmrc.breathingspaceifstub.model.*
 import uk.gov.hmrc.breathingspaceifstub.model.BaseError.*
