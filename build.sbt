@@ -49,8 +49,7 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:msg=unused&src=.*Routes\\.scala:s",
       "-Wconf:msg=unused&src=.*ReverseRoutes\\.scala:s",
       "-Wconf:msg=Flag.*repeatedly:s"
-    ),
-    resolvers += Resolver.jcenterRepo
+    )
   )
 
 Test / fork := true
