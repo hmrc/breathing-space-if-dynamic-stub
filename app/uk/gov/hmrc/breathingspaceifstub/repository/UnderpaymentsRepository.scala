@@ -17,7 +17,6 @@
 package uk.gov.hmrc.breathingspaceifstub.repository
 
 import com.mongodb.client.model.Filters
-import org.mongodb.scala.ObservableFuture
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.InsertOneModel
 import uk.gov.hmrc.breathingspaceifstub.AsyncResponse
