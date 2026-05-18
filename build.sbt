@@ -12,7 +12,7 @@ val silencerVersion = "1.7.1"
 lazy val scoverageSettings = {
   val ScoverageExclusionPatterns = List(
     "<empty>",
-    "uk\\.gov\\.hmrc\\.breathingspaceifproxy\\.views\\..*",
+    "uk\\.gov\\.hmrc\\.breathingspaceifstub\\.views\\..*",
     ".*(Reverse|AuthService|BuildInfo|Routes).*"
   )
 
@@ -25,7 +25,7 @@ lazy val scoverageSettings = {
 }
 
 ThisBuild / majorVersion := 2
-ThisBuild / scalaVersion := "3.3.4"
+ThisBuild / scalaVersion := "3.3.6"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val microservice = Project(appName, file("."))
